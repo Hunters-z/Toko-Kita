@@ -1,4 +1,5 @@
 export default {
+  darkMode: 'class',
   content: ['./index.html','./src/**/*.{js,jsx}'],
   theme: { extend: {
     colors: {
@@ -19,6 +20,7 @@ export default {
     fontFamily: { disp:['Sora','sans-serif'], body:['"Plus Jakarta Sans"','sans-serif'] },
     boxShadow: { soft:'0 2px 12px rgba(16,19,26,.06)', pop:'0 10px 30px rgba(37,99,235,.18)' },
     borderRadius: { xl2:'20px' },
+    borderColor: ({ theme }) => ({ ...theme('colors'), DEFAULT: theme('colors.line') }),
   } },
-  plugins: []
+  plugins: [require('tailwindcss-animate')],
 }
