@@ -13,10 +13,12 @@ import Attendance from './pages/Attendance.jsx'
 import Purchases from './pages/Purchases.jsx'
 import Bundles from './pages/Bundles.jsx'
 import SettingsPage from './pages/Settings.jsx'
+import { Toaster } from './components/ui/use-toast.jsx'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route element={<Layout/>}>
         <Route path="/" element={<Dashboard/>}/>
         <Route path="/pos" element={<POS/>}/>
@@ -33,5 +35,7 @@ export default function App() {
         <Route path="/pengaturan" element={<SettingsPage/>}/>
       </Route>
     </Routes>
+    <Toaster />
+    </>
   )
 }

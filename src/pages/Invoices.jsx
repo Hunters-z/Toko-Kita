@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
 import { Input } from './Inventory.jsx'
+import { toast } from '../components/ui/use-toast.jsx'
 
 export default function Invoices() {
   const [db, setDb] = useState(loadDB())
@@ -11,8 +12,9 @@ export default function Invoices() {
     const inv = { id:'INV-'+String(db.invoices.length+1).padStart(4,'0'), ...form, total:+form.total, status:'Menunggu', at:new Date().toLocaleDateString('id-ID') }
     const next = {...db, invoices:[inv, ...db.invoices]}
     saveDB(next); setDb(next); setForm({customer:'', desc:'', total:''})
+    toast({ title: `Invoice ${inv.id} diterbitkan`, description: `${inv.customer} · ${rp(inv.total)}` })
   }
-  const markPaid = id => { const next={...db, invoices:db.invoices.map(i=>i.id===id?{...i,status:'Dibayar'}:i)}; saveDB(next); setDb(next) }
+  const markPaid = id => { const next={...db, invoices:db.invoices.map(i=>i.id===id?{...i,status:'Dibayar'}:i)}; saveDB(next); setDb(next); toast({ title: `Invoice ${id} ditandai dibayar` }) }
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="font-disp text-lg md:text-xl font-extrabold mb-6">Invoice</h1>

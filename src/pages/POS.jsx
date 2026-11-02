@@ -49,6 +49,7 @@ export default function POS() {
     const tx = { id: uid('t'), date: new Date().toISOString(), items: cart.map(l=>({name:l.p.name, qty:l.qty, price:effPrice(l.p), disc:l.p.discount||0})), sub, disc, tax, total, method }
     const db2 = {...db, products: prods, txs: [...db.txs, tx], payments: [...db.payments, {txId:tx.id, method, paid:Number(paid)||total, change}] }
     saveDB(db2); setDb(db2); setDone({tx, change, paid:Number(paid)||total}); setCart([]); setPaid('')
+    toast({ title: 'Transaksi berhasil', description: `${tx.items.length} item · ${rp(total)}` })
   }
   const newSale = () => setDone(null)
 
