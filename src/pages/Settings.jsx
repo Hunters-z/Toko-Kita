@@ -34,6 +34,10 @@ export default function Settings() {
             <div onClick={()=>set('ppnOn',!db.settings?.ppnOn)} className={'sw '+(db.settings?.ppnOn?'on':'')}><i/></div>
             <div><b className="text-[14px]">PPN 11%</b><div className="text-[12px] text-inksoft">Tambahkan pajak di Kasir</div></div>
           </label>
+          <div>
+            <label className="text-[11px] text-inksoft font-semibold block mb-1">Jam mulai shift (absensi)</label>
+            <Input type="time" value={db.settings?.shiftStart||'08:00'} onChange={e=>set('shiftStart',e.target.value)} className="w-32"/>
+          </div>
         </div>
       </Card>
       <Card title="Data">
