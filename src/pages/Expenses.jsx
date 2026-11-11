@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
 
 const CATS = ['Gaji','Sewa','Listrik & Air','Transport','Bahan baku','Lain-lain']
@@ -24,7 +26,7 @@ export default function Expenses() {
               {CATS.map(c=><option key={c}>{c}</option>)}
             </select></label>
           <Input label="Jumlah (Rp)" type="number" value={form.amount} onChange={v=>setForm({...form,amount:v})} required/>
-          <button className="btn-primary text-[13px] px-4 py-2.5">Catat</button>
+          <Button size="sm" type="submit">Catat</Button>
         </form>
       </Card>
       <div className="card p-5 mt-4">

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp, uid } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 
 export default function Purchases() {
   const [db, setDb] = useState(loadDB())
@@ -34,8 +36,8 @@ export default function Purchases() {
               {db.suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
-          <button onClick={addLine} className="btn-ghost text-[13px] px-4 py-2.5">+ Barang</button>
-          <button onClick={save} disabled={!lines.length} className="btn-primary text-[13px] px-5 py-2.5 disabled:opacity-40">Simpan ({rp(lines.reduce((s,l)=>s+l.qty*l.cost,0))})</button>
+          <Button size="sm" variant="secondary" onClick={addLine}>+ Barang</Button>
+          <Button size="sm" onClick={save} disabled={!lines.length}>Simpan ({rp(lines.reduce((s,l)=>s+l.qty*l.cost,0))})</Button>
         </div>
         {lines.map((l,i)=>(
           <div key={i} className="flex flex-wrap gap-2 items-end mb-2">

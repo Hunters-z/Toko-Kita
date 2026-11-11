@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — POS (mockup shadcn dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111111; --card:#1A1D24; --fg:#F5F5F5; --muted:#9BA1AD;
+  --border:rgba(255,255,255,.08); --primary:#F97316; --success:#16A34A;
+  --warning:#D97706; --danger:#DC2626; --radius:20px; --ctrl:12px;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px}
+h1,h2,.num{font-family:Sora,sans-serif}
+.num{font-variant-numeric:tabular-nums}
+.shell{display:flex;min-height:100vh}
+/* sidebar pill nav */
+.side{width:232px;padding:20px 16px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:16px}
+.logo{width:34px;height:34px;border-radius:12px;background:var(--primary);color:#fff;display:grid;place-items:center;font-family:Sora;font-weight:700}
+.brand b{font-family:Sora}.brand span{color:var(--primary)}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;color:var(--muted);text-decoration:none;font-weight:500;margin-bottom:2px}
+.nav a.on{background:#fff;color:#111}
+.nav a:not(.on):hover{background:rgba(255,255,255,.06);color:var(--fg)}
+main{flex:1;padding:20px 24px;max-width:1200px}
+/* header pill */
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 20px;margin-bottom:24px}
+.search{flex:1;color:var(--muted);display:flex;gap:8px;align-items:center;font-size:13px;margin:0 16px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--secondary,#262B33);display:grid;place-items:center;font-weight:600;color:var(--primary)}
+/* page header */
+.pagehead{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px}
+.pagehead h1{font-size:24px}
+.pagehead p{color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:var(--ctrl);padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
+/* stat hero */
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.stat .big{font-size:34px;font-weight:700}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;border:1px solid}
+.badge.green{background:rgba(22,163,74,.1);color:#4ADE80;border-color:rgba(22,163,74,.3)}
+.badge.amber{background:rgba(217,119,6,.12);color:#FBBF24;border-color:rgba(217,119,6,.3)}
+.badge.red{background:rgba(220,38,38,.12);color:#F87171;border-color:rgba(220,38,38,.3)}
+.badge.dim{background:rgba(255,255,255,.05);color:var(--muted);border-color:var(--border)}
+/* layout POS */
+.pos{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.panel h2{font-size:15px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);background:rgba(255,255,255,.05);cursor:pointer}
+.tab.on{background:var(--primary);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.prod{border:1px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;background:rgba(255,255,255,.02)}
+.prod:hover{border-color:rgba(249,115,22,.5)}
+.prod .nm{font-weight:600;font-size:13px;margin:8px 0 2px}
+.prod .pr{color:var(--muted);font-size:12px}
+.emoji{font-size:22px}
+/* cart */
+.cart{position:sticky;top:20px}
+.ci{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ci .nm{flex:1;font-size:13px}.ci .sm{color:var(--muted);font-size:12px}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:24px;height:24px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--fg);cursor:pointer}
+.tot{display:flex;justify-content:space-between;padding:8px 0;color:var(--muted);font-size:13px}
+.tot.grand{color:var(--fg);font-size:18px;font-weight:700;border-top:1px solid var(--border);margin-top:8px;padding-top:14px}
+.pay{width:100%;margin-top:12px;padding:14px;font-size:15px;border-radius:14px}
+.spark{stroke:var(--success);fill:none;stroke-width:2}
+@media(max-width:900px){.side{display:none}.pos{grid-template-columns:1fr}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><div class="logo">T</div><b>Toko<span>Kita</span></b></div>
+    <nav class="nav">
+      <a class="on" href="#">🏠 Toko / POS</a>
+      <a href="#">📦 Inventori</a>
+      <a href="#">🧾 Invoice</a>
+      <a href="#">👥 Pelanggan</a>
+      <a href="#">📊 Laporan</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <b>Toko<span style="color:var(--primary)">Kita</span></b>
+      <div class="search">🔍 Cari produk, pelanggan… <span style="margin-left:auto;border:1px solid var(--border);border-radius:8px;padding:2px 8px;font-size:11px">Ctrl K</span></div>
+      <div class="avatar">RD</div>
+    </div>
+    <div class="pagehead">
+      <div><h1>Toko / POS</h1><p>Kasir · Senin, 11 Nov 2026</p></div>
+      <button class="btn ghost">Riwayat Transaksi</button>
+    </div>
+    <div class="stat">
+      <div>
+        <div style="color:var(--muted);font-size:13px">Penjualan hari ini</div>
+        <div class="big num">Rp 2.450.000</div>
+        <div style="margin-top:6px"><span class="badge green">▲ +12,4%</span> <span class="badge dim">18 transaksi</span></div>
+      </div>
+      <svg width="140" height="48" viewBox="0 0 140 48"><polyline class="spark" points="0,40 20,34 40,36 60,24 80,28 100,16 120,20 140,8"/></svg>
+    </div>
+    <div class="pos">
+      <section class="panel">
+        <h2>Pilih Produk <span class="badge dim">32 item</span></h2>
+        <div class="tabs">
+          <span class="tab on">Semua</span><span class="tab">Minuman</span><span class="tab">Makanan</span><span class="tab">Sembako</span><span class="tab">Rokok</span>
+        </div>
+        <div class="grid">
+          <div class="prod"><span class="emoji">☕</span><div class="nm">Kopi Sachet</div><div class="pr num">Rp 2.500</div><span class="badge green" style="margin-top:6px">Tersedia</span></div>
+          <div class="prod"><span class="emoji">🍚</span><div class="nm">Beras 5kg</div><div class="pr num">Rp 68.000</div><span class="badge green" style="margin-top:6px">Tersedia</span></div>
+          <div class="prod"><span class="emoji">🥤</span><div class="nm">Teh Botol</div><div class="pr num">Rp 5.000</div><span class="badge amber" style="margin-top:6px">Menipis</span></div>
+          <div class="prod" style="opacity:.45"><span class="emoji">🍜</span><div class="nm">Mie Instan</div><div class="pr num">Rp 3.500</div><span class="badge red" style="margin-top:6px">Habis</span></div>
+          <div class="prod"><span class="emoji">🥛</span><div class="nm">Susu UHT 1L</div><div class="pr num">Rp 18.500</div><span class="badge green" style="margin-top:6px">Tersedia</span></div>
+          <div class="prod"><span class="emoji">🧂</span><div class="nm">Gula 1kg</div><div class="pr num">Rp 15.000</div><span class="badge green" style="margin-top:6px">Tersedia</span></div>
+        </div>
+      </section>
+      <aside class="panel cart">
+        <h2>Keranjang <span class="badge dim">4 item</span></h2>
+        <div class="ci"><div><div class="nm">Kopi Sachet</div><div class="sm num">Rp 2.500 × 3</div></div><div class="qty"><button>−</button><b class="num">3</b><button>+</button></div></div>
+        <div class="ci"><div><div class="nm">Beras 5kg</div><div class="sm num">Rp 68.000 × 1</div></div><div class="qty"><button>−</button><b class="num">1</b><button>+</button></div></div>
+        <div class="ci"><div><div class="nm">Teh Botol</div><div class="sm num">Rp 5.000 × 2</div></div><div class="qty"><button>−</button><b class="num">2</b><button>+</button></div></div>
+        <div class="ci" style="border:0"><div><div class="nm">Susu UHT 1L</div><div class="sm num">Rp 18.500 × 1</div></div><div class="qty"><button>−</button><b class="num">1</b><button>+</button></div></div>
+        <div class="tot"><span>Subtotal</span><span class="num">Rp 101.500</span></div>
+        <div class="tot"><span>Diskon</span><span class="num">− Rp 1.500</span></div>
+        <div class="tot grand"><span>Total</span><span class="num">Rp 100.000</span></div>
+        <button class="btn primary pay num">Bayar · Rp 100.000</button>
+      </aside>
+    </div>
+  </main>
+</div>
+</body>
+</html>

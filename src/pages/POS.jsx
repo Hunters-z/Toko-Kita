@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react'
 import { loadDB, saveDB, rp, effPrice, uid } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
+import { Input } from '@/components/ui/input.jsx'
 
 const METHODS = [['cash','💵 Tunai'],['qris','📱 QRIS'],['transfer','🏦 Transfer'],['debit','💳 Debit']]
 
@@ -68,7 +71,7 @@ export default function POS() {
           <div className="flex justify-between text-inksoft"><span>Bayar ({done.tx.method})</span><span>{rp(done.paid)}</span></div>
           {done.tx.method==='cash' && <div className="flex justify-between"><span>Kembalian</span><b className="text-lime">{rp(done.change)}</b></div>}
         </div>
-        <button onClick={newSale} className="btn-primary px-6 py-3 text-[14px]">Transaksi baru</button>
+        <Button onClick={newSale} className="px-6 h-12 text-[14px]">Transaksi baru</Button>
       </div>
     </div>
   )
@@ -85,7 +88,7 @@ export default function POS() {
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4">
         {/* katalog */}
         <div>
-          <input className="inp mb-3" placeholder="🔍 Cari produk…" value={q} onChange={e=>setQ(e.target.value)}/>
+          <Input className="mb-3 h-10" placeholder="🔍 Cari produk…" value={q} onChange={e=>setQ(e.target.value)}/>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {list.map(p => (
               <button key={p.id} onClick={()=>addP(p)} className="card p-3.5 text-left hover:shadow-pop transition-shadow relative">
@@ -130,13 +133,13 @@ export default function POS() {
               ))}
             </div>
             {method==='cash' && <>
-              <input className="inp mt-2.5" type="number" placeholder="Uang diterima" value={paid} onChange={e=>setPaid(e.target.value)}/>
+              <Input className="mt-2.5" type="number" placeholder="Uang diterima" value={paid} onChange={e=>setPaid(e.target.value)}/>
               {Number(paid)>0 && <div className="text-right text-[12.5px] mt-1">Kembalian: <b className={(change>=0?'text-lime':'text-coral')}>{rp(Math.abs(change))}{change<0?' kurang':''}</b></div>}
             </>}
-            <button onClick={checkout} disabled={method==='cash' && (Number(paid)||0)<total}
-              className="btn-primary w-full py-3 mt-3 text-[14px] disabled:opacity-40">
+            <Button onClick={checkout} disabled={method==='cash' && (Number(paid)||0)<total}
+              className="w-full h-12 mt-3 text-[14px]">
               Bayar {rp(total)}
-            </button>
+            </Button>
           </>}
         </div>
       </div>
