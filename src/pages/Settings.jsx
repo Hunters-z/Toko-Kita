@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import { loadDB, saveDB, resetDB } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
-import { Button } from '@/components/ui/button.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { Input } from '@/components/ui/input.jsx'
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '../components/ui/alert-dialog.jsx'
 
 export default function Settings() {
   const [db, setDb] = useState(loadDB())
   const [msg, setMsg] = useState('')
   const set = (k,v) => { const s={...db.settings,[k]:v}; const d={...db,settings:s}; saveDB(d); setDb(d) }
   const flash = t => { setMsg(t); setTimeout(()=>setMsg(''),2000) }
+  const doReset = () => { resetDB(); location.reload() }
   const exportJson = () => {
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}))
@@ -39,9 +38,23 @@ export default function Settings() {
       </Card>
       <Card title="Data">
         <div className="flex flex-wrap gap-2.5">
-          <Button size="sm" onClick={exportJson}>⬇ Backup data</Button>
-          <label className="inline-flex h-8 cursor-pointer items-center rounded-full bg-secondary px-3 text-xs font-semibold text-ink">⬆ Pulihkan backup<input type="file" accept=".json" onChange={importJson} className="hidden"/></label>
-          <button onClick={()=>{if(confirm('Hapus SEMUA data dan kembali ke contoh?')){resetDB(); location.reload()}}} className="text-coral text-[13px] font-semibold px-4 py-2">Reset total</button>
+          <button onClick={exportJson} className="btn-primary text-[13px] px-5 py-2.5">⬇ Backup data</button>
+          <label className="btn-ghost text-[13px] px-5 py-2.5 cursor-pointer">⬆ Pulihkan backup<input type="file" accept=".json" onChange={importJson} className="hidden"/></label>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="text-coral text-[13px] font-semibold px-4 py-2.5">Reset total</button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Reset total?</AlertDialogTitle>
+                <AlertDialogDescription>Semua data toko akan dihapus dan diganti dengan data contoh. Tindakan ini tidak bisa dibatalkan.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive hover:bg-destructive/90 text-white" onClick={doReset}>Ya, reset</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
         <p className="text-[11.5px] text-dim mt-3">Data tersimpan lokal di perangkat ini (localStorage). Backup rutin disarankan.</p>
       </Card>
