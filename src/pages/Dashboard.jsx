@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { loadDB, rp } from '../lib/store.js'
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
+import { Card as ShadCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card.jsx'
 
 export default function Dashboard() {
   const [db, setDb] = useState(null)
@@ -21,10 +24,10 @@ export default function Dashboard() {
             <div className="text-[12px] text-inksoft font-semibold uppercase tracking-wider">Total Laba Bersih</div>
             <div className="flex items-center gap-3 mt-1">
               <span className="font-disp text-3xl md:text-4xl font-extrabold text-ink">{rp(sales)}</span>
-              <span className="pill bg-lime-soft text-lime">↗ {growth}</span>
+              <Badge variant="success">↗ {growth}</Badge>
             </div>
           </div>
-          <Link to="/pos" className="btn-primary ml-auto text-[13px] px-5 py-3">🛒 Buka Kasir</Link>
+          <Button asChild className="ml-auto"><Link to="/pos">🛒 Buka Kasir</Link></Button>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Mini color="#2563EB" label="Penjualan" value={rp(sales)} note={`${db.txs.length} transaksi`} />
@@ -79,5 +82,10 @@ function Mini({color,label,value,note}) {
   </div>
 }
 export function Card({title, children}) {
-  return <div className="card p-5"><h3 className="font-disp font-bold text-[15px] mb-3">{title}</h3>{children}</div>
+  return (
+    <ShadCard>
+      <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
+      <CardContent>{children}</CardContent>
+    </ShadCard>
+  )
 }

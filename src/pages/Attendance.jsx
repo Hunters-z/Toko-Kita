@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB } from '../lib/store.js'
 import { verifyFingerprint, verifyPin } from '../lib/auth.js'
+import { Button } from '@/components/ui/button.jsx'
+import { Input } from '@/components/ui/input.jsx'
 
 export default function Attendance() {
   const [db, setDb] = useState(loadDB())
@@ -56,14 +58,14 @@ export default function Attendance() {
 
         {msg && <div className={`mb-4 text-center text-[13px] font-bold p-3 rounded-xl ${msg.ok?'bg-mint-soft text-emerald-700':'bg-coral-soft text-red-700'}`}>{msg.text}</div>}
 
-        <button onClick={withFingerprint} disabled={!emp} className="btn-primary w-full py-4 text-[15px] mb-3 disabled:opacity-40">👆 Absen dengan Fingerprint</button>
+        <Button onClick={withFingerprint} disabled={!emp} className="w-full h-12 text-[15px] mb-3">👆 Absen dengan Fingerprint</Button>
 
         <div className="flex items-center gap-3 text-[11px] text-inksoft mb-3"><div className="flex-1 border-t border-line"/>atau PIN<div className="flex-1 border-t border-line"/></div>
 
         <form onSubmit={withPin} className="flex gap-2">
           <input type="password" inputMode="numeric" value={pin} onChange={e=>setPin(e.target.value)} placeholder="PIN"
-            className="flex-1 border border-line rounded-xl px-3.5 py-2.5 text-center text-lg tracking-widest"/>
-          <button className="btn-primary px-5">Absen</button>
+            className="flex-1 h-12 text-center text-lg tracking-widest"/>
+          <Button type="submit" className="px-5">Absen</Button>
         </form>
       </div>
       <p className="text-[11.5px] text-inksoft mt-3 text-center">Fingerprint memakai sensor perangkat (WebAuthn) — PIN dicocokkan per pegawai.</p>

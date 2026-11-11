@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
 
 export default function Suppliers() {
@@ -19,7 +21,7 @@ export default function Suppliers() {
           <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
           <Input label="Telepon" value={form.phone} onChange={v=>setForm({...form,phone:v})}/>
           <Input label="Barang utama" value={form.item} onChange={v=>setForm({...form,item:v})}/>
-          <button className="btn-primary text-[13px] px-4 py-2.5">Simpan</button>
+          <Button size="sm" type="submit">Simpan</Button>
         </form>
       </Card>
       <div className="grid md:grid-cols-3 gap-3.5 mt-4">

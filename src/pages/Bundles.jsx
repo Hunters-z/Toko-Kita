@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp, uid } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
 
 export default function Bundles() {
@@ -43,7 +45,7 @@ export default function Bundles() {
             </span>
           ))}
         </div>
-        <button onClick={add} className="btn-primary text-[13px] px-5 py-2.5">Produksi</button>
+        <Button size="sm" onClick={add}>Produksi</Button>
       </Card>
       <Card title="Paket aktif (muncul di Kasir)">
         {!db.bundles.length && <p className="text-inksoft text-[13px]">Belum ada paket.</p>}

@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
+import { Label } from '@/components/ui/label.jsx'
+import { Input as ShadInput } from '@/components/ui/input.jsx'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table.jsx'
 // Palette v0.2: ocean/navy
 
 export default function Inventory() {
@@ -15,20 +20,23 @@ export default function Inventory() {
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="font-disp text-lg md:text-xl font-extrabold mb-6">Inventori</h1>
       <Card title="Daftar produk">
-        <table className="w-full text-[13px]">
-          <thead><tr className="text-left text-inksoft text-[11.5px] uppercase tracking-wide">
-            <th className="py-2 font-semibold">Produk</th><th className="font-semibold">Harga</th><th className="font-semibold">Stok</th><th className="font-semibold">Status</th></tr></thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Produk</TableHead><TableHead>Harga</TableHead><TableHead>Stok</TableHead><TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {db.products.map(p => (
-              <tr key={p.id} className="border-t border-[#EEF1EB]">
-                <td className="py-2.5">{p.emoji} <b>{p.name}</b></td>
-                <td>{rp(p.price)}</td>
-                <td>{p.stock}</td>
-                <td>{p.stock<=p.minStock ? <span className="pill bg-coral-soft text-red-700">Restock</span> : <span className="pill bg-mint-soft text-emerald-700">Aman</span>}</td>
-              </tr>
+              <TableRow key={p.id}>
+                <TableCell>{p.emoji} <b>{p.name}</b></TableCell>
+                <TableCell>{rp(p.price)}</TableCell>
+                <TableCell>{p.stock}</TableCell>
+                <TableCell>{p.stock<=p.minStock ? <Badge variant="destructive">Restock</Badge> : <Badge variant="success">Aman</Badge>}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </Card>
       <form onSubmit={add} className="mt-4 bg-white border border-line rounded-2xl p-5 flex flex-wrap gap-2.5 items-end">
         <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
@@ -36,12 +44,16 @@ export default function Inventory() {
         <Input label="Harga" type="number" value={form.price} onChange={v=>setForm({...form,price:v})} required/>
         <Input label="Stok" type="number" value={form.stock} onChange={v=>setForm({...form,stock:v})} required/>
         <Input label="Min. stok" type="number" value={form.minStock} onChange={v=>setForm({...form,minStock:v})}/>
-        <button className="btn-primary text-[13px] px-4 py-2.5">Tambah produk</button>
+        <Button size="sm" type="submit">Tambah produk</Button>
       </form>
     </div>
   )
 }
 export function Input({label,...props}) {
-  return <label className="flex flex-col gap-1 text-[11.5px] font-semibold text-inksoft"> {label}
-    <input {...props} className="border border-line rounded-[9px] px-3 py-2 text-[13px] font-normal text-ink w-36 focus:outline-teal"/></label>
+  return (
+    <label className="flex flex-col gap-1">
+      <Label>{label}</Label>
+      <ShadInput className="w-36 h-9 text-[13px]" {...props}/>
+    </label>
+  )
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { loadDB, saveDB } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
 import { registerFingerprint } from '../lib/auth.js'
 
@@ -40,8 +42,8 @@ export default function Employees() {
                 {att ? <span className="pill bg-mint-soft text-emerald-700">Hadir {new Date(att.in).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}</span>
                      : <span className="pill bg-amber-soft text-amber-700">Belum absen</span>}
                 {emp.credId ? <span className="pill bg-ocean-soft text-ocean-ink">👆 Biometrik aktif</span>
-                     : <button onClick={()=>enroll(emp)} className="pill bg-paper border border-line font-bold hover:border-ocean">Daftar fingerprint</button>}
-                <button onClick={()=>del(emp.id)} className="pill bg-coral-soft text-red-700 font-bold hover:opacity-80">Hapus</button>
+                     : <Button size="sm" variant="outline" className="rounded-full text-[11px] h-7" onClick={()=>enroll(emp)}>Daftar fingerprint</Button>}
+                <Button size="sm" variant="destructive" className="rounded-full text-[11px] h-7" onClick={()=>del(emp.id)}>Hapus</Button>
               </div>
             </div>
           )
@@ -51,7 +53,7 @@ export default function Employees() {
         <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
         <Input label="Jabatan" value={form.role} onChange={v=>setForm({...form,role:v})}/>
         <Input label="PIN absen" value={form.pin} onChange={v=>setForm({...form,pin:v})} required/>
-        <button className="btn-primary text-[13px] px-4 py-2.5">Tambah pegawai</button>
+        <Button size="sm" type="submit">Tambah pegawai</Button>
       </form>
       <div className="mt-4 card p-5">
         <h3 className="font-disp font-bold text-[14.5px] mb-3">Riwayat absensi terbaru</h3>

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Button } from '@/components/ui/button.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
 
 export default function Invoices() {
@@ -21,7 +23,7 @@ export default function Invoices() {
           <Input label="Pelanggan" value={form.customer} onChange={v=>setForm({...form,customer:v})} required/>
           <Input label="Keterangan" value={form.desc} onChange={v=>setForm({...form,desc:v})}/>
           <Input label="Total (Rp)" type="number" value={form.total} onChange={v=>setForm({...form,total:v})} required/>
-          <button className="btn-primary text-[13px] px-4 py-2.5">Terbitkan</button>
+          <Button size="sm" type="submit">Terbitkan</Button>
         </form>
       </Card>
       <div className="mt-4 bg-white border border-line rounded-2xl p-5">
@@ -33,7 +35,7 @@ export default function Invoices() {
             <span className="text-inksoft text-[12px]">{i.desc}</span>
             <b className="ml-auto">{rp(i.total)}</b>
             {i.status==='Dibayar' ? <span className="pill bg-mint-soft text-emerald-700">Dibayar</span>
-              : <button onClick={()=>markPaid(i.id)} className="pill bg-amber-soft text-amber-700 font-bold hover:opacity-80">Tandai dibayar</button>}
+              : <button onClick={()=>markPaid(i.id)} className="pill bg-gold-soft text-gold font-bold hover:opacity-80">Tandai dibayar</button>}
           </div>
         ))}
       </div>

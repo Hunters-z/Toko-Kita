@@ -3,7 +3,38 @@
 @tailwind components;
 @tailwind utilities;
 
-body { background:#F4F6FA; color:#10131A; font-family:'Plus Jakarta Sans',sans-serif; }
+/* shadcn CSS variables — dipetakan ke palet FinPoint (light premium, aksen biru #2563EB) */
+@layer base {
+  :root {
+    --background: 224 41% 97%;        /* #F4F6FA */
+    --foreground: 221 26% 8%;         /* #10131A */
+    --card: 0 0% 100%;
+    --card-foreground: 221 26% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 26% 8%;
+    --primary: 221 83% 53%;           /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 224 37% 96%;         /* #F1F3F8 */
+    --secondary-foreground: 221 26% 8%;
+    --muted: 224 37% 96%;
+    --muted-foreground: 217 9% 40%;   /* #5C6470 */
+    --accent: 220 74% 96%;            /* #EAF0FE */
+    --accent-foreground: 221 83% 53%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 30% 92%;            /* #E6E9F0 */
+    --input: 222 30% 92%;
+    --ring: 221 83% 53%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+body { font-family:'Plus Jakarta Sans',sans-serif; }
 h1,h2,h3 { font-family:'Sora',sans-serif; }
 
 .card { background:#FFFFFF; border-radius:20px; box-shadow:0 2px 12px rgba(16,19,26,.06); }
