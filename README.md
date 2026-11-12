@@ -128,6 +128,9 @@ Untuk saat ini kamu juga bisa memakai Sheet sebagai sumber data untuk:
 - [x] Backup/pulihkan JSON
 - [x] **UI shadcn/ui dark premium + ikon minimalis Lucide**
 - [x] **Absensi v2: login per pegawai (username+PIN), selfie kamera wajib, cek radius lokasi GPS, riwayat foto + Google Maps**
+- [x] **Halaman login terpisah Admin vs Karyawan**
+- [x] **Role Access: role Kasir dapat POS/Kasir, Karyawan non-kasir dapat Absen, Izin/Cuti, Slip Gaji, Profil**
+- [ ] Approval Izin/Cuti & slip gaji PDF otomatis — roadmap Q4
 - [x] **Halaman web Apps Script (dashboard `?page=ui`)**
 - [x] Notifikasi stok menipis (Dashboard + toast POS)
 - [x] Ringkasan harian/mingguan di Dashboard

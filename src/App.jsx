@@ -20,6 +20,8 @@ import SettingsPage from './pages/Settings.jsx'
 import KaryawanAbsen from './pages/KaryawanAbsen.jsx'
 import KaryawanRiwayat from './pages/KaryawanRiwayat.jsx'
 import KaryawanProfil from './pages/KaryawanProfil.jsx'
+import KaryawanPOS from './pages/KaryawanPOS.jsx'
+import ComingSoon from './pages/ComingSoon.jsx'
 import { Toaster } from './components/ui/toaster.jsx'
 
 const Protected = ({ role, children }) => {
@@ -62,6 +64,9 @@ export default function App() {
            <Route path="absen" element={<KaryawanAbsen session={pegawai}/>}/>
            <Route path="riwayat" element={<KaryawanRiwayat session={pegawai}/>}/>
            <Route path="profil" element={<KaryawanProfil session={pegawai}/>}/>
+           <Route path="pos" element={<KaryawanPOS/>}/>
+           <Route path="izin" element={<ComingSoon title="Izin / Cuti"/>}/>
+           <Route path="gaji" element={<ComingSoon title="Slip Gaji"/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to={admin ? '/' : pegawai ? '/karyawan/absen' : '/login'} replace />} />
