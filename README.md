@@ -1,17 +1,17 @@
 # Toko Kita 🏪
 
-ERP + kasir lengkap untuk UMKM Indonesia — **ringan, tanpa server, gratis**. Alternatif simpel Odoo, dibuat dengan React + Vite + Tailwind.
+ERP + kasir lengkap untuk UMKM Indonesia — **ringan, tanpa server, gratis**. Alternatif simpel Odoo, dibuat dengan React + Vite + Tailwind + **shadcn/ui**.
 
-![UI](https://img.shields.io/badge/UI-light%20premium-2563EB) ![bundle](https://img.shields.io/badge/bundle-~13%20KB-16A34A) ![license](https://img.shields.io/badge/license-MIT-black)
+![UI](https://img.shields.io/badge/UI-dark%20premium-F97316) ![bundle](https://img.shields.io/badge/bundle-gzip%20~75KB-16A34A) ![license](https://img.shields.io/badge/license-MIT-black)
 
----
+> 🎨 **Desain baru**: dark premium ala FinPoint — hitam #111, kartu radius 20px, aksen oranye, badge hijau, font Sora + Plus Jakarta Sans, semua ikon minimalis Lucide (tanpa emoji).
 
 ## ✨ Fitur
 
 **Penjualan**
-- 🛒 **Kasir (POS)** — katalog + pencarian cepat, keranjang, **diskon per produk otomatis**, **PPN 11% (bisa on/off)**, **4 metode bayar** (Tunai / QRIS / Transfer / Debit), hitung **kembalian**, struk ringkas setelah bayar
+- 🛒 **Kasir (POS)** — katalog + pencarian cepat, keranjang, **diskon per produk otomatis**, **PPN 11% (bisa on/off)**, **4 metode bayar** (Tunai / QRIS / Transfer / Debit), hitung **kembalian**, struk ringkas setelah bayar, **toast peringatan stok menipis/habis real-time**
 - 🧾 **Invoice** — terbitkan invoice, status Dibayar / DP / Belum, piutang terlacak
-- 📦 **Inventori** — stok real-time, peringatan stok menipis, atur diskon produk
+- 📦 **Inventori** — stok real-time, **panel stok menipis di Dashboard**, atur diskon produk
 - 🎁 **Produksi & Paket** — gabungkan produk jadi 1 paket (mis. Hampers Kopi+Teh); komponen **otomatis keluar dari stok**; paket langsung muncul di Kasir
 
 **Pembelian & Relasi**
@@ -21,11 +21,12 @@ ERP + kasir lengkap untuk UMKM Indonesia — **ringan, tanpa server, gratis**. A
 
 **Keuangan & SDM**
 - 💸 **Pengeluaran** — kategori + total
-- 📊 **Laporan** — pendapatan vs pengeluaran, laba kas, piutang, produk terlaris (grafik), kehadiran harian
-- 🧑‍💼 **Pegawai & Absen** — akun pegawai, absen masuk/pulang dengan **fingerprint WebAuthn + fallback PIN**
+- 📊 **Laporan** — pendapatan vs pengeluaran, laba kas, piutang, produk terlaris (grafik), kehadiran harian; **ringkasan harian/mingguan (omzet, laba kotor, jumlah transaksi) di Dashboard**
+- 🧑‍💼 **Pegawai** — akun pegawai dengan **username + PIN** untuk login
+- 📅 **Absensi pegawai v2** — login per pegawai, absen masuk/pulang dengan **foto selfie kamera wajib** (fallback upload) + **lokasi GPS**: dicatat dalam/luar radius kantor (koordinat + radius diatur admin), riwayat dengan thumbnail + link Google Maps; fingerprint WebAuthn + fallback PIN tetap tersedia
 
 **Lainnya**
-- ⚙️ **Pengaturan** — nama toko, PPN, **backup & pulihkan data (JSON)**, reset
+- ⚙️ **Pengaturan** — nama toko, PPN, jam mulai shift, **lokasi & radius absensi**, **backup & pulihkan data (JSON)**, reset
 - 📱 **Responsif penuh** — desktop, tablet, HP (bottom-nav mengambang ala aplikasi native)
 - 💾 **Tanpa server** — data tersimpan lokal di perangkat (localStorage)
 
@@ -125,6 +126,12 @@ Untuk saat ini kamu juga bisa memakai Sheet sebagai sumber data untuk:
 - [x] Diskon per produk
 - [x] Absen WebAuthn (fingerprint) + PIN
 - [x] Backup/pulihkan JSON
+- [x] **UI shadcn/ui dark premium + ikon minimalis Lucide**
+- [x] **Absensi v2: login per pegawai (username+PIN), selfie kamera wajib, cek radius lokasi GPS, riwayat foto + Google Maps**
+- [x] **Halaman web Apps Script (dashboard `?page=ui`)**
+- [x] Notifikasi stok menipis (Dashboard + toast POS)
+- [x] Ringkasan harian/mingguan di Dashboard
+- [ ] **Pisah halaman login & akses Admin vs Karyawan** (sedang dikerjakan)
 - [ ] Sinkron dua arah Google Sheets dari UI
 - [ ] Cetak struk thermal (ESC/POS)
 - [ ] Multi-outlet & multi-kasir
@@ -133,7 +140,7 @@ Untuk saat ini kamu juga bisa memakai Sheet sebagai sumber data untuk:
 ---
 
 ## 🧱 Teknologi
-React 18 · Vite · Tailwind CSS · Recharts · WebAuthn API · localStorage / Google Sheets
+React 18 · Vite · Tailwind CSS · **shadcn/ui (Radix)** · Recharts · Lucide Icons · WebAuthn API · localStorage / Google Sheets · Google Apps Script
 
 ## 📄 Lisensi
 MIT — bebas dipakai, dimodifikasi, dan dijual kembali. Kontribusi terbuka.
