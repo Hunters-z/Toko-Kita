@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111111; --card:#1A1D24; --card-2:#20242D;
+  --fg:#F5F5F4; --muted:#9BA1AC; --border:#2A2F39;
+  --primary:#F97316; --primary-soft:rgba(249,115,22,.14);
+  --success:#16A34A; --success-soft:rgba(22,163,74,.15);
+  --warning:#D97706; --warning-soft:rgba(217,119,6,.15);
+  --danger:#DC2626; --danger-soft:rgba(220,38,38,.15);
+  --info:#3B82F6; --info-soft:rgba(59,130,246,.15);
+  --radius-card:20px; --radius-ctl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font:14px/1.55 "Plus Jakarta Sans",system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+.num{font-family:Sora,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+
+/* ---- layout ---- */
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;padding:20px 14px;border-right:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 10px 22px;font-family:Sora;font-weight:700;font-size:16px}
+.brand .dot{width:28px;height:28px;border-radius:9px;background:var(--primary);display:grid;place-items:center;color:#fff;font-size:14px}
+.main{flex:1;min-width:0;max-width:1080px;margin:0 auto;padding:24px 24px 96px}
+.header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.header h1{font-family:Sora;font-size:22px;font-weight:600}
+.header .sub{color:var(--muted);font-size:13px;margin-top:2px}
+
+/* ---- nav ---- */
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;color:var(--muted);font-weight:500;font-size:14px;transition:background .15s,color .15s}
+.nav-item:hover{color:var(--fg);background:var(--card-2)}
+.nav-item.is-active{background:#fff;color:#111;font-weight:600}
+.nav-item .ic{width:18px;text-align:center}
+
+/* ---- cards ---- */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:20px}
+.card h2{font-size:15px;font-weight:600;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
+.stat .label{color:var(--muted);font-size:13px}
+.stat .val{font-family:Sora;font-size:30px;font-weight:700;margin:4px 0 8px;letter-spacing:-.5px}
+.grid-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
+
+/* ---- badge ---- */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-green{background:var(--success-soft);color:#4ADE80}
+.b-orange{background:var(--primary-soft);color:var(--primary)}
+.b-red{background:var(--danger-soft);color:#F87171}
+.b-blue{background:var(--info-soft);color:#60A5FA}
+
+/* ---- button ---- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;border-radius:var(--radius-ctl);font-weight:600;font-size:14px;border:1px solid transparent;transition:filter .15s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{border-color:var(--border);color:var(--fg);background:transparent}
+.btn-ghost:hover{background:var(--card-2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-lg{padding:12px 22px;font-size:15px}
+
+/* ---- table ---- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--border)}
+.tbl td{padding:11px 10px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .r{text-align:right}
+.tbl tbody tr:hover{background:var(--card-2)}
+
+/* ---- list stok ---- */
+.rowlist{display:flex;flex-direction:column}
+.rowlist .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.rowlist .row:last-child{border-bottom:0}
+
+/* ---- bar mini 7 hari ---- */
+.bars{display:flex;align-items:flex-end;gap:8px;height:96px;margin-top:14px}
+.bars .bar{flex:1;background:var(--primary-soft);border-radius:6px 6px 3px 3px;position:relative}
+.bars .bar>i{position:absolute;bottom:0;left:0;right:0;background:var(--primary);border-radius:inherit;height:var(--h,40%)}
+.bars .bar>span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:11px;color:var(--muted)}
+
+/* ---- aksi cepat ---- */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
+.quick button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 10px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);font-weight:600;font-size:13px;transition:background .15s}
+.quick button:hover{background:var(--card-2)}
+.quick .qic{width:38px;height:38px;border-radius:12px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-size:17px}
+
+/* ---- bottom nav (mobile) ---- */
+.bottom-nav{display:none;position:fixed;left:12px;right:12px;bottom:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:8px;justify-content:space-around;z-index:20}
+.bottom-nav .nav-item{flex-direction:column;gap:3px;font-size:11px;padding:6px 10px}
+.bottom-nav .nav-item.is-active{background:var(--primary-soft);color:var(--primary)}
+
+/* ---- skeleton ---- */
+.skel{position:relative;overflow:hidden;background:var(--card-2);border-radius:8px;color:transparent!important}
+.skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:sh 1.2s infinite}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ---- toast ---- */
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(16px);background:var(--card);border:1px solid var(--border);border-radius:var(--radius-card);padding:12px 18px;display:flex;align-items:center;gap:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;font-weight:500}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast.ok{border-color:rgba(22,163,74,.4)}
+.toast.err{border-color:rgba(220,38,38,.4)}
+
+@media (max-width:900px){
+  .sidebar{display:none}
+  .app{display:block}
+  .main{padding:18px 14px 110px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2,.quick{grid-template-columns:1fr}
+  .bottom-nav{display:flex}
+  .stat .val{font-size:24px}
+  .scrollx{overflow-x:auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="dot">T</span> Toko Kita</div>
+    <nav class="nav" aria-label="Navigasi utama">
+      <a class="nav-item is-active" aria-current="page" href="#"><span class="ic">⌂</span> Dashboard</a>
+      <a class="nav-item" href="#"><span class="ic">🛒</span> Kasir</a>
+      <a class="nav-item" href="#"><span class="ic">🧾</span> Invoice</a>
+      <a class="nav-item" href="#"><span class="ic">📦</span> Inventori</a>
+      <a class="nav-item" href="#"><span class="ic">👥</span> Pelanggan</a>
+      <a class="nav-item" href="#"><span class="ic">💸</span> Pengeluaran</a>
+      <a class="nav-item" href="#"><span class="ic">📊</span> Laporan</a>
+      <a class="nav-item" href="#"><span class="ic">⚙️</span> Pengaturan</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <div>
+        <h1>Halo, Sari Cell</h1>
+        <div class="sub">Rabu, 11 November 2026</div>
+      </div>
+      <button class="btn btn-primary btn-lg">+ Transaksi</button>
+    </div>
+
+    <section class="stats" aria-label="Ringkasan hari ini">
+      <div class="card stat">
+        <div class="label">Pendapatan hari ini</div>
+        <div class="val num" id="statRev">Rp 1.240.000</div>
+        <span class="badge b-green">▲ 12% vs kemarin</span>
+      </div>
+      <div class="card stat">
+        <div class="label">Transaksi hari ini</div>
+        <div class="val num" id="statTrx">17</div>
+        <span class="badge b-green">▲ 3</span>
+      </div>
+      <div class="card stat">
+        <div class="label">Piutang belum lunas</div>
+        <div class="val num" id="statPiutang">Rp 3.850.000</div>
+        <span class="badge b-orange">4 invoice</span>
+      </div>
+      <div class="card stat">
+        <div class="label">Stok menipis</div>
+        <div class="val num" id="statStok">6</div>
+        <span class="badge b-red">perlu restok</span>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <h2>Transaksi terakhir</h2>
+        <div class="scrollx">
+          <table class="tbl">
+            <thead><tr><th>No.</th><th>Waktu</th><th>Pelanggan</th><th class="r">Total</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="num">#0042</td><td>14:20</td><td>Budi</td><td class="r num">Rp 320.000</td><td><span class="badge b-green">Lunas</span></td></tr>
+              <tr><td class="num">#0041</td><td>13:05</td><td>Umum</td><td class="r num">Rp 75.000</td><td><span class="badge b-green">Lunas</span></td></tr>
+              <tr><td class="num">#0040</td><td>11:47</td><td>Rina</td><td class="r num">Rp 1.150.000</td><td><span class="badge b-orange">DP</span></td></tr>
+              <tr><td class="num">#0039</td><td>10:12</td><td>Andi</td><td class="r num">Rp 540.000</td><td><span class="badge b-red">Belum</span></td></tr>
+              <tr><td class="num">#0038</td><td>09:30</td><td>Umum</td><td class="r num">Rp 210.000</td><td><span class="badge b-green">Lunas</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Laba kas bulan ini</h2>
+        <div class="val num" style="font-family:Sora;font-size:26px;font-weight:700">Rp 8.460.000</div>
+        <span class="badge b-green">▲ 8% vs bulan lalu</span>
+        <div class="bars" role="img" aria-label="Grafik laba 7 hari terakhir">
+          <div class="bar" style="--h:35%"><i></i></div>
+          <div class="bar" style="--h:55%"><i></i></div>
+          <div class="bar" style="--h:42%"><i></i></div>
+          <div class="bar" style="--h:70%"><i></i></div>
+          <div class="bar" style="--h:48%"><i></i></div>
+          <div class="bar" style="--h:88%"><i></i></div>
+          <div class="bar" style="--h:64%"><i></i></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2" style="margin-top:16px">
+      <div class="card">
+        <h2>Stok menipis</h2>
+        <div class="rowlist">
+          <div class="row"><span>Kabel Data USB-C</span><span class="badge b-red">Sisa 2</span></div>
+          <div class="row"><span>Charger 20W</span><span class="badge b-orange">Sisa 4</span></div>
+          <div class="row"><span>Case iPhone 13</span><span class="badge b-orange">Sisa 5</span></div>
+          <div class="row"><span>Tempered Glass</span><span class="badge b-red">Sisa 1</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Aksi cepat</h2>
+        <div class="quick" style="grid-template-columns:1fr 1fr">
+          <button><span class="qic">🛒</span>Buka Kasir</button>
+          <button><span class="qic">🧾</span>Invoice Baru</button>
+          <button><span class="qic">📦</span>Tambah Produk</button>
+          <button><span class="qic">💸</span>Catat Pengeluaran</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom-nav" aria-label="Navigasi utama (mobile)">
+  <a class="nav-item is-active" aria-current="page" href="#"><span class="ic">⌂</span>Home</a>
+  <a class="nav-item" href="#"><span class="ic">🛒</span>Kasir</a>
+  <a class="nav-item" href="#"><span class="ic">🧾</span>Invoice</a>
+  <a class="nav-item" href="#"><span class="ic">📦</span>Stok</a>
+  <a class="nav-item" href="#"><span class="ic">📊</span>Laporan</a>
+</nav>
+
+<div class="toast ok" id="toast" role="status"><span class="badge b-green">Tersimpan</span> <span id="toastMsg"></span></div>
+
+<script>
+/* ---- helper uang (sama seperti app React: rp()) ---- */
+function rp(n){ return 'Rp ' + (n||0).toLocaleString('id-ID'); }
+
+/* ---- toast ---- */
+var toastTimer;
+function showToast(msg, ok){
+  var t = document.getElementById('toast');
+  t.classList.toggle('ok', ok !== false);
+  t.classList.toggle('err', ok === false);
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+
+/* ---- pola data google.script.run ----
+   Di Apps Script, Code.gs menyediakan getDashboard().
+   Mockup punya fallback dummy saat dibuka lokal di luar Apps Script. */
+function loadDashboard(){
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run
+      .withSuccessHandler(renderDashboard)
+      .withFailureHandler(function(err){ showToast('Gagal memuat data: ' + (err && err.message || err), false); })
+      .getDashboard();
+  } else {
+    /* fallback dummy — hanya untuk mockup statis */
+    renderDashboard(null);
+  }
+}
+
+function renderDashboard(d){
+  d = d || {};
+  document.getElementById('statRev').textContent    = d.pendapatan != null ? rp(d.pendapatan) : document.getElementById('statRev').textContent;
+  document.getElementById('statTrx').textContent    = d.transaksi != null ? d.transaksi : document.getElementById('statTrx').textContent;
+  document.getElementById('statPiutang').textContent = d.piutang != null ? rp(d.piutang) : document.getElementById('statPiutang').textContent;
+  document.getElementById('statStok').textContent   = d.stokMenipis != null ? d.stokMenipis : document.getElementById('statStok').textContent;
+}
+
+loadDashboard();
+
+/* demo toast saat aksi cepat diklik (di app asli membuka dialog/layar) */
+document.querySelectorAll('.quick button').forEach(function(b){
+  b.addEventListener('click', function(){ showToast(b.textContent.trim() + ' — dibuka'); });
+});
+</script>
+</body>
+</html>

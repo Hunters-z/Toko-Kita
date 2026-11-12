@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { loadDB, saveDB, resetDB } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Icon } from '@/components/ui/icon.jsx'
+import { Settings as SettingsIcon, Download, Upload } from 'lucide-react'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '../components/ui/alert-dialog.jsx'
 
 export default function Settings() {
@@ -12,17 +14,20 @@ export default function Settings() {
   const exportJson = () => {
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}))
-    a.download = 'toko-kita-backup.json'; a.click(); flash('Backup terunduh ✓')
+    a.download = 'toko-kita-backup.json'; a.click(); flash('Backup terunduh')
   }
   const importJson = e => {
     const f = e.target.files[0]; if (!f) return
     const r = new FileReader()
-    r.onload = () => { try { const d = JSON.parse(r.result); saveDB(d); setDb(d); flash('Data dipulihkan ✓') } catch { flash('File tidak valid ✕') } }
+    r.onload = () => { try { const d = JSON.parse(r.result); saveDB(d); setDb(d); flash('Data dipulihkan') } catch { flash('File tidak valid') } }
     r.readAsText(f)
   }
   return (
     <div className="p-4 md:p-7 max-w-3xl mx-auto">
-      <h1 className="font-disp text-lg md:text-xl font-extrabold mb-4">Pengaturan</h1>
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon as={SettingsIcon} size="lg" className="text-hero" />
+        <h1 className="font-disp text-lg md:text-xl font-extrabold">Pengaturan</h1>
+      </div>
       {msg && <Badge variant="success" className="mb-3">{msg}</Badge>}
       <Card title="Toko">
         <div className="space-y-3">
@@ -34,12 +39,16 @@ export default function Settings() {
             <div onClick={()=>set('ppnOn',!db.settings?.ppnOn)} className={'sw '+(db.settings?.ppnOn?'on':'')}><i/></div>
             <div><b className="text-[14px]">PPN 11%</b><div className="text-[12px] text-inksoft">Tambahkan pajak di Kasir</div></div>
           </label>
+          <div>
+            <label className="text-[11px] text-inksoft font-semibold block mb-1">Jam mulai shift (absensi)</label>
+            <Input type="time" value={db.settings?.shiftStart||'08:00'} onChange={e=>set('shiftStart',e.target.value)} className="w-32"/>
+          </div>
         </div>
       </Card>
       <Card title="Data">
         <div className="flex flex-wrap gap-2.5">
-          <button onClick={exportJson} className="btn-primary text-[13px] px-5 py-2.5">⬇ Backup data</button>
-          <label className="btn-ghost text-[13px] px-5 py-2.5 cursor-pointer">⬆ Pulihkan backup<input type="file" accept=".json" onChange={importJson} className="hidden"/></label>
+          <button onClick={exportJson} className="btn-primary text-[13px] px-5 py-2.5 flex items-center gap-1.5"><Icon as={Download} size="sm" strokeWidth={1.5}/> Backup data</button>
+          <label className="btn-ghost text-[13px] px-5 py-2.5 cursor-pointer flex items-center gap-1.5"><Icon as={Upload} size="sm" strokeWidth={1.5}/> Pulihkan backup<input type="file" accept=".json" onChange={importJson} className="hidden"/></label>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <button className="text-coral text-[13px] font-semibold px-4 py-2.5">Reset total</button>

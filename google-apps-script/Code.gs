@@ -12,7 +12,11 @@
  *
  * Yang didapat: database Google Sheets otomatis (sheet: Produk, Transaksi,
  * Pelanggan, Invoice, Pegawai, Absen, Pemasok, Pengeluaran, Pembelian)
- * + API JSON utk app + form input via Sheet.
+ * + API JSON utk app + halaman dashboard web bawaan (lihat Index.html).
+ * Untuk menyajikan halaman web: di Code.gs tambahkan di awal doGet(e):
+ *   if (e && e.parameter.page === 'ui') return HtmlService.createHtmlOutputFromFile('Index')
+ *     .setTitle('Toko Kita').addMetaTag('viewport','width=device-width, initial-scale=1')
+ * lalu akses URL /exec?page=ui — API JSON tetap berjalan seperti biasa.
  */
 
 const SHEETS = {

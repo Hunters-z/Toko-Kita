@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#111114; --card:#1A1D24; --card-border:#262A33;
+  --foreground:#F4F6FA; --muted:#8A8F9C;
+  --primary:#F97316; --primary-fg:#111114;
+  --green:#16A34A; --green-bg:rgba(22,163,74,.14);
+  --amber:#D97706; --amber-bg:rgba(217,119,6,.14);
+  --red:#DC2626; --red-bg:rgba(220,38,38,.14);
+  --radius:20px; --radius-ctl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--background); color:var(--foreground);
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:14px;
+  padding:24px; min-height:100vh;
+}
+h1,h2,h3,.disp{font-family:'Sora',sans-serif; font-variant-numeric:tabular-nums}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);
+  display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:20px}
+.brand span{font-family:'Sora';font-weight:700;font-size:18px}
+.brand span b{color:var(--primary)}
+.pill{background:var(--card);border:1px solid var(--card-border);border-radius:999px;padding:8px 16px;
+  color:var(--muted);font-size:13px}
+h1{font-size:22px;margin-bottom:4px}
+.sub{color:var(--muted);margin-bottom:20px}
+
+.hero{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:24px;margin-bottom:20px;
+}
+.hero .label{color:var(--muted);font-size:13px;margin-bottom:8px}
+.hero .big{font-family:'Sora';font-weight:800;font-size:36px}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;
+  font-size:12px;font-weight:600}
+.badge.green{color:#4ADE80;background:var(--green-bg)}
+.badge.amber{color:#FBBF24;background:var(--amber-bg)}
+.badge.red{color:#F87171;background:var(--red-bg)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:18px;border-left:3px solid var(--primary)}
+.card .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+.card .val{font-family:'Sora';font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.card.g{border-left-color:var(--green)} .card.a{border-left-color:var(--amber)} .card.r{border-left-color:var(--red)}
+
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding:20px;margin-bottom:20px}
+.panel h2{font-size:16px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse}
+th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;
+  text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
+td{padding:12px;border-bottom:1px solid var(--card-border)}
+tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;font-family:'Sora';font-weight:600}
+.btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:999px;
+  padding:10px 20px;font-weight:600;font-family:'Plus Jakarta Sans';font-size:14px;cursor:pointer;transition:.15s}
+.btn:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--foreground);border:1px solid var(--card-border)}
+.status-ok{color:#4ADE80} .status-warn{color:#FBBF24} .status-err{color:#F87171}
+.empty{color:var(--muted);text-align:center;padding:24px}
+@media(max-width:600px){body{padding:16px} .hero .big{font-size:28px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b></span></div>
+  <div class="pill" id="sync-status">Memuat…</div>
+</header>
+<h1>Ringkasan Toko</h1>
+<p class="sub">Data langsung dari Google Sheets via Apps Script.</p>
+
+<div class="hero">
+  <div class="label">Total Pendapatan (Transaksi)</div>
+  <div class="big" id="kpi-revenue">—</div>
+  <span class="badge green" id="kpi-count">0 transaksi</span>
+</div>
+
+<div class="grid">
+  <div class="card"><div class="label">Produk</div><div class="val" id="kpi-products">—</div></div>
+  <div class="card g"><div class="label">Pelanggan</div><div class="val" id="kpi-customers">—</div></div>
+  <div class="card a"><div class="label">Invoice Belum Lunas</div><div class="val" id="kpi-invoices">—</div></div>
+  <div class="card r"><div class="label">Stok di Bawah Minimum</div><div class="val" id="kpi-lowstock">—</div></div>
+</div>
+
+<div class="panel">
+  <h2>Transaksi Terakhir</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Tanggal</th><th>Metode</th><th style="text-align:right">Total</th></tr></thead>
+    <tbody id="tx-body"><tr><td colspan="4" class="empty">Memuat…</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+function rp(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID') }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] }) }
+
+function load(){
+  var el = document.getElementById('sync-status')
+  el.textContent = 'Memuat data…'
+  google.script.run
+    .withSuccessHandler(render)
+    .withFailureHandler(function(err){
+      el.innerHTML = '<span class="status-err">Gagal memuat</span>'
+      document.getElementById('tx-body').innerHTML =
+        '<tr><td colspan="4" class="empty">Error: ' + esc(err && err.message || err) + '</td></tr>'
+    })
+    .all()
+}
+
+function render(data){
+  var el = document.getElementById('sync-status')
+  el.innerHTML = '<span class="status-ok">● Tersinkron</span> ' +
+    new Date().toLocaleTimeString('id-ID')
+  var produk = data.produk||[], tx = data.transaksi||[], pel = data.pelanggan||[],
+      inv = data.invoice||[]
+  var revenue = tx.reduce(function(s,t){ return s + Number(t.total||0) }, 0)
+  document.getElementById('kpi-revenue').textContent = rp(revenue)
+  document.getElementById('kpi-count').textContent = tx.length + ' transaksi'
+  document.getElementById('kpi-products').textContent = produk.length
+  document.getElementById('kpi-customers').textContent = pel.length
+  document.getElementById('kpi-invoices').textContent =
+    inv.filter(function(i){ return (i.status||'').toLowerCase() !== 'lunas' }).length
+  document.getElementById('kpi-lowstock').textContent =
+    produk.filter(function(p){ return Number(p.stock||0) < Number(p.minStock||0) }).length
+
+  var body = document.getElementById('tx-body')
+  if(!tx.length){ body.innerHTML = '<tr><td colspan="4" class="empty">Belum ada transaksi</td></tr>'; return }
+  body.innerHTML = tx.slice(-10).reverse().map(function(t){
+    var m = String(t.method||'-').toLowerCase()
+    var cls = m.indexOf('tunai')>-1||m==='cash' ? 'badge green' : 'badge amber'
+    return '<tr><td>' + esc(t.id) + '</td><td>' + esc(t.date) + '</td>' +
+      '<td><span class="' + cls + '">' + esc(t.method||'-') + '</span></td>' +
+      '<td class="num" style="text-align:right">' + rp(t.total) + '</td></tr>'
+  }).join('')
+}
+
+load()
+</script>
+</body>
+</html>

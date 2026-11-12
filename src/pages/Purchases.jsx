@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp, uid } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Icon } from '@/components/ui/icon.jsx'
 import { Button } from '@/components/ui/button.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
+import { Truck, X, Plus, Download } from 'lucide-react'
 
 export default function Purchases() {
   const [db, setDb] = useState(loadDB())
@@ -26,7 +28,10 @@ export default function Purchases() {
   const sname = id => db.suppliers.find(s=>s.id===id)?.name || 'Umum'
   return (
     <div className="p-4 md:p-7 max-w-6xl mx-auto">
-      <h1 className="font-disp text-lg md:text-xl font-extrabold mb-4">Pembelian</h1>
+      <div className="flex items-center gap-2.5 mb-4">
+        <Icon as={Truck} size="lg" className="text-hero" />
+        <h1 className="font-disp text-lg md:text-xl font-extrabold">Pembelian</h1>
+      </div>
       <Card title="Buat pembelian (stok masuk otomatis)">
         <div className="flex flex-wrap gap-2.5 items-end mb-3">
           <div>
@@ -36,7 +41,7 @@ export default function Purchases() {
               {db.suppliers.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
-          <Button size="sm" variant="secondary" onClick={addLine}>+ Barang</Button>
+          <Button size="sm" variant="secondary" onClick={addLine} className="gap-1.5"><Icon as={Plus} size="sm" strokeWidth={1.5}/> Barang</Button>
           <Button size="sm" onClick={save} disabled={!lines.length}>Simpan ({rp(lines.reduce((s,l)=>s+l.qty*l.cost,0))})</Button>
         </div>
         {lines.map((l,i)=>(
@@ -46,7 +51,7 @@ export default function Purchases() {
             </select>
             <input className="inp w-20" type="number" min="1" value={l.qty} onChange={e=>setLine(i,'qty',e.target.value)} placeholder="Qty"/>
             <input className="inp w-32" type="number" value={l.cost} onChange={e=>setLine(i,'cost',e.target.value)} placeholder="Harga beli"/>
-            <button onClick={()=>setLines(lines.filter((_,j)=>j!==i))} className="text-coral text-lg px-2">✕</button>
+            <button onClick={()=>setLines(lines.filter((_,j)=>j!==i))} aria-label="Hapus baris" className="text-coral px-2"><Icon as={X} size="sm" strokeWidth={1.5}/></button>
           </div>
         ))}
       </Card>
@@ -54,7 +59,7 @@ export default function Purchases() {
         {!db.purchases.length && <p className="text-inksoft text-[13px]">Belum ada pembelian.</p>}
         {db.purchases.slice().reverse().map(po=>(
           <div key={po.id} className="flex items-center gap-3 py-2.5 border-b border-line last:border-0">
-            <span className="w-9 h-9 rounded-full bg-card2 grid place-items-center">📥</span>
+            <span className="w-9 h-9 rounded-full bg-card2 grid place-items-center"><Icon as={Download} size="md" /></span>
             <div><b className="text-[13px]">{sname(po.supplierId)}</b>
               <div className="text-[11.5px] text-inksoft">{new Date(po.date).toLocaleDateString('id-ID')} · {po.items.length} item</div></div>
             <b className="ml-auto text-[13.5px]">{rp(po.total)}</b>

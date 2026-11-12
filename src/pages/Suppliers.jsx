@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { loadDB, saveDB, rp } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { Icon } from '@/components/ui/icon.jsx'
 import { Button } from '@/components/ui/button.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from './Inventory.jsx'
+import { Building2, Phone } from 'lucide-react'
 
 export default function Suppliers() {
   const [db, setDb] = useState(loadDB())
@@ -15,7 +17,10 @@ export default function Suppliers() {
   }
   return (
     <div className="p-4 md:p-7 max-w-6xl mx-auto">
-      <h1 className="font-disp text-lg md:text-xl font-extrabold mb-5">Pemasok</h1>
+      <div className="flex items-center gap-2.5 mb-5">
+        <Icon as={Building2} size="lg" className="text-hero" />
+        <h1 className="font-disp text-lg md:text-xl font-extrabold">Pemasok</h1>
+      </div>
       <Card title="Tambah pemasok">
         <form onSubmit={add} className="flex flex-wrap gap-2.5 items-end">
           <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
@@ -29,7 +34,7 @@ export default function Suppliers() {
         {db.suppliers.map(s => (
           <div key={s.id} className="card p-5">
             <b className="text-[14px]">{s.name}</b>
-            <div className="text-inksoft text-[12.5px] mt-0.5">📞 {s.phone||'—'}</div>
+            <div className="text-inksoft text-[12.5px] mt-0.5 flex items-center gap-1.5"><Icon as={Phone} size="sm" strokeWidth={1.5}/> {s.phone||'—'}</div>
             {s.item && <div className="pill bg-ocean-soft text-ocean-ink mt-2">{s.item}</div>}
           </div>
         ))}
