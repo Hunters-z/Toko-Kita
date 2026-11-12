@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { loadDB, saveDB, resetDB } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
 import { Icon } from '@/components/ui/icon.jsx'
-import { Settings as SettingsIcon, Download, Upload } from 'lucide-react'
+import { Settings as SettingsIcon, Download, Upload, MapPin } from 'lucide-react'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '../components/ui/alert-dialog.jsx'
+import { ambilLokasi, fmtJarak } from '../lib/absen.js'
 
 export default function Settings() {
   const [db, setDb] = useState(loadDB())
   const [msg, setMsg] = useState('')
+  const [geoMsg, setGeoMsg] = useState('')
   const set = (k,v) => { const s={...db.settings,[k]:v}; const d={...db,settings:s}; saveDB(d); setDb(d) }
   const flash = t => { setMsg(t); setTimeout(()=>setMsg(''),2000) }
   const doReset = () => { resetDB(); location.reload() }
@@ -22,6 +24,16 @@ export default function Settings() {
     r.onload = () => { try { const d = JSON.parse(r.result); saveDB(d); setDb(d); flash('Data dipulihkan') } catch { flash('File tidak valid') } }
     r.readAsText(f)
   }
+  const ambilLokasiToko = async () => {
+    setGeoMsg('Mencari posisi…')
+    try {
+      const { lat, lng, accuracy } = await ambilLokasi()
+      set('officeLat', Number(lat.toFixed(6)))
+      set('officeLng', Number(lng.toFixed(6)))
+      setGeoMsg(`Posisi toko tersimpan: ${lat.toFixed(5)}, ${lng.toFixed(5)} (akurasi ${fmtJarak(accuracy)})`)
+    } catch (err) { setGeoMsg(err.message) }
+  }
+  const radius = db.settings?.officeRadius
   return (
     <div className="p-4 md:p-7 max-w-3xl mx-auto">
       <div className="flex items-center gap-2.5 mb-4">
@@ -43,6 +55,24 @@ export default function Settings() {
             <label className="text-[11px] text-inksoft font-semibold block mb-1">Jam mulai shift (absensi)</label>
             <Input type="time" value={db.settings?.shiftStart||'08:00'} onChange={e=>set('shiftStart',e.target.value)} className="w-32"/>
           </div>
+        </div>
+      </Card>
+      <Card title="Lokasi absensi">
+        <div className="space-y-3">
+          <p className="text-[12.5px] text-inksoft">Pegawai hanya bisa absen jika berada di sekitar lokasi toko. Berdiri di dalam toko, lalu tekan tombol di bawah untuk mencatat posisi toko.</p>
+          <div className="flex flex-wrap items-end gap-2.5">
+            <div>
+              <label className="text-[11px] text-inksoft font-semibold block mb-1">Radius boleh absen (meter)</label>
+              <Input type="number" min="10" max="2000" value={radius ?? 100} onChange={e=>set('officeRadius', Math.max(10, Number(e.target.value)||100))} className="w-32"/>
+            </div>
+            <Button variant="outline" className="gap-2" onClick={ambilLokasiToko}><Icon as={MapPin} size="md" strokeWidth={1.5}/> Ambil posisi toko sekarang</Button>
+          </div>
+          {geoMsg && <p className="text-[12.5px] font-semibold">{geoMsg}</p>}
+          <p className="text-[11.5px] text-dim">
+            {db.settings?.officeLat != null
+              ? <>Posisi tersimpan: {db.settings.officeLat}, {db.settings.officeLng} · radius {fmtJarak(radius ?? 100)}</>
+              : <>Belum ada posisi toko. Tanpa posisi, pengecekan lokasi absen dilewati.</>}
+          </p>
         </div>
       </Card>
       <Card title="Data">
