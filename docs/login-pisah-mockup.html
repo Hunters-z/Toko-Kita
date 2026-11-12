@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Pisah Peran Admin / Karyawan (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111111; --card:#1A1D24; --fg:#F5F5F5; --muted:#9BA1AD;
+  --border:rgba(255,255,255,.08); --primary:#F97316; --success:#16A34A;
+  --warning:#D97706; --danger:#DC2626; --radius:20px; --ctrl:12px;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px}
+h1,h2,.num{font-family:Sora,sans-serif}
+.num{font-variant-numeric:tabular-nums}
+.shell{display:flex;min-height:100vh}
+/* ====== top view switcher ====== */
+.viewbar{position:fixed;top:12px;right:16px;z-index:50;display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.viewbar button{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;font-size:12px;padding:7px 16px;border-radius:999px;cursor:pointer}
+.viewbar button.on{background:var(--primary);color:#fff}
+.view{display:none}.view.on{display:block}
+/* ====== sidebar ====== */
+.side{width:232px;padding:20px 16px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:16px}
+.logo{width:34px;height:34px;border-radius:12px;background:var(--primary);color:#fff;display:grid;place-items:center;font-family:Sora;font-weight:700}
+.brand b{font-family:Sora}.brand span{color:var(--primary)}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;color:var(--muted);text-decoration:none;font-weight:500;margin-bottom:2px}
+.nav a.on{background:#fff;color:#111}
+.nav a:not(.on):hover{background:rgba(255,255,255,.06);color:var(--fg)}
+main{flex:1;padding:20px 24px;max-width:1200px}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 20px;margin-bottom:24px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#262B33;display:grid;place-items:center;font-weight:600;color:var(--primary);font-size:12px}
+.pagehead{display:flex;align-items:end;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+.pagehead h1{font-size:24px}
+.pagehead p{color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:var(--ctrl);padding:10px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--border)}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.panel h2{font-size:15px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500;border:1px solid}
+.badge.green{background:rgba(22,163,74,.1);color:#4ADE80;border-color:rgba(22,163,74,.3)}
+.badge.amber{background:rgba(217,119,6,.12);color:#FBBF24;border-color:rgba(217,119,6,.3)}
+.badge.red{background:rgba(220,38,38,.12);color:#F87171;border-color:rgba(220,38,38,.3)}
+.badge.dim{background:rgba(255,255,255,.05);color:var(--muted);border-color:var(--border)}
+/* ====== login ====== */
+.login{max-width:900px;margin:0 auto;padding:60px 24px 40px}
+.login .hero{text-align:center;margin-bottom:36px}
+.login .hero h1{font-size:28px;margin:14px 0 6px}
+.login .hero p{color:var(--muted);font-size:14px}
+.rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.rolecard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;cursor:pointer;text-align:center;transition:border-color .15s}
+.rolecard:hover{border-color:rgba(249,115,22,.6)}
+.rolecard.on{border-color:var(--primary);background:linear-gradient(180deg,rgba(249,115,22,.08),var(--card))}
+.rolecard .ric{width:56px;height:56px;border-radius:18px;background:rgba(249,115,22,.12);color:var(--primary);display:grid;place-items:center;margin:0 auto 14px}
+.rolecard h2{font-size:18px;margin-bottom:4px}
+.rolecard .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.roleform{display:none;text-align:left}
+.rolecard.on .roleform{display:block}
+.flabel{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:12px 0 6px}
+.finput{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--ctrl);padding:12px 14px;color:var(--fg);font:inherit;font-size:14px;letter-spacing:.2em}
+.finput:focus{outline:none;border-color:var(--primary)}
+.wfull{width:100%;margin-top:18px;padding:13px;font-size:14px;border-radius:14px}
+.loginfoot{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
+/* ====== admin dashboard ====== */
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.stat .k{color:var(--muted);font-size:12px}
+.stat .big{font-size:26px;font-weight:700;margin:6px 0 8px}
+.dashgrid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+table{width:100%;border-collapse:collapse}
+th{color:var(--muted);font-size:12px;font-weight:500;text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px}
+tr:last-child td{border-bottom:0}
+.lowrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.lowrow:last-child{border-bottom:0}
+.lowrow .nm{flex:1;font-weight:500}
+.spark{stroke:var(--success);fill:none;stroke-width:2}
+/* ====== karyawan ====== */
+.empbar{display:flex;align-items:center;gap:10px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.3);border-radius:999px;padding:10px 18px;margin-bottom:20px;font-size:13px}
+.empgrid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.cam{border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.02);overflow:hidden}
+.cam .viewfinder{height:200px;display:grid;place-items:center;position:relative;background:
+  radial-gradient(circle at 50% 45%, rgba(255,255,255,.05), transparent 60%),
+  repeating-linear-gradient(90deg, transparent 0 46px, rgba(255,255,255,.03) 46px 48px)}
+.face{width:86px;height:110px;border-radius:43px 43px 24px 24px;background:#2A2F38;display:flex;align-items:center;justify-content:center;font-size:34px}
+.cam .corner{position:absolute;width:26px;height:26px;border:2px solid var(--primary);border-radius:6px}
+.cam .c1{top:12px;left:12px;border-right:0;border-bottom:0}
+.cam .c2{top:12px;right:12px;border-left:0;border-bottom:0}
+.cam .c3{bottom:12px;left:12px;border-right:0;border-top:0}
+.cam .c4{bottom:12px;right:12px;border-left:0;border-top:0}
+.cam .lbl{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--muted)}
+.loc{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--success);flex:0 0 auto}
+.bigbtn{width:100%;margin-top:14px;padding:18px;border:0;border-radius:14px;font-family:Sora;font-size:17px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
+.trow:last-child{border-bottom:0}
+.trow .k{color:var(--muted)}
+@media(max-width:900px){
+  .side{display:none}main{padding:16px}
+  .statgrid{grid-template-columns:1fr 1fr}
+  .dashgrid,.empgrid,.rolegrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="viewbar" role="tablist">
+  <button id="vb-login" class="on" onclick="setView('login')">Login</button>
+  <button id="vb-admin" onclick="setView('admin')">Admin</button>
+  <button id="vb-emp" onclick="setView('emp')">Karyawan</button>
+</div>
+
+<!-- ================= VIEW 1 : LOGIN ================= -->
+<section id="view-login" class="view on">
+  <div class="login">
+    <div class="hero">
+      <div class="logo" style="width:52px;height:52px;font-size:22px;margin:0 auto;border-radius:16px">T</div>
+      <h1>Selamat datang di Toko<span style="color:var(--primary)">Kita</span></h1>
+      <p>Pilih peran Anda untuk masuk ke aplikasi.</p>
+    </div>
+
+    <div class="rolegrid">
+      <!-- ADMIN -->
+      <div class="rolecard on" id="role-admin" onclick="pickRole('admin')">
+        <div class="ric">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h2>Admin</h2>
+        <div class="sub">Akses penuh: POS, inventori, laporan &amp; pengaturan</div>
+        <div class="roleform">
+          <label class="flabel" for="pin-admin">PIN Admin</label>
+          <input id="pin-admin" class="finput" type="password" inputmode="numeric" maxlength="6" placeholder="••••••">
+          <button class="btn primary wfull" onclick="event.stopPropagation()">Masuk sebagai Admin</button>
+        </div>
+      </div>
+
+      <!-- KARYAWAN -->
+      <div class="rolecard" id="role-emp" onclick="pickRole('emp')">
+        <div class="ric">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h2>Karyawan</h2>
+        <div class="sub">Absen, riwayat kehadiran &amp; profil saya</div>
+        <div class="roleform">
+          <label class="flabel" for="user-emp">Username</label>
+          <input id="user-emp" class="finput" type="text" style="letter-spacing:0" placeholder="mis. budi" onclick="event.stopPropagation()">
+          <label class="flabel" for="pin-emp" style="margin-top:12px">PIN</label>
+          <input id="pin-emp" class="finput" type="password" inputmode="numeric" maxlength="6" placeholder="••••" onclick="event.stopPropagation()">
+          <button class="btn primary wfull" onclick="event.stopPropagation()">Masuk sebagai Karyawan</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="loginfoot">Mockup statis — pemisahan peran Admin vs Karyawan · TokoKita ERP</p>
+  </div>
+</section>
+
+<!-- ================= VIEW 2 : APP ADMIN ================= -->
+<section id="view-admin" class="view">
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><div class="logo">T</div><b>Toko<span>Kita</span></b></div>
+      <nav class="nav">
+        <a class="on" href="#">🏠 Toko / POS</a>
+        <a href="#">📦 Inventori</a>
+        <a href="#">🧾 Invoice</a>
+        <a href="#">👥 Pelanggan</a>
+        <a href="#">🧑‍💼 Pegawai</a>
+        <a href="#">🚚 Pemasok</a>
+        <a href="#">💸 Pengeluaran</a>
+        <a href="#">🕐 Absensi</a>
+        <a href="#">📊 Laporan</a>
+        <a href="#">⚙️ Pengaturan</a>
+      </nav>
+    </aside>
+    <main>
+      <div class="topbar">
+        <b>Admin · Toko<span style="color:var(--primary)">Kita</span></b>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="badge green">● Mode Admin</span>
+          <div class="avatar">RD</div>
+        </div>
+      </div>
+      <div class="pagehead">
+        <div><h1>Dashboard Admin</h1><p>Rina Dewi · Kamis, 12 Nov 2026 · Cabang Kota Malang</p></div>
+        <button class="btn ghost">Unduh Laporan</button>
+      </div>
+
+      <div class="statgrid">
+        <div class="stat">
+          <div class="k">Penjualan hari ini</div>
+          <div class="big num">Rp 2.450.000</div>
+          <span class="badge green">▲ +12,4%</span>
+        </div>
+        <div class="stat">
+          <div class="k">Transaksi</div>
+          <div class="big num">86</div>
+          <span class="badge dim">rata-rata Rp 28.488</span>
+        </div>
+        <div class="stat">
+          <div class="k">Invoice belum lunas</div>
+          <div class="big num">7</div>
+          <span class="badge amber">Rp 3.120.000</span>
+        </div>
+        <div class="stat">
+          <div class="k">Pengeluaran bulan ini</div>
+          <div class="big num">Rp 9.840.000</div>
+          <span class="badge red">▲ +4,1%</span>
+        </div>
+      </div>
+
+      <div class="dashgrid">
+        <section class="panel">
+          <h2>Tren Penjualan 7 Hari <span class="badge green">↑ naik</span></h2>
+          <svg width="100%" height="120" viewBox="0 0 620 120" preserveAspectRatio="none">
+            <polyline class="spark" points="0,95 88,80 176,86 264,58 352,66 440,38 528,48 620,18"/>
+          </svg>
+          <table style="margin-top:8px">
+            <thead><tr><th>Transaksi Terbaru</th><th>Pelanggan</th><th style="text-align:right">Total</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>#INV-0871 · 10:42</td><td>Umum</td><td class="num" style="text-align:right">Rp 54.000</td><td><span class="badge green">Lunas</span></td></tr>
+              <tr><td>#INV-0870 · 10:15</td><td>Warung Sari</td><td class="num" style="text-align:right">Rp 320.000</td><td><span class="badge amber">Tempo</span></td></tr>
+              <tr><td>#INV-0869 · 09:58</td><td>Umum</td><td class="num" style="text-align:right">Rp 18.500</td><td><span class="badge green">Lunas</span></td></tr>
+            </tbody>
+          </table>
+        </section>
+        <aside class="panel">
+          <h2>Stok Menipis <span class="badge red">4 item</span></h2>
+          <div class="lowrow"><span>🍚</span><div class="nm">Beras 5kg</div><span class="badge red">sisa 3</span></div>
+          <div class="lowrow"><span>🥤</span><div class="nm">Teh Botol</div><span class="badge amber">sisa 8</span></div>
+          <div class="lowrow"><span>🍜</span><div class="nm">Mie Instan</div><span class="badge red">habis</span></div>
+          <div class="lowrow"><span>🛢️</span><div class="nm">Minyak 1L</div><span class="badge amber">sisa 5</span></div>
+          <button class="btn primary wfull" style="margin-top:16px">Buat Pesanan Pemasok</button>
+        </aside>
+      </div>
+    </main>
+  </div>
+</section>
+
+<!-- ================= VIEW 3 : APP KARYAWAN ================= -->
+<section id="view-emp" class="view">
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><div class="logo">T</div><b>Toko<span>Kita</span></b></div>
+      <nav class="nav">
+        <a class="on" href="#">🕐 Absen</a>
+        <a href="#">📄 Riwayat Saya</a>
+        <a href="#">👤 Profil Saya</a>
+      </nav>
+    </aside>
+    <main>
+      <div class="topbar">
+        <b>Karyawan · Toko<span style="color:var(--primary)">Kita</span></b>
+        <div class="avatar">B</div>
+      </div>
+      <div class="empbar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Anda masuk sebagai <b>Karyawan — Budi</b>
+      </div>
+      <div class="pagehead">
+        <div><h1>Absen</h1><p>Kamis, 12 Nov 2026 · Shift Pagi (08:00–16:00)</p></div>
+        <span class="badge dim">Belum check-in hari ini</span>
+      </div>
+
+      <div class="empgrid">
+        <section class="panel">
+          <h2>Ambil Foto Selfie</h2>
+          <div class="cam">
+            <div class="viewfinder">
+              <span class="lbl">POSISIKAN WAJAH</span>
+              <div class="face">🙂</div>
+              <div class="corner c1"></div><div class="corner c2"></div>
+              <div class="corner c3"></div><div class="corner c4"></div>
+            </div>
+          </div>
+          <div class="loc"><span class="dot"></span> Lokasi terdeteksi: TokoKita Cabang Kota Malang (±5 m)</div>
+          <button class="bigbtn">✓ CHECK-IN</button>
+        </section>
+        <aside class="panel">
+          <h2>Hari Ini</h2>
+          <div class="trow"><span class="k">Check-in</span><span class="num">—</span></div>
+          <div class="trow"><span class="k">Check-out</span><span class="num">—</span></div>
+          <div class="trow"><span class="k">Status</span><span class="badge amber">Menunggu check-in</span></div>
+          <div class="trow"><span class="k">Metode</span><span>Selfie + lokasi</span></div>
+          <p style="color:var(--muted);font-size:12.5px;line-height:1.6;margin-top:16px">
+            Foto selfie dan lokasi akan dikirim ke admin sebagai bukti kehadiran.
+            Pastikan wajah terlihat jelas di dalam bingkai sebelum menekan tombol check-in.
+          </p>
+        </aside>
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+function setView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));
+  document.getElementById('view-'+v).classList.add('on');
+  ['login','admin','emp'].forEach(k=>{
+    document.getElementById('vb-'+k).classList.toggle('on', k===v);
+  });
+  window.scrollTo(0,0);
+}
+function pickRole(r){
+  document.getElementById('role-admin').classList.toggle('on', r==='admin');
+  document.getElementById('role-emp').classList.toggle('on', r==='emp');
+}
+</script>
+</body>
+</html>
