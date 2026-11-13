@@ -18,135 +18,316 @@
   --radius:20px; --radius-ctl:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:var(--background); color:var(--foreground);
-  font-family:'Plus Jakarta Sans',sans-serif; font-size:14px;
-  padding:24px; min-height:100vh;
-}
-h1,h2,h3,.disp{font-family:'Sora',sans-serif; font-variant-numeric:tabular-nums}
+body{background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:24px;min-height:100vh}
+h1,h2,h3,.disp{font-family:'Sora',sans-serif;font-variant-numeric:tabular-nums}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:12px}
-.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);
-  display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:20px}
+.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:20px}
 .brand span{font-family:'Sora';font-weight:700;font-size:18px}
 .brand span b{color:var(--primary)}
-.pill{background:var(--card);border:1px solid var(--card-border);border-radius:999px;padding:8px 16px;
-  color:var(--muted);font-size:13px}
+.pill{background:var(--card);border:1px solid var(--card-border);border-radius:999px;padding:8px 16px;color:var(--muted);font-size:13px}
 h1{font-size:22px;margin-bottom:4px}
 .sub{color:var(--muted);margin-bottom:20px}
 
-.hero{
-  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
-  padding:24px;margin-bottom:20px;
-}
+.view{display:none}
+.view.active{display:block}
+
+.auth-wrap{max-width:420px;margin:48px auto}
+.auth-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:28px}
+.auth-card h2{font-size:20px;margin-bottom:6px}
+.role-tabs{display:flex;gap:8px;margin-bottom:20px}
+.role-tabs button{flex:1;background:transparent;border:1px solid var(--card-border);border-radius:var(--radius-ctl);padding:10px;color:var(--muted);font-weight:600;font-family:'Plus Jakarta Sans';cursor:pointer;transition:.15s;font-size:13px}
+.role-tabs button.on{background:rgba(249,115,22,.1);border-color:var(--primary);color:var(--primary)}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+input,select{width:100%;background:var(--background);border:1px solid var(--card-border);border-radius:var(--radius-ctl);color:var(--foreground);padding:11px 12px;font-family:'Plus Jakarta Sans';font-size:14px;margin-bottom:14px}
+input:focus,select:focus{outline:none;border-color:var(--primary)}
+.hint{font-size:11.5px;color:var(--muted);margin-bottom:14px}
+
+.hero{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
 .hero .label{color:var(--muted);font-size:13px;margin-bottom:8px}
 .hero .big{font-family:'Sora';font-weight:800;font-size:36px}
-.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;
-  font-size:12px;font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600}
 .badge.green{color:#4ADE80;background:var(--green-bg)}
 .badge.amber{color:#FBBF24;background:var(--amber-bg)}
 .badge.red{color:#F87171;background:var(--red-bg)}
-
+.badge.dim{color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--card-border)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
-  padding:18px;border-left:3px solid var(--primary)}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;border-left:3px solid var(--primary)}
 .card .label{color:var(--muted);font-size:12px;margin-bottom:6px}
 .card .val{font-family:'Sora';font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
 .card.g{border-left-color:var(--green)} .card.a{border-left-color:var(--amber)} .card.r{border-left-color:var(--red)}
 
-.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
-  padding:20px;margin-bottom:20px}
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
 .panel h2{font-size:16px;margin-bottom:14px}
+.assess-box{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.absen-btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:var(--radius-ctl);padding:12px 20px;font-weight:700;font-family:'Plus Jakarta Sans';font-size:14px;cursor:pointer}
+.absen-btn:disabled{opacity:.4;cursor:not-allowed}
+.absen-time{font-size:13px;color:var(--muted);margin-top:10px}
 table{width:100%;border-collapse:collapse}
-th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;
-  text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
+th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
 td{padding:12px;border-bottom:1px solid var(--card-border)}
 tr:last-child td{border-bottom:none}
 td.num{font-variant-numeric:tabular-nums;font-family:'Sora';font-weight:600}
-.btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:999px;
-  padding:10px 20px;font-weight:600;font-family:'Plus Jakarta Sans';font-size:14px;cursor:pointer;transition:.15s}
-.btn:hover{filter:brightness(1.08)}
-.btn-ghost{background:transparent;color:var(--foreground);border:1px solid var(--card-border)}
-.status-ok{color:#4ADE80} .status-warn{color:#FBBF24} .status-err{color:#F87171}
+.status-ok{color:#4ADE80;font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:24px}
-@media(max-width:600px){body{padding:16px} .hero .big{font-size:28px}}
+.role-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.25);border-radius:var(--radius-ctl);padding:10px 14px;margin-bottom:20px;font-size:13px}
+.role-banner b{color:var(--primary)}
+.logout-btn{background:transparent;border:1px solid var(--card-border);border-radius:999px;padding:6px 14px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+.logout-btn:hover{color:var(--red);border-color:var(--red)}
+@media(max-width:600px){body{padding:16px}.hero .big{font-size:28px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b></span></div>
-  <div class="pill" id="sync-status">Memuat…</div>
-</header>
-<h1>Ringkasan Toko</h1>
-<p class="sub">Data langsung dari Google Sheets via Apps Script.</p>
 
-<div class="hero">
-  <div class="label">Total Pendapatan (Transaksi)</div>
-  <div class="big" id="kpi-revenue">—</div>
-  <span class="badge green" id="kpi-count">0 transaksi</span>
-</div>
+<!-- ============ LOGIN ============ -->
+<section id="view-login" class="view active">
+  <div class="auth-wrap">
+    <div style="text-align:center;margin-bottom:24px">
+      <div class="brand" style="justify-content:center"><div class="logo">T</div><span>Toko<b>Kita</b></span></div>
+      <p class="sub" style="margin-top:12px;margin-bottom:0">Masuk untuk memilih peran Anda</p>
+    </div>
+    <div class="auth-card" style="margin-top:20px">
+      <div class="role-tabs">
+        <button id="tab-admin" class="on" onclick="switchRole('admin')">🛡️ Admin</button>
+        <button id="tab-pegawai" onclick="switchRole('pegawai')">👤 Karyawan</button>
+      </div>
 
-<div class="grid">
-  <div class="card"><div class="label">Produk</div><div class="val" id="kpi-products">—</div></div>
-  <div class="card g"><div class="label">Pelanggan</div><div class="val" id="kpi-customers">—</div></div>
-  <div class="card a"><div class="label">Invoice Belum Lunas</div><div class="val" id="kpi-invoices">—</div></div>
-  <div class="card r"><div class="label">Stok di Bawah Minimum</div><div class="val" id="kpi-lowstock">—</div></div>
-</div>
+      <form id="form-admin" onsubmit="loginAdmin(event)">
+        <label>PIN Admin</label>
+        <input type="password" id="admin-pin" maxlength="6" inputmode="numeric" placeholder="Masukkan PIN admin" required>
+        <button type="submit" class="absen-btn" style="width:100%">Masuk sebagai Admin</button>
+      </form>
 
-<div class="panel">
-  <h2>Transaksi Terakhir</h2>
-  <table>
-    <thead><tr><th>ID</th><th>Tanggal</th><th>Metode</th><th style="text-align:right">Total</th></tr></thead>
-    <tbody id="tx-body"><tr><td colspan="4" class="empty">Memuat…</td></tr></tbody>
-  </table>
-</div>
+      <form id="form-pegawai" style="display:none" onsubmit="loginPegawai(event)">
+        <label>Pilih Pegawai</label>
+        <select id="pegawai-select"></select>
+        <div class="hint">Pilih nama lalu ketik PIN login Anda. Role menentukan fitur yang Anda dapatkan.</div>
+        <label>PIN Login</label>
+        <input type="password" id="pegawai-pin" maxlength="6" inputmode="numeric" placeholder="PIN 4-6 digit" required>
+        <button type="submit" class="absen-btn" style="width:100%">Masuk</button>
+      </form>
+      <div id="auth-err" style="display:none;color:var(--red);font-size:12.5px;margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ADMIN DASHBOARD ============ -->
+<section id="view-admin" class="view">
+  <header>
+    <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b></span></div>
+    <div class="role-banner" style="margin:0;background:var(--card);border-color:var(--card-border)">
+      <span><b>ADMIN</b> — akses penuh</span>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+    </div>
+  </header>
+  <h1>Ringkasan Toko</h1>
+  <p class="sub">Data langsung dari Google Sheets via Apps Script.</p>
+
+  <div class="hero">
+    <div class="label">Total Pendapatan (Transaksi)</div>
+    <div class="big" id="kpi-revenue">—</div>
+    <span class="badge green" id="kpi-count">0 transaksi</span>
+  </div>
+
+  <div class="grid">
+    <div class="card"><div class="label">Produk</div><div class="val" id="kpi-products">—</div></div>
+    <div class="card g"><div class="label">Pelanggan</div><div class="val" id="kpi-customers">—</div></div>
+    <div class="card a"><div class="label">Invoice Belum Lunas</div><div class="val" id="kpi-invoices">—</div></div>
+    <div class="card r"><div class="label">Stok di Bawah Minimum</div><div class="val" id="kpi-lowstock">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Transaksi Terakhir</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Tanggal</th><th>Metode</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody id="tx-body"><tr><td colspan="4" class="empty">Memuat…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ KARYAWAN / KASIR ============ -->
+<section id="view-pegawai" class="view">
+  <header>
+    <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b></span></div>
+    <div class="role-banner" style="border-radius:999px;margin:0">
+      <span>Masuk sebagai <b id="nama-pegawai">…</b> · <span id="role-pegawai" class="badge dim">…</span></span>
+      <button class="logout-btn" onclick="doLogout()">Keluar</button>
+    </div>
+  </header>
+
+  <!-- POS khusus Kasir -->
+  <div id="sec-pos" style="display:none">
+    <h1>Panel Kasir</h1>
+    <p class="sub">Anda adalah Kasir — akses POS, absensi, dan ringkasan hari ini.</p>
+    <div class="grid">
+      <div class="card"><div class="label">Transaksi Hari Ini</div><div class="val" id="kasir-tx">—</div></div>
+      <div class="card g"><div class="label">Pendapatan Hari Ini</div><div class="val" id="kasir-rev">—</div></div>
+      <div class="card a"><div class="label">Stok Menipis</div><div class="val" id="kasir-low">—</div></div>
+    </div>
+    <div class="panel">
+      <h2>Aksi Kasir</h2>
+      <div class="assess-box">
+        <button class="absen-btn" onclick="absenKasir()">✔️ Cek In Absen</button>
+      </div>
+      <div class="absen-time" id="kasir-absen-msg">Belum absen hari ini.</div>
+    </div>
+  </div>
+
+  <!-- Non-Kasir -->
+  <div id="sec-nonkasir">
+    <h1>Menu Karyawan</h1>
+    <p class="sub">Fitur khusus non-kasir: absensi, pengajuan izin, dan slip gaji.</p>
+
+    <div class="panel">
+      <h2>Absensi Saya</h2>
+      <div class="assess-box">
+        <button class="absen-btn" id="btn-in" onclick="absenKaryawan('in')">📍 Cek In</button>
+        <button class="absen-btn" id="btn-out" style="background:var(--card-border);color:var(--foreground)" onclick="absenKaryawan('out')" disabled>📤 Cek Out</button>
+      </div>
+      <div class="absen-time" id="msg-absen">Belum absen hari ini.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Izin / Cuti</h2>
+      <table>
+        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Status</th></tr></thead>
+        <tbody id="izin-body"><tr><td colspan="3" class="empty">Belum ada pengajuan.</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Slip Gaji</h2>
+      <table>
+        <thead><tr><th>Bulan</th><th style="text-align:right">Jumlah</th></tr></thead>
+        <tbody id="gaji-body"><tr><td colspan="2" class="empty">Belum ada slip.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <script>
 function rp(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID') }
-function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] }) }
+function esc(s){ return String(s==null?'':s).replace(/[&<>\"]/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c] }) }
 
-function load(){
-  var el = document.getElementById('sync-status')
-  el.textContent = 'Memuat data…'
-  google.script.run
-    .withSuccessHandler(render)
-    .withFailureHandler(function(err){
-      el.innerHTML = '<span class="status-err">Gagal memuat</span>'
-      document.getElementById('tx-body').innerHTML =
-        '<tr><td colspan="4" class="empty">Error: ' + esc(err && err.message || err) + '</td></tr>'
-    })
-    .all()
+var dataAll = null;
+var pegawaiList = [];
+var currentPegawai = null;
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+function switchRole(which){
+  document.getElementById('tab-admin').classList.toggle('on', which==='admin');
+  document.getElementById('form-admin').style.display = which==='admin'?'block':'none';
+  document.getElementById('form-pegawai').style.display = which==='pegawai'?'block':'none';
+  document.getElementById('auth-err').style.display='none';
+}
+function authErr(msg){
+  var el=document.getElementById('auth-err');
+  el.textContent=msg; el.style.display='block';
 }
 
-function render(data){
-  var el = document.getElementById('sync-status')
-  el.innerHTML = '<span class="status-ok">● Tersinkron</span> ' +
-    new Date().toLocaleTimeString('id-ID')
-  var produk = data.produk||[], tx = data.transaksi||[], pel = data.pelanggan||[],
-      inv = data.invoice||[]
-  var revenue = tx.reduce(function(s,t){ return s + Number(t.total||0) }, 0)
-  document.getElementById('kpi-revenue').textContent = rp(revenue)
-  document.getElementById('kpi-count').textContent = tx.length + ' transaksi'
-  document.getElementById('kpi-products').textContent = produk.length
-  document.getElementById('kpi-customers').textContent = pel.length
-  document.getElementById('kpi-invoices').textContent =
-    inv.filter(function(i){ return (i.status||'').toLowerCase() !== 'lunas' }).length
-  document.getElementById('kpi-lowstock').textContent =
-    produk.filter(function(p){ return Number(p.stock||0) < Number(p.minStock||0) }).length
+google.script.run
+  .withSuccessHandler(function(d){
+    dataAll = d;
+    pegawaiList = (d.pegawai||[]).filter(function(p){return p.id});
+    document.getElementById('pegawai-select').innerHTML = pegawaiList.map(function(p){
+      return '<option value="'+esc(p.id)+'">'+esc(p.name)+' — '+esc(p.role||'staff')+'</option>';
+    }).join('');
+  })
+  .withFailureHandler(function(err){
+    authErr('Gagal memuat data: ' + (err&&err.message||err));
+  })
+  .all();
 
-  var body = document.getElementById('tx-body')
-  if(!tx.length){ body.innerHTML = '<tr><td colspan="4" class="empty">Belum ada transaksi</td></tr>'; return }
-  body.innerHTML = tx.slice(-10).reverse().map(function(t){
-    var m = String(t.method||'-').toLowerCase()
-    var cls = m.indexOf('tunai')>-1||m==='cash' ? 'badge green' : 'badge amber'
-    return '<tr><td>' + esc(t.id) + '</td><td>' + esc(t.date) + '</td>' +
-      '<td><span class="' + cls + '">' + esc(t.method||'-') + '</span></td>' +
-      '<td class="num" style="text-align:right">' + rp(t.total) + '</td></tr>'
-  }).join('')
+function loginAdmin(e){
+  e.preventDefault();
+  var pin = document.getElementById('admin-pin').value.trim();
+  var ADMIN_PIN = '1234';
+  if(pin !== ADMIN_PIN){ authErr('PIN admin salah.'); return; }
+  showView('view-admin');
+  renderAdmin();
+}
+function loginPegawai(e){
+  e.preventDefault();
+  var id = document.getElementById('pegawai-select').value;
+  var pin = document.getElementById('pegawai-pin').value.trim();
+  var p = pegawaiList.find(function(x){return String(x.id)===String(id)});
+  if(!p){ authErr('Pegawai tidak ditemukan.'); return; }
+  if(!p.pin || String(p.pin)!==pin){ authErr('PIN salah untuk '+p.name+'.'); return; }
+  currentPegawai = p;
+  var isKasir = /kasir/i.test(p.role||'');
+  document.getElementById('nama-pegawai').textContent = p.name;
+  document.getElementById('role-pegawai').textContent = p.role||'Staff';
+  document.getElementById('sec-pos').style.display = isKasir?'block':'none';
+  document.getElementById('sec-nonkasir').style.display = isKasir?'none':'block';
+  showView('view-pegawai');
+  if(isKasir) renderKasir(); else renderPegawai();
+}
+function doLogout(){
+  currentPegawai=null;
+  document.getElementById('admin-pin').value='';
+  document.getElementById('pegawai-pin').value='';
+  document.getElementById('auth-err').style.display='none';
+  showView('view-login');
 }
 
-load()
+function renderAdmin(){
+  var tx = dataAll.transaksi||[];
+  var rev = tx.reduce(function(s,t){return s+Number(t.total||0)},0);
+  document.getElementById('kpi-revenue').textContent = rp(rev);
+  document.getElementById('kpi-count').textContent = tx.length+' transaksi';
+  document.getElementById('kpi-products').textContent = (dataAll.produk||[]).length;
+  document.getElementById('kpi-customers').textContent = (dataAll.pelanggan||[]).length;
+  document.getElementById('kpi-invoices').textContent = (dataAll.invoice||[]).filter(function(i){return (i.status||'').toLowerCase()!=='lunas'}).length;
+  var low = (dataAll.produk||[]).filter(function(p){return Number(p.stock||0) <= Number(p.minStock||0)});
+  document.getElementById('kpi-lowstock').textContent = low.length;
+  var body = document.getElementById('tx-body');
+  if(!tx.length){ body.innerHTML='<tr><td colspan="4" class="empty">Belum ada transaksi.</td></tr>'; return; }
+  body.innerHTML = tx.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))}).slice(0,8)
+    .map(function(t){return '<tr><td class="num">'+esc(t.id)+'</td><td>'+esc(t.date)+'</td><td>'+esc(t.method)+'</td><td class="num" style="text-align:right">'+rp(t.total)+'</td></tr>'}).join('');
+}
+
+function renderKasir(){
+  var today = new Date().toISOString().slice(0,10);
+  var tx = (dataAll.transaksi||[]).filter(function(t){return String(t.date).slice(0,10)===today});
+  var rev = tx.reduce(function(s,t){return s+Number(t.total||0)},0);
+  var low = (dataAll.produk||[]).filter(function(p){return Number(p.stock||0) <= Number(p.minStock||0)});
+  document.getElementById('kasir-tx').textContent = tx.length;
+  document.getElementById('kasir-rev').textContent = rp(rev);
+  document.getElementById('kasir-low').textContent = low.length;
+}
+function absenKasir(){
+  var now = new Date();
+  google.script.run.withSuccessHandler(function(){
+    document.getElementById('kasir-absen-msg').innerHTML = '<span class="status-ok">✔ Absen in tercatat: '+now.toLocaleTimeString('id-ID')+'</span>';
+  }).withFailureHandler(function(e){alert('Gagal absen: '+e.message)}).appendAbsen({
+    id: now.getTime(), employeeId: currentPegawai.id, name: currentPegawai.name, in: now.toISOString(), out: ''
+  });
+}
+
+function renderPegawai(){
+  var izin = dataAll.izin||[];
+  var gaji = dataAll.gaji||[];
+  var ib = document.getElementById('izin-body');
+  ib.innerHTML = izin.length ? izin.map(function(i){
+    return '<tr><td>'+esc(i.tanggal)+'</td><td>'+esc(i.jenis)+'</td><td><span class="badge dim">'+esc(i.status||'Menunggu')+'</span></td></tr>';
+  }).join('') : '<tr><td colspan="3" class="empty">Belum ada pengajuan.</td></tr>';
+  var gb = document.getElementById('gaji-body');
+  gb.innerHTML = gaji.length ? gaji.map(function(g){
+    return '<tr><td>'+esc(g.bulan)+'</td><td class="num" style="text-align:right">'+rp(g.jumlah)+'</td></tr>';
+  }).join('') : '<tr><td colspan="2" class="empty">Belum ada slip.</td></tr>';
+}
+function absenKaryawan(tipe){
+  var now = new Date();
+  var rec = {id: now.getTime(), employeeId: currentPegawai.id, name: currentPegawai.name, in: tipe==='in'?now.toISOString():'', out: tipe==='out'?now.toISOString():''};
+  google.script.run.withSuccessHandler(function(){
+    document.getElementById('msg-absen').innerHTML = '<span class="status-ok">✔ '+tipe+' tercatat: '+now.toLocaleTimeString('id-ID')+'</span>';
+    if(tipe==='in'){ document.getElementById('btn-out').disabled=false; document.getElementById('btn-in').disabled=true; }
+  }).withFailureHandler(function(e){alert('Gagal absen: '+e.message)}).appendAbsen(rec);
+}
 </script>
 </body>
 </html>

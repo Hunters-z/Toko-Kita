@@ -25,10 +25,12 @@ const SHEETS = {
   Pelanggan: ['id','name','phone','note'],
   Invoice:   ['id','customerId','date','due','total','status'],
   Pegawai:   ['id','name','role','pin'],
-  Absen:     ['id','employeeId','in','out'],
+  Absen:     ['id','employeeId','name','in','out'],
   Pemasok:   ['id','name','phone','item'],
   Pengeluaran:['id','date','category','note','amount'],
   Pembelian: ['id','supplierId','date','items','total','status'],
+  Izin:      ['id','employeeId','tanggal','jenis','status'],
+  Gaji:      ['id','employeeId','bulan','jumlah']
 }
 
 function doGet(e) {
