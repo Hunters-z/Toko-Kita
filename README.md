@@ -132,6 +132,7 @@ Untuk saat ini kamu juga bisa memakai Sheet sebagai sumber data untuk:
 - [x] **Role Access: role Kasir dapat POS/Kasir, Karyawan non-kasir dapat Absen, Izin/Cuti, Slip Gaji, Profil**
 - [ ] Approval Izin/Cuti & slip gaji PDF otomatis — roadmap Q4
 - [x] **Apps Script dashboard (index.html) terintegrasi role-based: Admin / Kasir / Karyawan**
+- [x] **Audit Hallmark Design System (Anti-AI-Slop): Floor rules diterapkan (CSS tokens, fokus-visible, reduced-motion, overflow-x:clip)**
 - [x] **Halaman web Apps Script (dashboard `?page=ui`)**
 - [x] Notifikasi stok menipis (Dashboard + toast POS)
 - [x] Ringkasan harian/mingguan di Dashboard

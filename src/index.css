@@ -1,62 +1,9 @@
+/* Hallmark Stamp v2.0.0 · theme: finpoint-light · genre: enterprise-erp · floor: pass */
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* shadcn CSS variables — dipetakan ke palet FinPoint (light premium, aksen biru #2563EB) */
-@layer base {
-  :root {
-    --background: 224 41% 97%;        /* #F4F6FA */
-    --foreground: 221 26% 8%;         /* #10131A */
-    --card: 0 0% 100%;
-    --card-foreground: 221 26% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 221 26% 8%;
-    --primary: 221 83% 53%;           /* #2563EB */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 224 37% 96%;         /* #F1F3F8 */
-    --secondary-foreground: 221 26% 8%;
-    --muted: 224 37% 96%;
-    --muted-foreground: 217 9% 40%;   /* #5C6470 */
-    --accent: 220 74% 96%;            /* #EAF0FE */
-    --accent-foreground: 221 83% 53%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 222 30% 92%;            /* #E6E9F0 */
-    --input: 222 30% 92%;
-    --ring: 221 83% 53%;
-    --radius: 0.75rem;
-  }
-}
-
-@layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
-}
-
-body { font-family:'Plus Jakarta Sans',sans-serif; }
-h1,h2,h3 { font-family:'Sora',sans-serif; }
-
-.card { background:#FFFFFF; border-radius:20px; box-shadow:0 2px 12px rgba(16,19,26,.06); }
-.card2 { background:#F1F3F8; border-radius:16px; }
-.pill { border-radius:999px; padding:3px 10px; font-size:11px; font-weight:600; display:inline-block; }
-.btn-primary { background:#2563EB; color:#fff; border-radius:999px; font-weight:600; transition:.15s; }
-.btn-primary:hover { filter:brightness(1.08); }
-.btn-ghost { background:#F1F3F8; color:#10131A; border-radius:999px; font-weight:600; }
-.inp { background:#FFFFFF; border:1px solid #E6E9F0; border-radius:12px; padding:10px 14px; color:#10131A; font-size:14px; width:100%; outline:none; }
-.inp:focus { border-color:#2563EB; box-shadow:0 0 0 3px #EAF0FE; }
-table { width:100%; border-collapse:collapse; }
-th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#9AA1AD; padding:8px 10px; }
-td { padding:11px 10px; font-size:13.5px; border-top:1px solid #E6E9F0; }
-.gain { color:#16A34A; } .loss { color:#DC2626; }
-
-.sw { width:46px;height:28px;border-radius:99px;background:#D9DCE1;position:relative;flex-shrink:0;cursor:pointer;transition:.2s;display:inline-block }
-.sw.on { background:#2563EB }
-.sw i { position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.18) }
-.sw.on i { left:21px }
-.dark .sw { background:#3A3A42 }
-
-/* shadcn/ui tokens — dipetakan ke palet tema Toko Kita */
 @layer base {
   :root {
     --background: 220 27% 98%;
@@ -83,5 +30,23 @@ td { padding:11px 10px; font-size:13.5px; border-top:1px solid #E6E9F0; }
 }
 
 @layer base {
-  body { background: hsl(var(--background)); color: hsl(var(--foreground)); }
+  html, body { overflow-x: clip; margin: 0; padding: 0; font-family:'Plus Jakarta Sans',sans-serif; background: hsl(var(--background)); color: hsl(var(--foreground)); }
+  h1,h2,h3 { font-family:'Sora',sans-serif; }
+  * { @apply border-border; }
+  :focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
 }
+
+.card { background:#FFFFFF; border-radius:20px; box-shadow:0 2px 12px rgba(16,19,26,.06); }
+.card2 { background:#F1F3F8; border-radius:16px; }
+.btn-primary { background:#2563EB; color:#fff; border-radius:999px; font-weight:600; transition:background 0.15s; }
+.btn-primary:hover { filter:brightness(1.08); }
+.inp { background:#FFFFFF; border:1px solid #E6E9F0; border-radius:12px; padding:10px 14px; color:#10131A; width:100%; outline:none; }
+.inp:focus { border-color:#2563EB; }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#9AA1AD; padding:8px 10px; }
+td { padding:11px 10px; font-size:13.5px; border-top:1px solid #E6E9F0; }
+.sw { width:46px;height:28px;border-radius:99px;background:#D9DCE1;position:relative;cursor:pointer;transition:background 0.2s;display:inline-block }
+.sw.on { background:#2563EB }
+.sw i { position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,.18) }
+.sw.on i { left:21px }
