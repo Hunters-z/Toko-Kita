@@ -30,7 +30,11 @@ const SHEETS = {
   Pengeluaran:['id','date','category','note','amount'],
   Pembelian: ['id','supplierId','date','items','total','status'],
   Izin:      ['id','employeeId','tanggal','jenis','status'],
-  Gaji:      ['id','employeeId','bulan','jumlah']
+  Gaji:      ['id','employeeId','bulan','jumlah'],
+  Finance:   ['id','date','type','category','amount','note'],
+  Sales:     ['id','customer','date','total','status','salesPerson'],
+  Scm:       ['id','supplier','item','qty','status','eta'],
+  Marketing: ['id','name','channel','budget','status','leadCount']
 }
 
 function doGet(e) {

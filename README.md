@@ -133,6 +133,8 @@ Untuk saat ini kamu juga bisa memakai Sheet sebagai sumber data untuk:
 - [ ] Approval Izin/Cuti & slip gaji PDF otomatis — roadmap Q4
 - [x] **Ekstensi Odoo-style Modular: Keuangan, Penjualan CRM, Website Builder, Supply Chain, HR, Pemasaran**
 - [x] **Apps Script dashboard (index.html) terintegrasi role-based: Admin / Kasir / Karyawan**
+- [x] **Ekstensi Odoo-style Modular: Keuangan, Penjualan CRM, Website Builder, Supply Chain, HR, Pemasaran**
+- [x] **Google Sheets (Apps Script) diperluas: Finance, Sales, SCM, Marketing**
 - [x] **Audit Hallmark Design System (Anti-AI-Slop): Floor rules diterapkan (CSS tokens, fokus-visible, reduced-motion, overflow-x:clip)**
 - [x] **Halaman web Apps Script (dashboard `?page=ui`)**
 - [x] Notifikasi stok menipis (Dashboard + toast POS)
