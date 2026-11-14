@@ -16,6 +16,12 @@ import Employees from './pages/Employees.jsx'
 import Attendance from './pages/Attendance.jsx'
 import Purchases from './pages/Purchases.jsx'
 import Bundles from './pages/Bundles.jsx'
+import Finance from './pages/Finance.jsx'
+import SalesCRM from './pages/SalesCRM.jsx'
+import WebsiteBuilder from './pages/WebsiteBuilder.jsx'
+import SupplyChain from './pages/SupplyChain.jsx'
+import HumanResources from './pages/HumanResources.jsx'
+import Marketing from './pages/Marketing.jsx'
 import SettingsPage from './pages/Settings.jsx'
 import KaryawanAbsen from './pages/KaryawanAbsen.jsx'
 import KaryawanRiwayat from './pages/KaryawanRiwayat.jsx'
@@ -57,6 +63,18 @@ export default function App() {
            <Route path="absen" element={<Attendance/>}/>
            <Route path="pembelian" element={<Purchases/>}/>
            <Route path="produksi" element={<Bundles/>}/>
+           <Route path="keuangan" element={<Finance/>}/>
+           <Route path="sales" element={<SalesCRM/>}/>
+           <Route path="website" element={<WebsiteBuilder/>}/>
+           <Route path="supply-chain" element={<SupplyChain/>}/>
+           <Route path="hr" element={<HumanResources/>}/>
+           <Route path="marketing" element={<Marketing/>}/>
+           <Route path="pengaturan" element={<SettingsPage/>}/>
+           <Route path="sales" element={<SalesCRM/>}/>
+           <Route path="website" element={<WebsiteBuilder/>}/>
+           <Route path="supply-chain" element={<SupplyChain/>}/>
+           <Route path="hr" element={<HumanResources/>}/>
+           <Route path="marketing" element={<Marketing/>}/>
            <Route path="pengaturan" element={<SettingsPage/>}/>
         </Route>
 

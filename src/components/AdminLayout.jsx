@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, ShoppingCart, Package, ReceiptText, Wallet, BarChart3, Users,
   Building2, Briefcase, Truck, Gift, Settings, Menu, Search, Bell, X, LogOut,
+  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart
 } from 'lucide-react'
 import { loadDB } from '../lib/store.js'
 import { logout } from '../lib/session.js'
@@ -14,13 +15,19 @@ const nav = [
   { to: '/pos', icon: ShoppingCart, name: 'Kasir' },
   { to: '/inventori', icon: Package, name: 'Inventori' },
   { to: '/invoice', icon: ReceiptText, name: 'Invoice' },
-  { to: '/pengeluaran', icon: Wallet, name: 'Pengeluaran' },
-  { to: '/laporan', icon: BarChart3, name: 'Laporan' },
+  { to: '/keuangan', icon: PieChart, name: 'Keuangan' },
+  { to: '/sales', icon: Handshake, name: 'Penjualan CRM' },
   { to: '/pelanggan', icon: Users, name: 'Pelanggan' },
   { to: '/pemasok', icon: Building2, name: 'Pemasok' },
+  { to: '/supply-chain', icon: Truck, name: 'Supply Chain' },
+  { to: '/hr', icon: UserCog, name: 'SDM' },
+  { to: '/marketing', icon: Megaphone, name: 'Marketing' },
+  { to: '/website', icon: Globe, name: 'Website' },
+  { to: '/pengeluaran', icon: Wallet, name: 'Pengeluaran' },
+  { to: '/laporan', icon: BarChart3, name: 'Laporan' },
   { to: '/pegawai', icon: Briefcase, name: 'Pegawai' },
   { to: '/absen', icon: null, name: 'Absensi', lucide: 'CalendarCheck' },
-  { to: '/pembelian', icon: Truck, name: 'Pembelian' },
+  { to: '/pembelian', icon: PackageCheck, name: 'Pembelian' },
   { to: '/produksi', icon: Gift, name: 'Produksi' },
   { to: '/pengaturan', icon: Settings, name: 'Pengaturan' },
 ]
