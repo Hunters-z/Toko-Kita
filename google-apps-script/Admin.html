@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Panel Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--green-bg:rgba(22,163,74,.14);--amber:#D97706;--amber-bg:rgba(217,119,6,.14);--red:#DC2626;--red-bg:rgba(220,38,38,.14);--radius:20px;--radius-ctl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:24px;min-height:100vh}
+h1,h2,h3{font-family:'Sora',sans-serif;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800;font-size:20px}
+.brand span{font-family:'Sora';font-weight:700;font-size:18px}
+.brand span b{color:var(--primary)}
+.hero{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.hero .label{color:var(--muted);font-size:13px;margin-bottom:8px}
+.hero .big{font-family:'Sora';font-weight:800;font-size:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;border-left:3px solid var(--primary)}
+.card .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+.card .val{font-family:'Sora';font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.card.g{border-left-color:var(--green)} .card.a{border-left-color:var(--amber)} .card.r{border-left-color:var(--red)}
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.panel h2{font-size:16px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse}
+th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
+td{padding:12px;border-bottom:1px solid var(--card-border)}
+tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;font-family:'Sora';font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;color:#4ADE80;background:var(--green-bg)}
+.empty{color:var(--muted);text-align:center;padding:24px}
+.nav-links{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-size:13px;font-weight:600}
+.nav-links a:hover,.nav-links a.active{border-color:var(--primary);color:var(--primary)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b> · Admin</span></div>
+  <div class="nav-links">
+    <a href="?page=admin" class="active">🛡️ Admin</a>
+    <a href="?page=pos">🛒 POS Kasir</a>
+    <a href="?page=absen">📍 Absensi</a>
+  </div>
+</header>
+
+<h1>Ringkasan Toko & ERP</h1>
+<p style="color:var(--muted);margin-bottom:20px">Akses penuh manajemen operasional, keuangan, dan inventori.</p>
+
+<div class="hero">
+  <div class="label">Total Pendapatan (Transaksi)</div>
+  <div class="big" id="kpi-revenue">—</div>
+  <span class="badge" id="kpi-count">0 transaksi</span>
+</div>
+
+<div class="grid">
+  <div class="card"><div class="label">Produk</div><div class="val" id="kpi-products">—</div></div>
+  <div class="card g"><div class="label">Pelanggan</div><div class="val" id="kpi-customers">—</div></div>
+  <div class="card a"><div class="label">Invoice Belum Lunas</div><div class="val" id="kpi-invoices">—</div></div>
+  <div class="card r"><div class="label">Stok di Bawah Minimum</div><div class="val" id="kpi-lowstock">—</div></div>
+</div>
+
+<div class="panel">
+  <h2>Modul Ekstensi Odoo-Style Aktif</h2>
+  <div class="grid" style="margin-bottom:0">
+    <div class="card">💰 Keuangan (Finance)</div>
+    <div class="card g">🛒 Penjualan & CRM</div>
+    <div class="card a">📦 Supply Chain</div>
+    <div class="card">👥 Human Resources</div>
+    <div class="card g">📣 Pemasaran</div>
+    <div class="card a">🌐 Website Builder</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Transaksi Terakhir</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Tanggal</th><th>Metode</th><th style="text-align:right">Total</th></tr></thead>
+    <tbody id="tx-body"><tr><td colspan="4" class="empty">Memuat data dari Google Sheets…</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+function rp(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID') }
+function esc(s){ return String(s==null?'':s).replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c] }) }
+
+google.script.run
+  .withSuccessHandler(function(d){
+    var tx = d.transaksi||[];
+    var rev = tx.reduce(function(s,t){return s+Number(t.total||0)},0);
+    document.getElementById('kpi-revenue').textContent = rp(rev);
+    document.getElementById('kpi-count').textContent = tx.length+' transaksi';
+    document.getElementById('kpi-products').textContent = (d.produk||[]).length;
+    document.getElementById('kpi-customers').textContent = (d.pelanggan||[]).length;
+    document.getElementById('kpi-invoices').textContent = (d.invoice||[]).filter(function(i){return (i.status||'').toLowerCase()!=='lunas'}).length;
+    var low = (d.produk||[]).filter(function(p){return Number(p.stock||0) <= Number(p.minStock||0)});
+    document.getElementById('kpi-lowstock').textContent = low.length;
+    var body = document.getElementById('tx-body');
+    if(!tx.length){ body.innerHTML='<tr><td colspan="4" class="empty">Belum ada transaksi.</td></tr>'; return; }
+    body.innerHTML = tx.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))}).slice(0,8)
+      .map(function(t){return '<tr><td class="num">'+esc(t.id)+'</td><td>'+esc(t.date)+'</td><td>'+esc(t.method)+'</td><td class="num" style="text-align:right">'+rp(t.total)+'</td></tr>'}).join('');
+  })
+  .withFailureHandler(function(err){
+    alert('Gagal memuat data: ' + (err&&err.message||err));
+  })
+  .all();
+</script>
+</body>
+</html>

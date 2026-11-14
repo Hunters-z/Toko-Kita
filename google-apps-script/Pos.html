@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Panel Kasir (POS)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--green-bg:rgba(22,163,74,.14);--amber:#D97706;--amber-bg:rgba(217,119,6,.14);--red:#DC2626;--radius:20px;--radius-ctl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:24px;min-height:100vh}
+h1,h2{font-family:'Sora',sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800}
+.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-weight:600;font-size:13px}
+.nav-links a.active{border-color:var(--primary);color:var(--primary)}
+.hero{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.hero .label{color:var(--muted);font-size:13px;margin-bottom:8px}
+.hero .big{font-family:'Sora';font-weight:800;font-size:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;border-left:3px solid var(--primary)}
+.card .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+.card .val{font-family:'Sora';font-weight:700;font-size:22px}
+.card.g{border-left-color:var(--green)} .card.a{border-left-color:var(--amber)}
+.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.btn-pos{background:var(--primary);color:var(--primary-fg);border:none;border-radius:12px;padding:12px 24px;font-weight:700;font-family:'Plus Jakarta Sans';cursor:pointer}
+.empty{color:var(--muted);text-align:center;padding:24px}
+table{width:100%;border-collapse:collapse}
+th{color:var(--muted);font-size:12px;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
+td{padding:12px;border-bottom:1px solid var(--card-border)}
+.status-ok{color:#4ADE80;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">T</div><span>Toko<b>Kita</b> · Kasir</span></div>
+  <div class="nav-links">
+    <a href="?page=admin">🛡️ Admin</a>
+    <a href="?page=pos" class="active">🛒 POS Kasir</a>
+    <a href="?page=absen">📍 Absensi</a>
+  </div>
+</header>
+
+<h1>Panel Kasir & POS</h1>
+<p style="color:var(--muted);margin-bottom:20px">Panel khusus untuk staf kasir. Pantau penjualan hari ini dan kelola stok.</p>
+
+<div class="grid">
+  <div class="card"><div class="label">Transaksi Hari Ini</div><div class="val" id="kasir-tx">—</div></div>
+  <div class="card g"><div class="label">Pendapatan Hari Ini</div><div class="val" id="kasir-rev">—</div></div>
+  <div class="card a"><div class="label">Stok Menipis</div><div class="val" id="kasir-low">—</div></div>
+</div>
+
+<div class="panel">
+  <h2>Aksi Kasir Cepat</h2>
+  <button class="btn-pos" onclick="absenKasir()">✔️ Cek In Absen</button>
+  <div style="font-size:13px;color:var(--muted);margin-top:12px" id="kasir-absen-msg">Belum absen masuk hari ini.</div>
+</div>
+
+<div class="panel">
+  <h2>Riwayat Transaksi Baru</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Tanggal</th><th>Metode</th><th style="text-align:right">Total</th></tr></thead>
+    <tbody id="kasir-tx-body"><tr><td colspan="4" class="empty">Memuat…</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+function rp(n){ return 'Rp' + Number(n||0).toLocaleString('id-ID') }
+function esc(s){ return String(s==null?'':s).replace(/[&<>\"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c] }) }
+
+google.script.run
+  .withSuccessHandler(function(d){
+    var today = new Date().toISOString().slice(0,10);
+    var tx = (d.transaksi||[]).filter(function(t){return String(t.date).slice(0,10)===today});
+    var rev = tx.reduce(function(s,t){return s+Number(t.total||0)},0);
+    var low = (d.produk||[]).filter(function(p){return Number(p.stock||0) <= Number(p.minStock||0)});
+    document.getElementById('kasir-tx').textContent = tx.length;
+    document.getElementById('kasir-rev').textContent = rp(rev);
+    document.getElementById('kasir-low').textContent = low.length;
+    var body = document.getElementById('kasir-tx-body');
+    if(!tx.length){ body.innerHTML='<tr><td colspan="4" class="empty">Belum ada transaksi hari ini.</td></tr>'; return; }
+    body.innerHTML = tx.slice(0,5).map(function(t){return '<tr><td>'+esc(t.id)+'</td><td>'+esc(t.date)+'</td><td>'+esc(t.method)+'</td><td style="text-align:right;font-weight:700">'+rp(t.total)+'</td></tr>'}).join('');
+  });
+
+function absenKasir(){
+  var now = new Date();
+  google.script.run.withSuccessHandler(function(){
+    document.getElementById('kasir-absen-msg').innerHTML = '<span class="status-ok">✔ Absen in tercatat: '+now.toLocaleTimeString('id-ID')+'</span>';
+  }).appendAbsen({id: now.getTime(), employeeId: 'KASIR', name: 'Kasir', in: now.toISOString(), out: ''});
+}
+</script>
+</body>
+</html>
