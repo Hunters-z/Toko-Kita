@@ -41,6 +41,11 @@ function doGet(e) {
       .setTitle('Toko Kita — Panel Kasir (POS)')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
+  if (page === 'store' || page === 'storefront' || page === 'shop') {
+    return HtmlService.createHtmlOutputFromFile('Storefront')
+      .setTitle('Toko Kita — Belanja Online')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
   if (page === 'cms') {
     return HtmlService.createHtmlOutputFromFile('CMS')
       .setTitle('Toko Kita — CMS & Website')

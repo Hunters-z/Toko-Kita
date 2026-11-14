@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Belanja Online (Customer Storefront)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.head.insertAdjacentHTML('beforeend','<style>:root{--bg:#111114;--card:#1A1D24;--border:#262A33;--fg:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--green:#16A34A;--r:20px;--rc:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--fg);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;padding:24px;min-height:100vh}h1,h2{font-family:Sora,sans-serif}.bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:10px}.logo{width:36px;height:36px;border-radius:12px;background:var(--primary);color:#111;display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800}.brand b{color:var(--primary)}.cart-badge{background:var(--primary);color:#111;padding:6px 14px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px}.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;justify-content:space-between}.card h3{font-size:16px;margin-bottom:6px}.price{font-family:Sora;font-weight:700;color:var(--primary);font-size:18px;margin-bottom:12px}.btn{background:var(--primary);color:#111;border:none;border-radius:var(--rc);padding:10px;font-weight:700;font-family:Plus Jakarta Sans;cursor:pointer;font-size:13px;width:100%}.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:20px}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--rc);color:var(--fg);padding:10px 12px;font-size:14px;margin-bottom:12px}.empty{text-align:center;color:var(--muted);padding:32px}</style>');
+</script>
+</head>
+<body>
+<div class="bar">
+  <div class="brand"><div class="logo">T</div><span style="font-family:Sora;font-weight:700">Toko<b>Kita</b> Storefront</span></div>
+  <div class="cart-badge" onclick="toggleCart()">🛒 Keranjang (<span id="cart-count">0</span>)</div>
+</div>
+
+<div class="panel" style="background:linear-gradient(135deg,rgba(249,115,22,.15),var(--card));border-color:rgba(249,115,22,.3)">
+  <h1 id="store-title" style="font-size:24px;margin-bottom:8px">Selamat Datang di Toko Kami</h1>
+  <p id="store-subtitle" style="color:var(--muted)">Belanja mudah, cepat, dan otomatis masuk ke sistem kasir toko.</p>
+</div>
+
+<h2 style="font-size:18px;margin-bottom:14px">Katalog Produk</h2>
+<div class="grid" id="product-grid">
+  <div class="empty">Memuat produk toko…</div>
+</div>
+
+<div id="cart-panel" class="panel" style="display:none">
+  <h2>Keranjang Belanja Anda</h2>
+  <div id="cart-items" style="margin:14px 0">Keranjang masih kosong.</div>
+  <div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px;display:flex;justify-content:space-between;font-family:Sora;font-size:18px">
+    <span>Total Belanja:</span>
+    <span id="cart-total" style="color:var(--primary)">Rp0</span>
+  </div>
+  <label>Nama Pemesan / Pelanggan</label>
+  <input id="buyer-name" placeholder="Nama lengkap">
+  <label>No. HP / WhatsApp</label>
+  <input id="buyer-phone" placeholder="08xxxxxxxxxx">
+  <button class="btn" onclick="checkout()">🚀 Checkout & Kirim ke POS</button>
+</div>
+
+<script>
+var allData = {};
+var cart = [];
+
+function rp(n){return 'Rp'+Number(n||0).toLocaleString('id-ID')}
+function esc(s){return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'})[c])}
+
+google.script.run.withSuccessHandler(function(d){
+  allData = d;
+  if(d.website && d.website.length){
+    var w = d.website[0];
+    if(w.title) document.getElementById('store-title').textContent = w.title;
+    if(w.subtitle) document.getElementById('store-subtitle').textContent = w.subtitle;
+  }
+  renderProduk();
+}).all();
+
+function renderProduk(){
+  var prods = (allData.produk||[]).filter(function(p){return Number(p.stock||0)>0});
+  var grid = document.getElementById('product-grid');
+  if(!prods.length){ grid.innerHTML='<div class="empty">Belum ada produk tersedia.</div>'; return; }
+  grid.innerHTML = prods.map(function(p){
+    return '<div class="card"><div><h3>'+esc(p.name)+'</h3><div class="price">'+rp(p.price)+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:14px">Stok tersedia: '+p.stock+'</div></div><button class="btn" onclick="addToCart(\''+esc(p.id)+'\',\''+esc(p.name+' - '+rp(p.price))+'\','+p.price+','+p.stock+')">+ Masukkan Keranjang</button></div>';
+  }).join('');
+}
+
+function addToCart(id, name, price, stock){
+  var ex = cart.find(function(i){return i.id===id});
+  if(ex){
+    if(ex.qty >= stock){ alert('Stok produk tidak mencukupi!'); return; }
+    ex.qty++;
+  } else {
+    cart.push({id: id, name: name, price: price, qty: 1, stock: stock});
+  }
+  updateCartUI();
+}
+
+function updateCartUI(){
+  var count = cart.reduce(function(s,i){return s+i.qty},0);
+  document.getElementById('cart-count').textContent = count;
+  var panel = document.getElementById('cart-panel');
+  panel.style.display = cart.length>0?'block':'none';
+  var itemsEl = document.getElementById('cart-items');
+  var total = cart.reduce(function(s,i){return s+(i.price*i.qty)},0);
+  itemsEl.innerHTML = cart.map(function(i){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div><b>'+esc(i.name)+'</b><br><span style="font-size:12px;color:var(--muted)">'+i.qty+' x '+rp(i.price)+'</span></div><div style="font-weight:700">'+rp(i.price*i.qty)+'</div></div>';
+  }).join('') || 'Keranjang masih kosong.';
+  document.getElementById('cart-total').textContent = rp(total);
+}
+
+function toggleCart(){
+  var panel = document.getElementById('cart-panel');
+  panel.style.display = panel.style.display==='none'?'block':'none';
+}
+
+function checkout(){
+  var name = document.getElementById('buyer-name').value.trim();
+  var phone = document.getElementById('buyer-phone').value.trim();
+  if(!name || !phone){ alert('Mohon isi nama dan no HP Anda!'); return; }
+  if(!cart.length){ alert('Keranjang masih kosong!'); return; }
+  
+  var total = cart.reduce(function(s,i){return s+(i.price*i.qty)},0);
+  var txId = 'TX-' + Date.now();
+  var txRow = {
+    id: txId,
+    date: new Date().toISOString(),
+    items: JSON.stringify(cart),
+    sub: total,
+    disc: 0,
+    tax: 0,
+    total: total,
+    method: 'Online Store (' + name + ' - ' + phone + ')'
+  };
+  
+  google.script.run.withSuccessHandler(function(){
+    alert('🎉 Pesanan berhasil dibuat! Nomor Transaksi: ' + txId + '\nData telah masuk otomatis ke POS & laporan.');
+    cart = [];
+    updateCartUI();
+    document.getElementById('buyer-name').value = '';
+    document.getElementById('buyer-phone').value = '';
+  }).withFailureHandler(function(e){
+    alert('Gagal memproses pesanan: ' + e.message);
+  }).doPost({table:'transaksi', row: txRow});
+}
+</script>
+</body>
+</html>
