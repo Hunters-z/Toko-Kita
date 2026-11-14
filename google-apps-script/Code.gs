@@ -2,10 +2,14 @@
  * TOKO KITA — Backend Google Apps Script (Multi-HTML / Separate Pages Support)
  * ==================================================================
  * Routing berdasarkan URL parameter `page`:
- *   - /exec?page=admin  -> Admin.html (Ringkasan, Modul ERP, Transaksi)
- *   - /exec?page=pos    -> Pos.html   (Panel Kasir & POS)
- *   - /exec?page=absen  -> Absen.html (Menu Absensi, Izin, Slip Gaji Karyawan)
- *   - /exec (tanpa page)-> Index.html (Halaman Utama / Landing Router)
+ *   - /exec?page=admin     -> Admin.html (Ringkasan, Modul ERP, Transaksi)
+ *   - /exec?page=pos       -> Pos.html   (Panel Kasir & POS)
+ *   - /exec?page=absen     -> Absen.html (Menu Absensi, Izin, Slip Gaji Karyawan)
+ *   - /exec?page=inventori -> Inventori.html (Kelola Produk & Stok)
+ *   - /exec?page=cms       -> CMS.html (Pengaturan Website & CMS)
+ *   - /exec?page=store     -> Storefront.html (Toko Online Pelanggan)
+ *   - /exec (tanpa param)  -> Index.html (Halaman Utama / Landing Router)
+ *   - /exec?action=all     -> JSON Data Dump
  */
 
 const SHEETS = {
@@ -28,9 +32,26 @@ const SHEETS = {
 }
 
 function doGet(e) {
-  // 1. Check multi-page UI rendering
   const page = (e && e.parameter && e.parameter.page) ? e.parameter.page.toLowerCase() : '';
-  
+  const action = (e && e.parameter && e.parameter.action) ? e.parameter.action.toLowerCase() : '';
+
+  // 1. Jika ada action API khusus
+  if (action === 'ping') return json_({ ok: true, app: 'Toko Kita', time: new Date().toISOString() });
+  if (action === 'all') {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    ensureSheets_(ss);
+    const out = {};
+    for (const name of Object.keys(SHEETS)) out[name.toLowerCase()] = readSheet_(ss, name);
+    return json_(out);
+  }
+  if (SHEETS[action.charAt(0).toUpperCase()+action.slice(1)]) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    ensureSheets_(ss);
+    const key = action.charAt(0).toUpperCase()+action.slice(1);
+    return json_({ [action]: readSheet_(ss, key) });
+  }
+
+  // 2. Routing Halaman HTML
   if (page === 'admin') {
     return HtmlService.createHtmlOutputFromFile('Admin')
       .setTitle('Toko Kita — Panel Admin')
@@ -61,29 +82,8 @@ function doGet(e) {
       .setTitle('Toko Kita — Absensi & Portal Karyawan')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
-  if (page === 'ui' || page === 'index') {
-    return HtmlService.createHtmlOutputFromFile('Index')
-      .setTitle('Toko Kita — Portal ERP')
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-  }
 
-  // 2. Default JSON API endpoint handling
-  const action = (e && e.parameter && e.parameter.action ? e.parameter.action : 'all').toLowerCase();
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  ensureSheets_(ss);
-
-  if (action === 'all') {
-    const out = {};
-    for (const name of Object.keys(SHEETS)) out[name.toLowerCase()] = readSheet_(ss, name);
-    return json_(out);
-  }
-  if (action === 'ping') return json_({ ok: true, app: 'Toko Kita', time: new Date().toISOString() });
-  if (SHEETS[action.charAt(0).toUpperCase()+action.slice(1)]) {
-    const key = action.charAt(0).toUpperCase()+action.slice(1);
-    return json_({ [action]: readSheet_(ss, key) });
-  }
-  
-  // Return Index UI by default if no API action specified
+  // Default: Tampilkan Index.html sebagai Landing Router Utama
   return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('Toko Kita — Portal ERP')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
