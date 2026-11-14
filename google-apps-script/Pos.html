@@ -7,32 +7,9 @@
 <title>Toko Kita — Panel Kasir (POS)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--green-bg:rgba(22,163,74,.14);--amber:#D97706;--amber-bg:rgba(217,119,6,.14);--red:#DC2626;--radius:20px;--radius-ctl:12px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:24px;min-height:100vh}
-h1,h2{font-family:'Sora',sans-serif}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800}
-.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-weight:600;font-size:13px}
-.nav-links a.active{border-color:var(--primary);color:var(--primary)}
-.hero{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
-.hero .label{color:var(--muted);font-size:13px;margin-bottom:8px}
-.hero .big{font-family:'Sora';font-weight:800;font-size:36px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;border-left:3px solid var(--primary)}
-.card .label{color:var(--muted);font-size:12px;margin-bottom:6px}
-.card .val{font-family:'Sora';font-weight:700;font-size:22px}
-.card.g{border-left-color:var(--green)} .card.a{border-left-color:var(--amber)}
-.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
-.btn-pos{background:var(--primary);color:var(--primary-fg);border:none;border-radius:12px;padding:12px 24px;font-weight:700;font-family:'Plus Jakarta Sans';cursor:pointer}
-.empty{color:var(--muted);text-align:center;padding:24px}
-table{width:100%;border-collapse:collapse}
-th{color:var(--muted);font-size:12px;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
-td{padding:12px;border-bottom:1px solid var(--card-border)}
-.status-ok{color:#4ADE80;font-weight:600}
-</style>
+<script>
+document.head.insertAdjacentHTML('beforeend','<style>:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--green-bg:rgba(22,163,74,.14);--amber:#D97706;--amber-bg:rgba(217,119,6,.14);--red:#DC2626;--radius:20px;--radius-ctl:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--background);color:var(--foreground);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;padding:24px;min-height:100vh}h1,h2{font-family:Sora,sans-serif}header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800}.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-weight:600;font-size:13px}.nav-links a.active{border-color:var(--primary);color:var(--primary)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}.card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;border-left:3px solid var(--primary)}.card .label{color:var(--muted);font-size:12px}.card .val{font-family:Sora;font-weight:700;font-size:22px}.card.g{border-left-color:var(--green)}.card.a{border-left-color:var(--amber)}.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{color:var(--muted);font-size:12px;text-transform:uppercase;text-align:left;padding:10px;border-bottom:1px solid var(--card-border)}td{padding:12px;border-bottom:1px solid var(--card-border)}.empty{color:var(--muted);text-align:center;padding:24px}.btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer}.btn:disabled{opacity:.4}.status-ok{color:#4ADE80;font-weight:600}</style>');
+</script>
 </head>
 <body>
 <header>

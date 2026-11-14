@@ -7,29 +7,9 @@
 <title>Toko Kita — Absensi & Portal Karyawan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--green-bg:rgba(22,163,74,.14);--red:#DC2626;--radius:20px;--radius-ctl:12px}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--background);color:var(--foreground);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;padding:24px;min-height:100vh}
-h1,h2{font-family:'Sora',sans-serif}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:800}
-.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-weight:600;font-size:13px}
-.nav-links a.active{border-color:var(--primary);color:var(--primary)}
-.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
-.panel h2{font-size:16px;margin-bottom:14px}
-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
-select,input{width:100%;background:var(--background);border:1px solid var(--card-border);border-radius:var(--radius-ctl);color:var(--foreground);padding:11px 12px;font-family:'Plus Jakarta Sans';font-size:14px;margin-bottom:14px}
-.absen-btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:12px;padding:12px 20px;font-weight:700;font-family:'Plus Jakarta Sans';cursor:pointer}
-.absen-btn:disabled{opacity:.4;cursor:not-allowed}
-table{width:100%;border-collapse:collapse}
-th{color:var(--muted);font-size:12px;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--card-border)}
-td{padding:12px;border-bottom:1px solid var(--card-border)}
-.empty{color:var(--muted);text-align:center;padding:24px}
-.status-ok{color:#4ADE80;font-weight:600}
-.badge{display:inline-flex;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(255,255,255,.05);color:var(--muted)}
-</style>
+<script>
+document.head.insertAdjacentHTML('beforeend','<style>:root{--background:#111114;--card:#1A1D24;--card-border:#262A33;--foreground:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--primary-fg:#111114;--green:#16A34A;--red:#DC2626;--radius:20px;--radius-ctl:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--background);color:var(--foreground);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;padding:24px;min-height:100vh}h1,h2{font-family:Sora,sans-serif}header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.logo{width:40px;height:40px;border-radius:14px;background:var(--primary);color:var(--primary-fg);display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800}.nav-links a{background:var(--card);border:1px solid var(--card-border);padding:8px 16px;border-radius:999px;color:var(--foreground);text-decoration:none;font-weight:600;font-size:13px}.nav-links a.active{border-color:var(--primary);color:var(--primary)}.panel{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;margin-bottom:20px}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}select,input{width:100%;background:var(--background);border:1px solid var(--card-border);border-radius:var(--radius-ctl);color:var(--foreground);padding:11px;margin-bottom:14px}.btn{background:var(--primary);color:var(--primary-fg);border:none;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer}.btn:disabled{opacity:.4}.btn.secondary{background:var(--card-border);color:var(--foreground)}table{width:100%;border-collapse:collapse}th{color:var(--muted);font-size:12px;text-transform:uppercase;text-align:left;padding:10px;border-bottom:1px solid var(--card-border)}td{padding:12px;border-bottom:1px solid var(--card-border)}.empty{color:var(--muted);text-align:center;padding:24px}.status-ok{color:#4ADE80;font-weight:600}</style>');
+</script>
 </head>
 <body>
 <header>
