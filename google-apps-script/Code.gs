@@ -51,6 +51,7 @@ function doGet(e) {
       .setTitle('Toko Kita — Inventori Produk')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
+  if (page === 'absen') {
     return HtmlService.createHtmlOutputFromFile('Absen')
       .setTitle('Toko Kita — Absensi & Portal Karyawan')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
