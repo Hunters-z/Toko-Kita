@@ -28,6 +28,7 @@ import KaryawanRiwayat from './pages/KaryawanRiwayat.jsx'
 import KaryawanProfil from './pages/KaryawanProfil.jsx'
 import KaryawanPOS from './pages/KaryawanPOS.jsx'
 import ComingSoon from './pages/ComingSoon.jsx'
+import PublicStore from './pages/PublicStore.jsx'
 import { Toaster } from './components/ui/toaster.jsx'
 
 const Protected = ({ role, children }) => {
@@ -88,6 +89,7 @@ export default function App() {
         </Route>
 
         <Route path="*" element={<Navigate to={admin ? '/' : pegawai ? '/karyawan/absen' : '/login'} replace />} />
+        <Route path="/belanja" element={<PublicStore/>}/>
       </Routes>
       <Toaster />
     </>

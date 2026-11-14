@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, ShoppingCart, Package, ReceiptText, Wallet, BarChart3, Users,
   Building2, Briefcase, Truck, Gift, Settings, Menu, Search, Bell, X, LogOut,
-  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart
+  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart, ShoppingBag
 } from 'lucide-react'
 import { loadDB } from '../lib/store.js'
 import { logout } from '../lib/session.js'
@@ -23,6 +23,7 @@ const nav = [
   { to: '/hr', icon: UserCog, name: 'SDM' },
   { to: '/marketing', icon: Megaphone, name: 'Marketing' },
   { to: '/website', icon: Globe, name: 'Website' },
+  { to: '/belanja', icon: ShoppingBag, name: 'Toko Online', target: '_blank' },
   { to: '/pengeluaran', icon: Wallet, name: 'Pengeluaran' },
   { to: '/laporan', icon: BarChart3, name: 'Laporan' },
   { to: '/pegawai', icon: Briefcase, name: 'Pegawai' },
