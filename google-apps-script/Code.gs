@@ -23,7 +23,8 @@ const SHEETS = {
   Finance:   ['id','date','type','category','amount','note'],
   Sales:     ['id','customer','date','total','status','salesPerson'],
   Scm:       ['id','supplier','item','qty','status','eta'],
-  Marketing: ['id','name','channel','budget','status','leadCount']
+  Marketing: ['id','name','channel','budget','status','leadCount'],
+  Website:   ['id','title','subtitle','status']
 }
 
 function doGet(e) {
@@ -40,7 +41,16 @@ function doGet(e) {
       .setTitle('Toko Kita — Panel Kasir (POS)')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');
   }
-  if (page === 'absen') {
+  if (page === 'cms') {
+    return HtmlService.createHtmlOutputFromFile('CMS')
+      .setTitle('Toko Kita — CMS & Website')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
+  if (page === 'inventori' || page === 'inventory') {
+    return HtmlService.createHtmlOutputFromFile('Inventori')
+      .setTitle('Toko Kita — Inventori Produk')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  }
     return HtmlService.createHtmlOutputFromFile('Absen')
       .setTitle('Toko Kita — Absensi & Portal Karyawan')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1');

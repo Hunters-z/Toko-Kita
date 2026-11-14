@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — Inventori</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.head.insertAdjacentHTML('beforeend','<style>:root{--bg:#111114;--card:#1A1D24;--border:#262A33;--fg:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--red:#DC2626;--green:#16A34A;--amber:#D97706;--r:20px;--rc:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--fg);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;padding:24px;min-height:100vh}h1,h2{font-family:Sora,sans-serif}.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap}.logo{width:36px;height:36px;border-radius:12px;background:var(--primary);color:#111;display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800;font-size:18px}.brand{display:flex;align-items:center;gap:10px}.brand b{color:var(--primary)}.nav a{background:var(--card);border:1px solid var(--border);padding:7px 14px;border-radius:999px;color:var(--fg);text-decoration:none;font-size:12px;font-weight:600}.nav a.active{border-color:var(--primary);color:var(--primary)}.tbl{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}.tbl table{width:100%;border-collapse:collapse}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}td{padding:11px 14px;border-bottom:1px solid var(--border)}tr:last-child td{border-bottom:none}.num{font-family:Sora;font-weight:600;font-variant-numeric:tabular-nums}.badge-sm{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}.low{color:var(--red);background:rgba(220,38,38,.12)}.ok{color:var(--green);background:rgba(22,163,74,.12)}.moderate{color:var(--amber);background:rgba(217,119,6,.12)}.add-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:18px}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}input,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--rc);color:var(--fg);padding:10px 12px;font-size:14px;margin-bottom:12px}.btn{background:var(--primary);color:#111;border:none;border-radius:var(--rc);padding:10px 20px;font-weight:700;font-family:Plus Jakarta Sans;cursor:pointer;font-size:13px}.btn.gray{background:var(--border);color:var(--fg)}.empty{text-align:center;color:var(--muted);padding:28px}</style>');
+</script>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:20px">
+    <div class="brand"><div class="logo">T</div><span style="font-family:Sora;font-weight:700">Toko<b>Kita</b></span></div>
+    <div class="nav">
+      <a href="?page=admin">Admin</a>
+      <a href="?page=pos">POS</a>
+      <a href="?page=absen">Absen</a>
+      <a href="?page=inventori" class="active">Inventori</a>
+    </div>
+  </div>
+</div>
+
+<h1>Inventori & Produk</h1>
+<p style="color:var(--muted);margin-bottom:20px">Kelola stok produk, harga, dan peringatan persediaan rendah.</p>
+
+<div class="add-card">
+  <h2 style="font-size:15px;margin-bottom:14px">Tambah Produk Baru</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+    <div><label>Nama Produk</label><input id="f-name" placeholder="Nama produk"></div>
+    <div><label>Harga (Rp)</label><input id="f-price" type="number" placeholder="0"></div>
+    <div><label>Stok Awal</label><input id="f-stock" type="number" placeholder="0"></div>
+    <div><label>Min Stok</label><input id="f-min" type="number" placeholder="5"></div>
+  </div>
+  <button class="btn" onclick="tambahProduk()">➕ Tambah Produk</button>
+</div>
+
+<div class="tbl">
+  <table>
+    <thead><tr><th>ID</th><th>Nama Produk</th><th>Harga</th><th>Stok</th><th>Status</th></tr></thead>
+    <tbody id="tbody"><tr><td colspan="5" class="empty">Memuat data…</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+function rp(n){return 'Rp'+Number(n||0).toLocaleString('id-ID')}
+function esc(s){return String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'})[c])}
+google.script.run.withSuccessHandler(function(d){
+  var rows=(d.produk||[]).map(function(p){
+    var s=Number(p.stock||0),m=Number(p.minStock||0),st=s===0?'low':s<=m?'moderate':'ok';
+    return '<tr><td class="num">'+esc(p.id)+'</td><td>'+esc(p.name)+'</td><td class="num">'+rp(p.price)+'</td><td class="num">'+s+'</td><td><span class="badge-sm '+st+'">'+(st==='low'?'🔴 Habis':st==='moderate'?'🟡 Rendah':'🟢 Aman')+'</span></td></tr>';
+  }).join('');
+  document.getElementById('tbody').innerHTML=rows||'<tr><td colspan="5" class="empty">Belum ada produk.</td></tr>';
+}).all();
+function tambahProduk(){
+  var n=document.getElementById('f-name').value.trim(),
+      p=Number(document.getElementById('f-price').value),
+      s=Number(document.getElementById('f-stock').value),
+      m=Number(document.getElementById('f-min').value);
+  if(!n||isNaN(p)){alert('Isi nama dan harga dulu!');return;}
+  google.script.run.withSuccessHandler(function(){document.getElementById('f-name').value='';document.getElementById('f-price').value='';location.reload();})
+   .withFailureHandler(function(e){alert('Gagal: '+e.message)}).doPost({table:'produk',row:{id:String(Date.now()),name:n,price:p,stock:s,minStock:m}});
+}
+</script>
+</body>
+</html>

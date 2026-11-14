@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<base target="_top">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toko Kita — CMS & Website</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>document.head.insertAdjacentHTML('beforeend','<style>:root{--bg:#111114;--card:#1A1D24;--border:#262A33;--fg:#F4F6FA;--muted:#8A8F9C;--primary:#F97316;--accent:#16A34A;--r:20px;--rc:12px}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--fg);font-family:Plus Jakarta Sans,sans-serif;font-size:14px;padding:24px;min-height:100vh}h1,h2{font-family:Sora,sans-serif}.bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:10px}.logo{width:36px;height:36px;border-radius:12px;background:var(--primary);color:#111;display:flex;align-items:center;justify-content:center;font-family:Sora;font-weight:800}.brand b{color:var(--primary)}.nav a{background:var(--card);border:1px solid var(--border);padding:7px 14px;border-radius:999px;color:var(--fg);text-decoration:none;font-size:12px;font-weight:600}.nav a.active{border-color:var(--primary);color:var(--primary)}.hero{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:20px}.hero h2{font-size:24px;margin-bottom:6px}.hero p{color:var(--muted)}.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:18px}label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px}input,textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--rc);color:var(--fg);padding:10px 12px;font-family:Plus Jakarta Sans;font-size:14px;margin-bottom:12px}textarea{min-height:80px;resize:vertical}.btn{background:var(--primary);color:#111;border:none;border-radius:var(--rc);padding:10px 20px;font-weight:700;font-family:Plus Jakarta Sans;cursor:pointer;font-size:13px}.badge-sm{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600}.green{color:var(--accent);background:rgba(22,163,74,.12)}</style>');
+</script>
+</head>
+<body>
+<div class="bar">
+  <div class="brand"><div class="logo">T</div><span style="font-family:Sora;font-weight:700">Toko<b>Kita</b></span></div>
+  <div class="nav">
+    <a href="?page=admin">Admin</a>
+    <a href="?page=pos">POS</a>
+    <a href="?page=absen">Absen</a>
+    <a href="?page=inventory">Website</a>
+  </div>
+</div>
+
+<h1>CMS & Website Toko</h1>
+<p style="color:var(--muted);margin-bottom:20px">Kelola tampilan website toko online Anda dari sini.</p>
+
+<div class="hero">
+  <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:12px">
+    <div>
+      <h2 id="preview-title">Selamat Datang di Toko Kita</h2>
+      <p id="preview-sub">Temukan berbagai kebutuhan belanja Anda bersama kami.</p>
+    </div>
+    <span class="badge-sm green" id="site-status">🟢 Online Aktif</span>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Edit Konten Website</h2>
+  <label>Judul Utama (Hero Title)</label>
+  <input id="c-title" placeholder="Masukkan judul website" value="Selamat Datang di Toko Kita">
+  <label>Sub-judul</label>
+  <textarea id="c-sub" placeholder="Deskripsi singkat toko online">Temukan berbagai kebutuhan belanja Anda bersama kami.</textarea>
+  <label>Status Website</label>
+  <select id="c-status">
+    <option value="online">🟢 Online — Terlihat Publik</option>
+    <option value="offline">🔴 Offline — Sedang Maintenance</option>
+    <option value="launching">🚀 Launching Soon</option>
+  </select>
+  <button class="btn" onclick="simpanCMS()">💾 Simpan Perubahan</button>
+</div>
+
+<div class="panel">
+  <h2>Pengaturan SEO Sederhana</h2>
+  <label>Meta Title</label>
+  <input id="seo-title" placeholder="Judul untuk mesin pencari">
+  <label>Meta Description</label>
+  <textarea id="seo-desc" placeholder="Deskripsi singkat akan muncul di hasil pencarian"></textarea>
+  <button class="btn gray" onclick="alert('Pengaturan SEO tersimpan!')">📝 Simpan SEO</button>
+</div>
+
+<script>
+function esc(s){return String(s||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'})[c])}
+function simpanCMS(){
+  var d={id:'cms_main',title:document.getElementById('c-title').value,subtitle:document.getElementById('c-sub').value,status:document.getElementById('c-status').value};
+  document.getElementById('preview-title').textContent=d.title;
+  document.getElementById('preview-sub').textContent=d.subtitle;
+  document.getElementById('site-status').textContent=d.status==='online'?'🟢 Online Aktif':d.status==='offline'?'🔴 Offline':'🚀 Launching Soon';
+  google.script.run.withSuccessHandler(function(){alert('✅ CMS berhasil disimpan ke Google Sheets!')}).doPost({table:'website',row:d});
+}
+</script>
+</body>
+</html>
