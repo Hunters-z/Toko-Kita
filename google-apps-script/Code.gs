@@ -18,7 +18,7 @@ const SHEETS = {
   Pelanggan: ['id','name','phone','note'],
   Invoice:   ['id','customerId','date','due','total','status'],
   Pegawai:   ['id','name','role','pin'],
-  Absen:     ['id','employeeId','name','in','out'],
+  Absen:     ['id','employeeId','name','in','out','status','latIn','lngIn','distIn','photoIn','photoOut','latOut','lngOut','distOut'],
   Pemasok:   ['id','name','phone','item'],
   Pengeluaran:['id','date','category','note','amount'],
   Pembelian: ['id','supplierId','date','items','total','status'],
