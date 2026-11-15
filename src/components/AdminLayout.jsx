@@ -4,38 +4,58 @@ import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, ShoppingCart, Package, ReceiptText, Wallet, BarChart3, Users,
   Building2, Briefcase, Truck, Gift, Settings, Menu, Search, Bell, X, LogOut,
-  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart, ShoppingBag
+  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart, ShoppingBag, CalendarCheck
 } from 'lucide-react'
 import { loadDB } from '../lib/store.js'
 import { logout } from '../lib/session.js'
 import { Icon } from './ui/icon.jsx'
 
-const nav = [
-  { to: '/', icon: LayoutDashboard, name: 'Dasbor' },
-  { to: '/pos', icon: ShoppingCart, name: 'Kasir' },
-  { to: '/inventori', icon: Package, name: 'Inventori' },
-  { to: '/invoice', icon: ReceiptText, name: 'Invoice' },
-  { to: '/keuangan', icon: PieChart, name: 'Keuangan' },
-  { to: '/sales', icon: Handshake, name: 'Penjualan CRM' },
-  { to: '/pelanggan', icon: Users, name: 'Pelanggan' },
-  { to: '/pemasok', icon: Building2, name: 'Pemasok' },
-  { to: '/supply-chain', icon: Truck, name: 'Supply Chain' },
-  { to: '/hr', icon: UserCog, name: 'SDM' },
-  { to: '/marketing', icon: Megaphone, name: 'Marketing' },
-  { to: '/website', icon: Globe, name: 'Website' },
-  { to: '/belanja', icon: ShoppingBag, name: 'Toko Online', target: '_blank' },
-  { to: '/pengeluaran', icon: Wallet, name: 'Pengeluaran' },
-  { to: '/laporan', icon: BarChart3, name: 'Laporan' },
-  { to: '/pegawai', icon: Briefcase, name: 'Pegawai' },
-  { to: '/absen', icon: null, name: 'Absensi', lucide: 'CalendarCheck' },
-  { to: '/pembelian', icon: PackageCheck, name: 'Pembelian' },
-  { to: '/produksi', icon: Gift, name: 'Produksi' },
-  { to: '/pengaturan', icon: Settings, name: 'Pengaturan' },
+const navGroups = [
+  {
+    title: 'Utama',
+    items: [
+      { to: '/', icon: LayoutDashboard, name: 'Dasbor' },
+      { to: '/pos', icon: ShoppingCart, name: 'Kasir' },
+      { to: '/belanja', icon: ShoppingBag, name: 'Toko Online', target: '_blank' },
+    ]
+  },
+  {
+    title: 'Operasional',
+    items: [
+      { to: '/inventori', icon: Package, name: 'Inventori' },
+      { to: '/pembelian', icon: PackageCheck, name: 'Pembelian' },
+      { to: '/pemasok', icon: Building2, name: 'Pemasok' },
+      { to: '/produksi', icon: Gift, name: 'Produksi' },
+      { to: '/supply-chain', icon: Truck, name: 'Supply Chain' },
+    ]
+  },
+  {
+    title: 'Keuangan & Penjualan',
+    items: [
+      { to: '/invoice', icon: ReceiptText, name: 'Invoice' },
+      { to: '/sales', icon: Handshake, name: 'Penjualan CRM' },
+      { to: '/pelanggan', icon: Users, name: 'Pelanggan' },
+      { to: '/keuangan', icon: PieChart, name: 'Keuangan' },
+      { to: '/pengeluaran', icon: Wallet, name: 'Pengeluaran' },
+      { to: '/laporan', icon: BarChart3, name: 'Laporan' },
+    ]
+  },
+  {
+    title: 'Karyawan & SDM',
+    items: [
+      { to: '/pegawai', icon: Briefcase, name: 'Pegawai' },
+      { to: '/absen', icon: CalendarCheck, name: 'Absensi' },
+      { to: '/hr', icon: UserCog, name: 'SDM' },
+      { to: '/marketing', icon: Megaphone, name: 'Marketing' },
+      { to: '/website', icon: Globe, name: 'Website' },
+      { to: '/pengaturan', icon: Settings, name: 'Pengaturan' },
+    ]
+  },
 ]
+
+const nav = navGroups.flatMap(g => g.items)
 const bottomNav = nav.filter(n => ['/','/pos','/inventori','/laporan','/pembelian'].includes(n.to))
-// Icon Absensi diimpor langsung agar konsisten dengan ikon lain.
-import { CalendarCheck } from 'lucide-react'
-nav.find(n => n.to === '/absen').icon = CalendarCheck
+// Absensi diimpor langsung agar konsisten dengan ikon lain.
 
 export default function AdminLayout() {
   const [lowStock, setLowStock] = useState(0)
@@ -47,14 +67,25 @@ export default function AdminLayout() {
     setOpen(false)
   }, [pathname])
   const doLogout = () => { logout(); nav2('/login') }
-  const NavLinks = ({onClick}) => nav.map(it => (
-    <NavLink key={it.to} to={it.to} end={it.to==='/'} onClick={onClick}
-      className={({isActive}) => 'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-medium transition-colors ' +
-        (isActive ? 'bg-hero text-white font-semibold' : 'text-inksoft hover:bg-card2 hover:text-ink')}>
-      <Icon as={it.icon} size="md" />{it.name}
-      {it.to==='/inventori' && lowStock>0 && <span className="ml-auto bg-coral text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{lowStock}</span>}
-    </NavLink>
-  ))
+  const NavLinks = ({onClick}) => (
+    <nav className="space-y-4">
+      {navGroups.map((group) => (
+        <div key={group.title}>
+          <div className="text-[10px] uppercase tracking-wider font-bold text-dim px-4 mb-1.5">{group.title}</div>
+          <div className="space-y-0.5">
+            {group.items.map(it => (
+              <NavLink key={it.to} to={it.to} end={it.to==='/'} onClick={onClick}
+                className={({isActive}) => 'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-medium transition-colors ' +
+                  (isActive ? 'bg-hero text-white font-semibold' : 'text-inksoft hover:bg-card2 hover:text-ink')}>
+                <Icon as={it.icon} size="md" />{it.name}
+                {it.to==='/inventori' && lowStock>0 && <span className="ml-auto bg-coral text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{lowStock}</span>}
+              </NavLink>
+            ))}
+          </div>
+        </div>
+      ))}
+    </nav>
+  )
   return (
     <div className="min-h-screen bg-bg">
       {/* Header pill */}
