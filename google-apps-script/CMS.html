@@ -64,7 +64,7 @@ function simpanCMS(){
   document.getElementById('preview-title').textContent=d.title;
   document.getElementById('preview-sub').textContent=d.subtitle;
   document.getElementById('site-status').textContent=d.status==='online'?'🟢 Online Aktif':d.status==='offline'?'🔴 Offline':'🚀 Launching Soon';
-  google.script.run.withSuccessHandler(function(){alert('✅ CMS berhasil disimpan ke Google Sheets!')}).doPost({table:'website',row:d});
+  google.script.run.withSuccessHandler(function(){alert('✅ CMS berhasil disimpan ke Google Sheets!')}).all();
 }
 </script>
 </body>

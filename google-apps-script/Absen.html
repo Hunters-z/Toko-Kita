@@ -101,7 +101,7 @@ function absen(tipe){
   google.script.run.withSuccessHandler(function(){
     document.getElementById('msg-absen').innerHTML = '<span class="status-ok">✔ Berhasil cek '+tipe+' pada '+now.toLocaleTimeString('id-ID')+'</span>';
     if(tipe==='in'){ document.getElementById('btn-out').disabled=false; document.getElementById('btn-in').disabled=true; }
-  }).withFailureHandler(function(e){alert('Gagal: '+e.message)}).appendAbsen(rec);
+  }).withFailureHandler(function(e){alert('Gagal: '+e.message)}).all();
 }
 </script>
 </body>
