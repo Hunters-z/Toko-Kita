@@ -44,10 +44,10 @@ export default function Inventory() {
         </Table>
       </Card>
       <form onSubmit={add} className="mt-4 bg-white border border-line rounded-2xl p-5 flex flex-wrap gap-2.5 items-end">
-        <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
-        <Input label="Harga" type="number" value={form.price} onChange={v=>setForm({...form,price:v})} required/>
-        <Input label="Stok" type="number" value={form.stock} onChange={v=>setForm({...form,stock:v})} required/>
-        <Input label="Min. stok" type="number" value={form.minStock} onChange={v=>setForm({...form,minStock:v})}/>
+        <Input label="Nama" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required/>
+        <Input label="Harga" type="number" value={form.price} onChange={e => setForm({...form, price: e.target.value})} required/>
+        <Input label="Stok" type="number" value={form.stock} onChange={e => setForm({...form, stock: e.target.value})} required/>
+        <Input label="Min. stok" type="number" value={form.minStock} onChange={e => setForm({...form, minStock: e.target.value})}/>
         <Button size="sm" type="submit" className="gap-1.5"><Icon as={PackagePlus} size="sm" strokeWidth={1.5}/> Tambah produk</Button>
       </form>
     </div>

@@ -22,9 +22,9 @@ export default function Invoices() {
       <h1 className="font-disp text-lg md:text-xl font-extrabold mb-6">Invoice</h1>
       <Card title="Terbitkan invoice">
         <form onSubmit={issue} className="flex flex-wrap gap-2.5 items-end">
-          <Input label="Pelanggan" value={form.customer} onChange={v=>setForm({...form,customer:v})} required/>
-          <Input label="Keterangan" value={form.desc} onChange={v=>setForm({...form,desc:v})}/>
-          <Input label="Total (Rp)" type="number" value={form.total} onChange={v=>setForm({...form,total:v})} required/>
+          <Input label="Pelanggan" value={form.customer} onChange={e => setForm({form, customer: e.target.value})} required/>
+          <Input label="Keterangan" value={form.desc} onChange={e => setForm({form, desc: e.target.value})}/>
+          <Input label="Total (Rp)" type="number" value={form.total} onChange={e => setForm({form, total: e.target.value})} required/>
           <Button size="sm" type="submit">Terbitkan</Button>
         </form>
       </Card>

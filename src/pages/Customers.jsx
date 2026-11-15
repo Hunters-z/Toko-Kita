@@ -18,9 +18,9 @@ export default function Customers() {
       <h1 className="font-disp text-lg md:text-xl font-extrabold mb-6">Pelanggan</h1>
       <Card title="Tambah pelanggan">
         <form onSubmit={add} className="flex flex-wrap gap-2.5 items-end">
-          <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
-          <Input label="Telepon" value={form.phone} onChange={v=>setForm({...form,phone:v})}/>
-          <Input label="Catatan" value={form.note} onChange={v=>setForm({...form,note:v})}/>
+          <Input label="Nama" value={form.name} onChange={e => setForm({form, name: e.target.value})} required/>
+          <Input label="Telepon" value={form.phone} onChange={e => setForm({form, phone: e.target.value})}/>
+          <Input label="Catatan" value={form.note} onChange={e => setForm({form, note: e.target.value})}/>
           <Button size="sm" type="submit">Simpan</Button>
         </form>
       </Card>

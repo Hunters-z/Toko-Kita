@@ -104,10 +104,10 @@ export default function Employees() {
       })()}
 
       <form onSubmit={add} className="mt-4 card p-5 flex flex-wrap gap-2.5 items-end">
-        <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
-        <Input label="Jabatan" value={form.role} onChange={v=>setForm({...form,role:v})}/>
-        <Input label="Username" value={form.username} onChange={v=>setForm({...form,username:v})} placeholder="cth. doni"/>
-        <Input label="PIN login (4–6 angka)" value={form.pin} onChange={v=>setForm({...form,pin:v})} required/>
+        <Input label="Nama" value={form.name} onChange={e => setForm({form, name: e.target.value})} required/>
+        <Input label="Jabatan" value={form.role} onChange={e => setForm({form, role: e.target.value})}/>
+        <Input label="Username" value={form.username} onChange={e => setForm({form, username: e.target.value})} placeholder="cth. doni"/>
+        <Input label="PIN login (4–6 angka)" value={form.pin} onChange={e => setForm({form, pin: e.target.value})} required/>
         <Button size="sm" type="submit">Tambah pegawai</Button>
       </form>
       <p className="text-[11.5px] text-dim mt-2">Isi username dan PIN agar pegawai bisa login sendiri di halaman Absen. PIN disimpan lokal di perangkat ini.</p>

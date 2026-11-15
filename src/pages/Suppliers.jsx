@@ -23,9 +23,9 @@ export default function Suppliers() {
       </div>
       <Card title="Tambah pemasok">
         <form onSubmit={add} className="flex flex-wrap gap-2.5 items-end">
-          <Input label="Nama" value={form.name} onChange={v=>setForm({...form,name:v})} required/>
-          <Input label="Telepon" value={form.phone} onChange={v=>setForm({...form,phone:v})}/>
-          <Input label="Barang utama" value={form.item} onChange={v=>setForm({...form,item:v})}/>
+          <Input label="Nama" value={form.name} onChange={e => setForm({form, name: e.target.value})} required/>
+          <Input label="Telepon" value={form.phone} onChange={e => setForm({form, phone: e.target.value})}/>
+          <Input label="Barang utama" value={form.item} onChange={e => setForm({form, item: e.target.value})}/>
           <Button size="sm" type="submit">Simpan</Button>
         </form>
       </Card>

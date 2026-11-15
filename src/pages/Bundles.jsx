@@ -31,8 +31,8 @@ export default function Bundles() {
       </div>
       <Card title="Buat paket / produksi (komponen otomatis keluar dari stok)">
         <div className="flex flex-wrap gap-2.5 items-end mb-3">
-          <Input label="Nama paket" value={form.name} onChange={v=>setForm({...form,name:v})}/>
-          <Input label="Harga jual" value={form.price} onChange={v=>setForm({...form,price:v})} type="number"/>
+          <Input label="Nama paket" value={form.name} onChange={e => setForm({form, name: e.target.value})}/>
+          <Input label="Harga jual" value={form.price} onChange={e => setForm({form, price: e.target.value})} type="number"/>
           <Input label="Jumlah buat" value={stock} onChange={setStock} type="number"/>
         </div>
         <div className="flex flex-wrap gap-2 items-end mb-3">

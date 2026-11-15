@@ -20,12 +20,12 @@ export default function Expenses() {
       <h1 className="font-disp text-lg md:text-xl font-extrabold mb-5">Pengeluaran</h1>
       <Card title="Catat pengeluaran">
         <form onSubmit={add} className="flex flex-wrap gap-2.5 items-end">
-          <Input label="Keterangan" value={form.desc} onChange={v=>setForm({...form,desc:v})} required/>
+          <Input label="Keterangan" value={form.desc} onChange={e => setForm({form, desc: e.target.value})} required/>
           <label className="flex flex-col gap-1 text-[11.5px] font-semibold text-inksoft">Kategori
             <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})} className="border border-line rounded-[9px] px-3 py-2 text-[13px] font-normal text-ink bg-white">
               {CATS.map(c=><option key={c}>{c}</option>)}
             </select></label>
-          <Input label="Jumlah (Rp)" type="number" value={form.amount} onChange={v=>setForm({...form,amount:v})} required/>
+          <Input label="Jumlah (Rp)" type="number" value={form.amount} onChange={e => setForm({form, amount: e.target.value})} required/>
           <Button size="sm" type="submit">Catat</Button>
         </form>
       </Card>
