@@ -30,29 +30,44 @@ const SHEETS = {
 const TABLES_FOR_POST = Object.keys(SHEETS);
 
 function doGet(e) {
-  const page = e?.parameter?.page || 'index';
-  const action = e?.parameter?.action || '';
+  try {
+    const params = e && e.parameter ? e.parameter : {};
+    const page = (params.page || 'index').toLowerCase();
+    const action = params.action || '';
 
-  if (action === 'ping') return json_({ ok: true, app: 'Toko Kita', time: new Date().toISOString() });
-  if (action === 'all') {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    ensureSheets_(ss);
-    const out = {};
-    for (const key of Object.keys(SHEETS)) out[key] = readSheet_(ss, key);
-    return json_(out);
-  }
-  if (TABLES_FOR_POST.includes(action)) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    ensureSheets_(ss);
-    return json_({ [action]: readSheet_(ss, action) });
-  }
+    if (action === 'ping') return json_({ ok: true, app: 'Toko Kita', time: new Date().toISOString() });
+    if (action === 'all') {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      ensureSheets_(ss);
+      const out = {};
+      for (const key of Object.keys(SHEETS)) out[key] = readSheet_(ss, key);
+      return json_(out);
+    }
+    if (TABLES_FOR_POST.includes(action)) {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      ensureSheets_(ss);
+      return json_({ [action]: readSheet_(ss, action) });
+    }
 
-  const pages = { admin: 'Admin', pos: 'Pos', absen: 'Absen', inventori: 'Inventori', cms: 'CMS', store: 'Storefront', index: 'Index' };
-  const fileName = pages[page.toLowerCase()] || 'Index';
-  
-  return HtmlService.createHtmlOutputFromFile(fileName)
-    .setTitle('Toko Kita — ' + page.charAt(0).toUpperCase() + page.slice(1))
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+    const map = {
+      admin: 'Admin',
+      pos: 'Pos',
+      absen: 'Absen',
+      inventori: 'Inventori',
+      cms: 'CMS',
+      store: 'Storefront',
+      index: 'Index'
+    };
+
+    const fileName = map[page] || 'Index';
+    
+    return HtmlService.createHtmlOutputFromFile(fileName)
+      .setTitle('Toko Kita — ' + page.toUpperCase())
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+      
+  } catch (err) {
+    return HtmlService.createHtmlOutput('<h3>Error:</h3><pre>' + err.message + '</pre>');
+  }
 }
 
 function doPost(e) {
