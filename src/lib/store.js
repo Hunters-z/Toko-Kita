@@ -19,25 +19,37 @@ const seed = {
     { id:'e2', name:'Doni Gudang', role:'Gudang', pin:'2345', credId:null },
   ],
   attendance: [], suppliers: [], expenses: [],
-  purchases: [],   // pembelian: {id, supplierId, items:[{productId,qty,cost}], total, date, status}
-  bundles: [],     // paket/produksi: {id, name, emoji, items:[{productId,qty}], price, stock}
-  payments: [],    // metode bayar tx: {txId, method, paid, change}
-  settings: { ppn: 0, ppnOn: false, shopName: 'Toko Kita' },
+  purchases: [], bundles: [], payments: [],
+  settings: { ppn: 0, ppnOn: false, shopName: 'Toko Kita', officeLat: null, officeLng: null, officeRadius: 100, shiftStart: '08:00' },
 }
+
 export function loadDB() {
   try {
-    const db = JSON.parse(localStorage.getItem(KEY))
-    if (!db) return migrate(structuredClone(seed))
+    const raw = localStorage.getItem(KEY)
+    if (!raw) return migrate(structuredClone(seed))
+    const db = JSON.parse(raw)
     return migrate(db)
   } catch { return migrate(structuredClone(seed)) }
 }
-// migrasi ringan: pastikan field baru ada di db lama
+
 function migrate(db) {
-  for (const k of ['purchases','bundles','payments']) if (!db[k]) db[k] = []
+  // Pastikan semua field wajib hadir
+  for (const k of ['purchases','bundles','payments','suppliers','expenses','invoices','txs','attendance']) {
+    if (!Array.isArray(db[k])) db[k] = []
+  }
   if (!db.settings) db.settings = structuredClone(seed.settings)
-  db.products?.forEach(p => { if (p.discount == null) p.discount = 0 })
+  else {
+    for (const k of ['ppn','ppnOn','shopName','officeLat','officeLng','officeRadius','shiftStart']) {
+      if (db.settings[k] === undefined) db.settings[k] = seed.settings[k]
+    }
+  }
+  db.products?.forEach(p => {
+    if (p.discount == null) p.discount = 0
+    if (p.minStock == null) p.minStock = 5
+  })
   return db
 }
+
 export function saveDB(db) { localStorage.setItem(KEY, JSON.stringify(db)) }
 export function resetDB() { localStorage.removeItem(KEY) }
 export const rp = n => 'Rp ' + Math.round(n ?? 0).toLocaleString('id-ID')

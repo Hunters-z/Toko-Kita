@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import { loadDB, saveDB, resetDB } from '../lib/store.js'
-import { Card } from './Dashboard.jsx'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card.jsx'
 import { Icon } from '@/components/ui/icon.jsx'
-import { Settings as SettingsIcon, Download, Upload, MapPin } from 'lucide-react'
+import { Settings as SettingsIcon, Download, Upload, MapPin, Database, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '../components/ui/alert-dialog.jsx'
+import { Button } from '../components/ui/button.jsx'
+import { Input } from '../components/ui/input.jsx'
+import { Badge } from '../components/ui/badge.jsx'
 import { ambilLokasi, fmtJarak } from '../lib/absen.js'
+import { toast } from '../components/ui/use-toast.jsx'
 
 export default function Settings() {
   const [db, setDb] = useState(loadDB())
@@ -75,27 +79,31 @@ export default function Settings() {
           </p>
         </div>
       </Card>
-      <Card title="Data">
-        <div className="flex flex-wrap gap-2.5">
-          <button onClick={exportJson} className="btn-primary text-[13px] px-5 py-2.5 flex items-center gap-1.5"><Icon as={Download} size="sm" strokeWidth={1.5}/> Backup data</button>
-          <label className="btn-ghost text-[13px] px-5 py-2.5 cursor-pointer flex items-center gap-1.5"><Icon as={Upload} size="sm" strokeWidth={1.5}/> Pulihkan backup<input type="file" accept=".json" onChange={importJson} className="hidden"/></label>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button className="text-coral text-[13px] font-semibold px-4 py-2.5">Reset total</button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Reset total?</AlertDialogTitle>
-                <AlertDialogDescription>Semua data toko akan dihapus dan diganti dengan data contoh. Tindakan ini tidak bisa dibatalkan.</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction className="bg-destructive hover:bg-destructive/90 text-white" onClick={doReset}>Ya, reset</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-        <p className="text-[11.5px] text-dim mt-3">Data tersimpan lokal di perangkat ini (localStorage). Backup rutin disarankan.</p>
+      <Card className="card">
+        <CardHeader><CardTitle className="flex items-center gap-2"><Icon as={Database} size="md" className="text-hero"/> Koneksi Google Sheets (Opsional)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-[12.5px] text-muted">Hubungkan aplikasi Vercel ini ke Google Apps Script / Google Sheets Anda agar data aman dari kehilangan lokal.</p>
+          <div>
+            <label className="text-[11px] text-muted font-semibold block mb-1">URL Web App Google Apps Script</label>
+            <div className="flex gap-2">
+              <Input placeholder="https://script.google.com/macros/s/.../exec" value={db.settings?.gasUrl || ''} onChange={e => set('gasUrl', e.target.value)} />
+              <Button variant="outline" onClick={async () => {
+                if (!db.settings?.gasUrl) { toast({ title: 'Masukkan URL Web App terlebih dahulu' }); return; }
+                try {
+                  const res = await fetch(db.settings.gasUrl + '?action=all');
+                  const data = await res.json();
+                  if (data && data.produk) {
+                    toast({ title: 'Koneksi berhasil! Data terbaca dari Google Sheets.' });
+                  } else {
+                    toast({ title: 'Gagal membaca format data dari URL tersebut.' });
+                  }
+                } catch (e) {
+                  toast({ title: 'Gagal terhubung: ' + e.message });
+                }
+              }}>Uji Koneksi</Button>
+            </div>
+          </div>
+        </CardContent>
       </Card>
     </div>
   )
