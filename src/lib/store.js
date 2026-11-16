@@ -20,6 +20,7 @@ const seed = {
   ],
   attendance: [], suppliers: [], expenses: [],
   purchases: [], bundles: [], payments: [],
+  opname: [],
   settings: { ppn: 0, ppnOn: false, shopName: 'Toko Kita', officeLat: null, officeLng: null, officeRadius: 100, shiftStart: '08:00' },
 }
 
@@ -34,7 +35,7 @@ export function loadDB() {
 
 function migrate(db) {
   // Pastikan semua field wajib hadir
-  for (const k of ['purchases','bundles','payments','suppliers','expenses','invoices','txs','attendance']) {
+  for (const k of ['purchases','bundles','payments','suppliers','expenses','invoices','txs','attendance','opname']) {
     if (!Array.isArray(db[k])) db[k] = []
   }
   if (!db.settings) db.settings = structuredClone(seed.settings)

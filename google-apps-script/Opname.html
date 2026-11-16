@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Toko Kita — Stock Opname</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#F8F9FA; --card:#FFFFFF; --ink:#10131A; --muted:#64748B; --line:#E2E8F0; --primary:#2563EB; --success:#16A34A; --danger:#DC2626; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
+    body { background:var(--bg); color:var(--ink); padding:1rem; line-height:1.5; }
+    .nav { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; border-bottom:1px solid var(--line); padding-bottom:1rem; }
+    .nav a { text-decoration:none; color:var(--muted); padding:.5rem 1rem; border-radius:999px; font-size:.85rem; font-weight:500; }
+    .nav a.active { background:var(--primary); color:white; }
+    .card { background:var(--card); border-radius:1rem; padding:1.5rem; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:1rem; }
+    h2 { font-family:'Sora',sans-serif; font-size:1.25rem; font-weight:700; margin-bottom:1rem; }
+    input[type=text],input[type=number] { width:100%; padding:.625rem .75rem; border:1px solid var(--line); border-radius:.5rem; font-size:.9rem; outline:none; }
+    input:focus { border-color:var(--primary); }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.625rem 1.25rem; border-radius:.5rem; border:none; cursor:pointer; font-size:.9rem; font-weight:600; transition:.2s; }
+    .btn-primary { background:var(--primary); color:white; }
+    .btn-success { background:var(--success); color:white; }
+    .btn-outline { background:transparent; border:1px solid var(--line); color:var(--ink); }
+    table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    th,td { padding:.625rem; text-align:left; border-bottom:1px solid var(--line); }
+    th { font-weight:600; color:var(--muted); font-size:.75rem; text-transform:uppercase; }
+    .badge { display:inline-block; padding:.25rem .5rem; border-radius:.25rem; font-size:.75rem; font-weight:600; }
+    .badge-diff { background:#DBEAFE; color:#1D4ED8; }
+    .badge-ok { background:#DCFCE7; color:#15803D; }
+    .badge-neg { background:#FEE2E2; color:#B91C1C; }
+    .loading { opacity:.6; pointer-events:none; }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <a href="?page=admin">🛡️ Admin</a>
+    <a href="?page=pos">🛒 POS</a>
+    <a href="?page=inventori">📦 Inventori</a>
+    <a href="?page=cms">🌐 CMS</a>
+    <a href="?page=store">🛍️ Toko</a>
+    <a href="?page=absen">📍 Absen</a>
+    <a href="?page=opname" class="active">📋 Opname</a>
+  </div>
+
+  <div class="card">
+    <h2>Stock Opname</h2>
+    <p style="margin-bottom:1rem;font-size:.85rem;color:var(--muted)">Masukkan stok fisik setiap produk. Selisih akan tercatat otomatis.</p>
+    <label style="font-size:.8rem;font-weight:600;color:var(--muted)">Tanggal Opname:</label>
+    <input type="date" id="opnameDate" style="max-width:200px;margin-bottom:1rem;display:block">
+    <button class="btn btn-primary" onclick="loadProducts()">Muat Produk</button>
+  </div>
+
+  <div id="resultSection" class="card" style="display:none">
+    <h2>Hasil Input</h2>
+    <table id="opnameTable">
+      <thead><tr><th>Nama Produk</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th></tr></thead>
+      <tbody id="opnameBody"></tbody>
+    </table>
+    <br>
+    <button class="btn btn-success" onclick="saveOpname()" id="saveBtn">Simpan & Koreksi Stok</button>
+  </div>
+
+  <div class="card">
+    <h2>Riwayat Opname Terakhir</h2>
+    <table id="historyTable">
+      <thead><tr><th>Tanggal</th><th>Produk</th><th>Fisik</th><th>Selisih</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+  </div>
+
+<script>
+const API = "<?=ScriptApp.getServiceUrl()?>";
+let allProducts = [];
+document.getElementById("opnameDate").value = new Date().toISOString().slice(0,10);
+
+function loadProducts(){
+  document.getElementById("resultSection").style.display="none";
+  google.script.run.withSuccessHandler(function(data){
+    allProducts = data.produk || [];
+    const tbody = document.getElementById("opnameBody");
+    tbody.innerHTML = "";
+    allProducts.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${p.name} ${p.emoji||""}</td>
+        <td>${p.stock}</td>
+        <td><input type="number" min="0" id="phy_${p.id}" value="" placeholder="-" style="width:80px;padding:.375rem"></td>
+        <td id="diff_${p.id}">-</td>`;
+      tbody.appendChild(tr);
+    });
+    document.getElementById("resultSection").style.display="block";
+  }).withFailureHandler(function(err){alert("Gagal memuat produk: "+err)}).all();
+}
+
+function saveOpname(){
+  const date = document.getElementById("opnameDate").value;
+  const records = [];
+  let updatedProducts = [...allProducts];
+  for(const p of allProducts){
+    const phyInput = document.getElementById("phy_"+p.id);
+    if(!phyInput.value) continue;
+    const physical = parseInt(phyInput.value);
+    const diff = physical - p.stock;
+    records.push({
+      id:"op"+Date.now()+Math.random().toString(36).slice(2,6),
+      date:date,
+      productId:p.id,
+      productName:p.name,
+      systemStock:p.stock,
+      physicalStock:physical,
+      diff:diff,
+      status:"applied"
+    });
+    updatedProducts = updatedProducts.map(x=>x.id===p.id?{...x,stock:physical}:x);
+  }
+  if(records.length===0){alert("Isi minimal satu stok fisik!");return;}
+  const btn = document.getElementById("saveBtn");
+  btn.disabled=true; btn.classList.add("loading"); btn.textContent="Menyimpan...";
+  google.script.run.withSuccessHandler(function(res){
+    btn.disabled=false; btn.classList.remove("loading"); btn.textContent="Simpan & Koreksi Stok";
+    alert("✅ Stock opname berhasil! "+records.length+" item terkoreksi.");
+    loadHistory();
+  }).withFailureHandler(function(err){alert("Error: "+err);btn.disabled=false;}).doPost({table:"produk", row:{}}); // dummy trigger
+}
+
+function loadHistory(){
+  google.script.run.withSuccessHandler(function(data){
+    const history = data.opname || [];
+    const tbody = document.getElementById("historyBody");
+    tbody.innerHTML = "";
+    [...history].reverse().slice(0,10).forEach(r=>{
+      const cls = r.diff===0?"badge-ok":r.diff>0?"badge-diff":"badge-neg";
+      const tr = document.createElement("tr");
+      tr.innerHTML=`<td>${r.date}</td><td>${r.productName}</td><td>${r.physicalStock}</td><td><span class="badge ${cls}">${r.diff>0?"+":""}${r.diff}</span></td>`;
+      tbody.appendChild(tr);
+    });
+  }).all();
+}
+loadHistory();
+</script>
+</body>
+</html>

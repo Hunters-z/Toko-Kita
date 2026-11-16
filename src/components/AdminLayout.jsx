@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, ShoppingCart, Package, ReceiptText, Wallet, BarChart3, Users,
   Building2, Briefcase, Truck, Gift, Settings, Menu, Search, Bell, X, LogOut,
-  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart, ShoppingBag, CalendarCheck
+  Globe, Megaphone, Target, UserCog, PackageCheck, Handshake, PieChart, ShoppingBag, CalendarCheck, ClipboardList
 } from 'lucide-react'
 import { loadDB } from '../lib/store.js'
 import { logout } from '../lib/session.js'
@@ -26,6 +26,7 @@ const navGroups = [
       { to: '/pembelian', icon: PackageCheck, name: 'Pembelian' },
       { to: '/pemasok', icon: Building2, name: 'Pemasok' },
       { to: '/produksi', icon: Gift, name: 'Produksi' },
+      { to: '/stock-opname', icon: ClipboardList, name: 'Stock Opname' },
       { to: '/supply-chain', icon: Truck, name: 'Supply Chain' },
     ]
   },

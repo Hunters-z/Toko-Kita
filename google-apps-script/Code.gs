@@ -24,7 +24,8 @@ const SHEETS = {
   pembelian:   ['id','supplierId','date','items','total','status'],
   izin:        ['id','employeeId','tanggal','jenis','status'],
   gaji:        ['id','employeeId','bulan','jumlah'],
-  website:     ['id','title','subtitle','status']
+  website:     ['id','title','subtitle','status'],
+  opname:      ['id','date','productId','productName','systemStock','physicalStock','diff','status']
 };
 
 const TABLES_FOR_POST = Object.keys(SHEETS);
@@ -56,6 +57,7 @@ function doGet(e) {
       inventori: 'Inventori',
       cms: 'CMS',
       store: 'Storefront',
+      opname: 'Opname',
       index: 'Index'
     };
 

@@ -23,6 +23,7 @@ import SupplyChain from './pages/SupplyChain.jsx'
 import HumanResources from './pages/HumanResources.jsx'
 import Marketing from './pages/Marketing.jsx'
 import SettingsPage from './pages/Settings.jsx'
+import StockOpname from './pages/StockOpname.jsx'
 import KaryawanAbsen from './pages/KaryawanAbsen.jsx'
 import KaryawanRiwayat from './pages/KaryawanRiwayat.jsx'
 import KaryawanProfil from './pages/KaryawanProfil.jsx'
@@ -64,6 +65,7 @@ export default function App() {
            <Route path="absen" element={<Attendance/>}/>
            <Route path="pembelian" element={<Purchases/>}/>
            <Route path="produksi" element={<Bundles/>}/>
+           <Route path="stock-opname" element={<StockOpname/>}/>
            <Route path="keuangan" element={<Finance/>}/>
            <Route path="sales" element={<SalesCRM/>}/>
            <Route path="website" element={<WebsiteBuilder/>}/>
