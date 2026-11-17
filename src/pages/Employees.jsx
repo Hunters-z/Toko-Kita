@@ -93,8 +93,8 @@ export default function Employees() {
           <form onSubmit={e => { e.preventDefault(); simpanEdit() }} className="mt-4 card p-5 space-y-3">
             <h3 className="font-disp font-bold text-[14.5px]">Akses login — {emp.name}</h3>
             <div className="flex flex-wrap gap-2.5 items-end">
-              <Input label="Username" value={edit.username} onChange={v=>setEdit({...edit, username:v})} placeholder="cth. rina" required/>
-              <Input label="PIN (4–6 angka)" value={edit.pin} onChange={v=>setEdit({...edit, pin:v})} placeholder="cth. 1234" required/>
+              <Input label="Username" value={edit.username} onChange={e=>setEdit({...edit, username:e.target.value})} placeholder="cth. rina" required/>
+              <Input label="PIN (4–6 angka)" value={edit.pin} onChange={e=>setEdit({...edit, pin:e.target.value})} placeholder="cth. 1234" required/>
               <Button size="sm" type="submit">Simpan akses</Button>
               <Button size="sm" variant="outline" type="button" onClick={()=>setEditId(null)}>Batal</Button>
             </div>
@@ -104,10 +104,10 @@ export default function Employees() {
       })()}
 
       <form onSubmit={add} className="mt-4 card p-5 flex flex-wrap gap-2.5 items-end">
-        <Input label="Nama" value={form.name} onChange={e => setForm({form, name: e.target.value})} required/>
-        <Input label="Jabatan" value={form.role} onChange={e => setForm({form, role: e.target.value})}/>
-        <Input label="Username" value={form.username} onChange={e => setForm({form, username: e.target.value})} placeholder="cth. doni"/>
-        <Input label="PIN login (4–6 angka)" value={form.pin} onChange={e => setForm({form, pin: e.target.value})} required/>
+        <Input label="Nama" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required/>
+        <Input label="Jabatan" value={form.role} onChange={e => setForm({...form, role: e.target.value})}/>
+        <Input label="Username" value={form.username} onChange={e => setForm({...form, username: e.target.value})} placeholder="cth. doni"/>
+        <Input label="PIN login (4–6 angka)" value={form.pin} onChange={e => setForm({...form, pin: e.target.value})} required/>
         <Button size="sm" type="submit">Tambah pegawai</Button>
       </form>
       <p className="text-[11.5px] text-dim mt-2">Isi username dan PIN agar pegawai bisa login sendiri di halaman Absen. PIN disimpan lokal di perangkat ini.</p>
