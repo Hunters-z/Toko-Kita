@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input.jsx'
 import { toast } from '@/components/ui/use-toast.jsx'
 import {
   ShoppingCart, Package, Banknote, CreditCard, Smartphone, Landmark, Search,
-  CheckCircle2, TriangleAlert, Ban, Plus, Minus,
+  CheckCircle2, TriangleAlert, Ban, Plus, Minus, ScanBarcode, X
 } from 'lucide-react'
 
 const METHODS = [
@@ -25,9 +25,22 @@ export default function POS() {
   const [paid, setPaid] = useState('')
   const [done, setDone] = useState(null)
   const [q, setQ] = useState('')
+  const [scanning, setScanning] = useState(false)
   // cooldown toast stok (sekali per item per sesi / debounce 5 detik)
   const warnedLow = useRef({})
   const warnedOut = useRef({})
+
+  const handleScan = (code) => {
+    // Cari produk berdasarkan kode/barcode
+    const p = db.products.find(x => x.barcode === code || x.code === code)
+    if (p) {
+      addP(p)
+      toast({ title: `Ditambahkan: ${p.name}`, description: 'Scan berhasil' })
+    } else {
+      toast({ title: 'Produk tidak ditemukan', description: `Kode: ${code}`, variant: 'destructive' })
+    }
+    setScanning(false)
+  }
 
   const ppnOn = db.settings?.ppnOn
   const sub = cart.reduce((s,l)=>s + effPrice(l.p)*l.qty, 0)
@@ -134,8 +147,36 @@ export default function POS() {
         <div>
           <div className="relative mb-3">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-inksoft"><Icon as={Search} size="sm" strokeWidth={1.5}/></span>
-            <Input className="mb-0 h-10 pl-9" placeholder="Cari produk…" value={q} onChange={e=>setQ(e.target.value)}/>
+            <Input className="mb-0 h-10 pl-9" placeholder="Cari produk… atau scan" value={q} onChange={e=>setQ(e.target.value)}/>
+            <button onClick={()=>setScanning(true)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded" title="Scan Barcode">
+              <Icon as={ScanBarcode} size="sm"/>
+            </button>
           </div>
+          {scanning && (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+              <div className="card max-w-sm w-full p-5 space-y-4 bg-white relative">
+                <div className="flex justify-between items-center">
+                  <h3 className="font-disp font-bold flex items-center gap-2"><Icon as={ScanBarcode} size="md"/> Scan Barcode / QR</h3>
+                  <button onClick={()=>setScanning(false)} className="p-1 rounded-full hover:bg-slate-100"><Icon as={X} size="sm"/></button>
+                </div>
+                <div className="aspect-square bg-slate-900 rounded-xl relative overflow-hidden flex items-center justify-center text-white">
+                  <div className="absolute inset-4 border-2 border-dashed border-emerald-400 rounded-lg flex items-center justify-center opacity-70">
+                    <span className="text-xs text-center px-4">Arahkan kamera HP ke barcode produk</span>
+                  </div>
+                  <Icon as={Smartphone} size="xl" className="text-slate-600 animate-pulse"/>
+                </div>
+                <div className="space-y-2">
+                  <input type="text" placeholder="Atau ketik kode manual / scan di sini..." 
+                    className="w-full p-2.5 border border-line rounded-lg text-sm" autoFocus
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' && e.target.value) handleScan(e.target.value.trim())
+                    }}
+                  />
+                  <p className="text-[11px] text-dim text-center">Tekan Enter setelah scan/ketik kode.</p>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {list.map(p => {
               const habis = !p.isBundle && p.stock === 0

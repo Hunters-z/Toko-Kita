@@ -1,10 +1,10 @@
-// Halaman Stock Opname (Vercel) — input stok fisik & koreksi otomatis.
+// Halaman Stock Opname (Vercel) — input stok fisik & koreksi otomatis + scan barcode.
 import { useState } from 'react'
 import { loadDB, saveDB } from '../lib/store.js'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card.jsx'
 import { Button } from '../components/ui/button.jsx'
 import { Icon } from '../components/ui/icon.jsx'
-import { ClipboardList, Check, Scale, AlertTriangle } from 'lucide-react'
+import { ClipboardList, Check, Scale, AlertTriangle, ScanBarcode, X, Smartphone } from 'lucide-react'
 import { toast } from '../components/ui/use-toast.jsx'
 
 export default function StockOpname() {
@@ -12,9 +12,22 @@ export default function StockOpname() {
   const [opnameDate, setOpnameDate] = useState(new Date().toISOString().split('T')[0])
   const [entries, setEntries] = useState({})
   const [saving, setSaving] = useState(false)
+  const [scanning, setScanning] = useState(false)
+  const [scanCode, setScanCode] = useState('')
 
   const handleEntry = (productId, physicalStock) => {
     setEntries(prev => ({ ...prev, [productId]: physicalStock }))
+  }
+
+  const handleScan = (code) => {
+    const p = db.products.find(x => x.barcode === code || x.code === code || x.sku === code)
+    if (p) {
+      handleEntry(p.id, '')
+      toast({ title: 'Produk ditemukan', description: `${p.name} — masukkan stok fisik` })
+    } else {
+      toast({ title: 'Produk tidak ditemukan', description: `Kode: ${code}`, variant: 'destructive' })
+    }
+    setScanning(false)
   }
 
   const calculateDiff = (productId) => {
@@ -73,7 +86,40 @@ export default function StockOpname() {
           <h1 className="font-disp text-lg md:text-xl font-extrabold">Stock Opname</h1>
           <p className="text-[12px] text-muted">Hitung fisik stok & koreksi selisihnya secara manual.</p>
         </div>
+        <Button size="sm" variant="outline" onClick={()=>setScanning(true)} className="ml-auto flex items-center gap-2">
+          <Icon as={ScanBarcode} size="md"/> Scan Barcode
+        </Button>
       </div>
+
+      {scanning && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="card max-w-sm w-full p-5 space-y-4 bg-white relative">
+            <div className="flex justify-between items-center">
+              <h3 className="font-disp font-bold flex items-center gap-2"><Icon as={ScanBarcode} size="md"/> Scan Barcode / QR</h3>
+              <button onClick={()=>setScanning(false)} className="p-1 rounded-full hover:bg-slate-100"><Icon as={X} size="sm"/></button>
+            </div>
+            <div className="aspect-square bg-slate-900 rounded-xl relative overflow-hidden flex items-center justify-center text-white">
+              <div className="absolute inset-4 border-2 border-dashed border-emerald-400 rounded-lg flex items-center justify-center opacity-70">
+                <span className="text-xs text-center px-4">Arahkan kamera HP ke barcode produk</span>
+              </div>
+              <Icon as={Smartphone} size="xl" className="text-slate-600 animate-pulse"/>
+            </div>
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="Ketik kode atau gunakan kamera..."
+                className="w-full p-2.5 border border-line rounded-lg text-sm"
+                autoFocus
+                onChange={e=>setScanCode(e.target.value)}
+                onKeyDown={e => {
+                  if(e.key === 'Enter' && e.target.value) handleScan(e.target.value.trim())
+                }}
+              />
+              <p className="text-[11px] text-dim text-center">Tekan Enter setelah memasukkan kode.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card className="card mb-4">
         <CardHeader>
