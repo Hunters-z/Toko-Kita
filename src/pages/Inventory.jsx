@@ -7,22 +7,32 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { Label } from '@/components/ui/label.jsx'
 import { Input as ShadInput } from '@/components/ui/input.jsx'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table.jsx'
-import { Package, PackagePlus, TriangleAlert, CheckCircle2 } from 'lucide-react'
+import { Package, PackagePlus, TriangleAlert, CheckCircle2, ScanBarcode } from 'lucide-react'
+import { BarcodeScannerModal } from '../components/BarcodeScannerModal.jsx'
 // Palette v0.2: ocean/navy
 
 export default function Inventory() {
   const [db, setDb] = useState(loadDB())
   const [form, setForm] = useState({name:'', price:'', stock:'', minStock:''})
+  const [scanning, setScanning] = useState(false)
   const add = e => {
     e.preventDefault()
     const next = {...db, products: [...db.products, {...form, id:'p'+Date.now(), price:+form.price, stock:+form.stock, minStock:+form.minStock||0}]}
     saveDB(next); setDb(next); setForm({name:'', price:'', stock:'', minStock:''})
   }
+  const handleScan = (code) => {
+    setScanning(false)
+    setForm({...form, name: code})
+  }
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center gap-2.5 mb-6">
-        <Icon as={Package} size="lg" className="text-hero" />
-        <h1 className="font-disp text-lg md:text-xl font-extrabold">Inventori</h1>
+      {scanning && <BarcodeScannerModal onScan={handleScan} onClose={()=>setScanning(false)}/>}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2.5">
+          <Icon as={Package} size="lg" className="text-hero" />
+          <h1 className="font-disp text-lg md:text-xl font-extrabold">Inventori</h1>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setScanning(true)} className="gap-1.5"><Icon as={ScanBarcode} size="sm"/> Scan Barcode</Button>
       </div>
       <Card title="Daftar produk">
         <Table>

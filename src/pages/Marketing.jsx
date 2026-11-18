@@ -4,7 +4,8 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { getStore, setStore, seedErpModules } from '../lib/erpModulesStore';
-import { Megaphone, BarChart3, Target } from 'lucide-react';
+import { Megaphone, BarChart3, Target, Plus } from 'lucide-react';
+import { Badge } from '../components/ui/badge';
 
 export default function Marketing() {
   const [campaigns, setCampaigns] = useState([]);
