@@ -1,28 +1,45 @@
 // Halaman Stock Opname (Vercel) — input stok fisik & koreksi otomatis + scan barcode.
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { loadDB, saveDB } from '../lib/store.js'
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card.jsx'
 import { Button } from '../components/ui/button.jsx'
 import { Icon } from '../components/ui/icon.jsx'
-import { ClipboardList, Check, Scale, AlertTriangle, ScanBarcode, X, Smartphone } from 'lucide-react'
+import { ClipboardList, Check, Scale, AlertTriangle, ScanBarcode, X, Smartphone, Layers, Plus, Trash2, Search } from 'lucide-react'
 import { toast } from '../components/ui/use-toast.jsx'
+import { BarcodeScannerModal } from '../components/BarcodeScannerModal.jsx'
+
+// ZONA rak/lokasi tetap bisa ditambahkan (zonasi sism)
+const DEFAULT_ZONES = ['Rak A', 'Rak B', 'Gudang', 'Lantai', 'Lainnya']
 
 export default function StockOpname() {
   const [db, setDb] = useState(loadDB())
   const [opnameDate, setOpnameDate] = useState(new Date().toISOString().split('T')[0])
   const [entries, setEntries] = useState({})
+  const [zones, setZones] = useState(DEFAULT_ZONES)
+  const [activeZone, setActiveZone] = useState('')
+  const [customZone, setCustomZone] = useState('')
+  const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [scanCode, setScanCode] = useState('')
 
-  const handleEntry = (productId, physicalStock) => {
-    setEntries(prev => ({ ...prev, [productId]: physicalStock }))
+  const addZone = () => {
+    const z = customZone.trim()
+    if (z && !zones.includes(z)) {
+      setZones(prev => [...prev, z])
+      setActiveZone(z)
+      setCustomZone('')
+    }
+  }
+
+  const handleEntry = (productId, physicalStock, zone = activeZone) => {
+    setEntries(prev => ({ ...prev, [productId]: { physicalStock, zone } }))
   }
 
   const handleScan = (code) => {
     const p = db.products.find(x => x.barcode === code || x.code === code || x.sku === code)
     if (p) {
-      handleEntry(p.id, '')
+      handleEntry(p.id, '', activeZone)
       toast({ title: 'Produk ditemukan', description: `${p.name} — masukkan stok fisik` })
     } else {
       toast({ title: 'Produk tidak ditemukan', description: `Kode: ${code}`, variant: 'destructive' })
@@ -30,26 +47,41 @@ export default function StockOpname() {
     setScanning(false)
   }
 
-  const calculateDiff = (productId) => {
+  // Filter produk: hanya yang ada di zon aktif atau semua
+  const filteredProducts = useMemo(() => {
+    if (!activeZone) return db.products
+    // jika zon ada, tampilkan produk yang masih belum diinput / sudah diinput
+    return db.products.filter(p => !entries[p.id] || entries[p.id]?.zone === activeZone || Object.keys(entries).length === 0 || !entries[p.id]?.zone)
+  }, [db.products, activeZone, entries])
+
+  const searchFiltered = useMemo(() => {
+    if (!search) return filteredProducts
+    const q = search.toLowerCase()
+    return filteredProducts.filter(p => p.name.toLowerCase().includes(q) || p.barcode?.includes(q) || p.code?.includes(q))
+  }, [filteredProducts, search])
+
+  const calculateDiff = (productId, physicalStock) => {
     const product = db.products.find(p => p.id === productId)
     if (!product) return 0
-    const physical = parseInt(entries[productId]) || 0
+    const physical = parseInt(physicalStock) || 0
     return physical - product.stock
   }
 
   const saveOpname = () => {
     setSaving(true)
-    const opnameRecords = Object.entries(entries).map(([productId, physicalStock]) => {
+    const opnameRecords = Object.entries(entries).map(([productId, data]) => {
       const product = db.products.find(p => p.id === productId)
       if (!product) return null
+      const physicalStock = parseInt(data.physicalStock) || 0
       return {
         id: 'op' + Date.now() + Math.random().toString(36).slice(2,6),
         date: opnameDate,
         productId,
         productName: product.name,
         systemStock: product.stock,
-        physicalStock: parseInt(physicalStock) || 0,
-        diff: (parseInt(physicalStock) || 0) - product.stock,
+        physicalStock,
+        diff: physicalStock - product.stock,
+        zone: data.zone || 'Tanpa Zon',
         status: 'applied'
       }
     }).filter(r => r)
@@ -62,8 +94,8 @@ export default function StockOpname() {
 
     const updatedProducts = db.products.map(p => {
       const entry = entries[p.id]
-      if (entry === undefined || entry === null) return p
-      return { ...p, stock: parseInt(entry) || 0 }
+      if (!entry) return p
+      return { ...p, stock: parseInt(entry.physicalStock) || 0 }
     })
 
     const nextDb = {
@@ -80,11 +112,11 @@ export default function StockOpname() {
 
   return (
     <div className="p-4 md:p-7 max-w-6xl mx-auto">
-      <div className="flex items-center gap-2.5 mb-5">
+      <div className="flex items-center gap-2.5 mb-5 flex-wrap">
         <Icon as={ClipboardList} size="lg" className="text-hero" />
         <div>
           <h1 className="font-disp text-lg md:text-xl font-extrabold">Stock Opname</h1>
-          <p className="text-[12px] text-muted">Hitung fisik stok & koreksi selisihnya secara manual.</p>
+          <p className="text-[12px] text-muted">Hitung fisik stok & koreksi selisihnya per zona.</p>
         </div>
         <Button size="sm" variant="outline" onClick={()=>setScanning(true)} className="ml-auto flex items-center gap-2">
           <Icon as={ScanBarcode} size="md"/> Scan Barcode
@@ -92,68 +124,87 @@ export default function StockOpname() {
       </div>
 
       {scanning && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="card max-w-sm w-full p-5 space-y-4 bg-white relative">
-            <div className="flex justify-between items-center">
-              <h3 className="font-disp font-bold flex items-center gap-2"><Icon as={ScanBarcode} size="md"/> Scan Barcode / QR</h3>
-              <button onClick={()=>setScanning(false)} className="p-1 rounded-full hover:bg-slate-100"><Icon as={X} size="sm"/></button>
-            </div>
-            <div className="aspect-square bg-slate-900 rounded-xl relative overflow-hidden flex items-center justify-center text-white">
-              <div className="absolute inset-4 border-2 border-dashed border-emerald-400 rounded-lg flex items-center justify-center opacity-70">
-                <span className="text-xs text-center px-4">Arahkan kamera HP ke barcode produk</span>
-              </div>
-              <Icon as={Smartphone} size="xl" className="text-slate-600 animate-pulse"/>
-            </div>
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Ketik kode atau gunakan kamera..."
-                className="w-full p-2.5 border border-line rounded-lg text-sm"
-                autoFocus
-                onChange={e=>setScanCode(e.target.value)}
-                onKeyDown={e => {
-                  if(e.key === 'Enter' && e.target.value) handleScan(e.target.value.trim())
-                }}
+        <BarcodeScannerModal onScan={handleScan} onClose={()=>setScanning(false)}/>
+      )}
+
+      <Card className="card mb-4">
+        <CardHeader>
+          <CardTitle>Tanggal & Zona Opname</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <input type="date" value={opnameDate} onChange={e => setOpnameDate(e.target.value)} className="bg-white border border-line rounded-xl px-3.5 py-2 text-[14px] w-full sm:w-48" />
+          
+          {/* Zona sism rack */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <button onClick={()=>setActiveZone('')} className={`pill px-3 py-1.5 text-[12px] font-medium transition-colors ${activeZone===''?'bg-hero text-white':'bg-card2 text-inksoft'}`}>Semua Zona</button>
+            {zones.map(z => (
+              <button key={z} onClick={()=>setActiveZone(z)} className={`pill px-3 py-1.5 text-[12px] font-medium transition-colors ${activeZone===z?'bg-hero text-white':'bg-card2 text-inksoft'}`}>{z}</button>
+            ))}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <input 
+                type="text" 
+                placeholder="Zona baru…" 
+                value={customZone}
+                onChange={e=>setCustomZone(e.target.value)}
+                onKeyDown={e=>e.key==='Enter'&&addZone()}
+                className="bg-white border border-line rounded-lg px-2.5 py-1 text-[12px] w-32"
               />
-              <p className="text-[11px] text-dim text-center">Tekan Enter setelah memasukkan kode.</p>
+              <Button size="sm" variant="ghost" onClick={addZone} className="h-8 w-8 p-0"><Icon as={Plus} size="xs"/></Button>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {activeZone && (
+        <div className="card p-3 mb-4 flex items-center justify-between">
+          <div className="text-[13px] font-medium text-inksoft flex items-center gap-1.5">
+            <Icon as={Layers} size="sm" className="text-hero"/> Menampilkan zona: <b className="text-ink">{activeZone}</b>
+          </div>
+          <button onClick={()=>setActiveZone('')} className="text-[11.5px] text-coral font-medium flex items-center gap-1">
+            <Icon as={X} size="xs"/> Reset zon
+          </button>
         </div>
       )}
 
       <Card className="card mb-4">
         <CardHeader>
-          <CardTitle>Tanggal Opname</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <input type="date" value={opnameDate} onChange={e => setOpnameDate(e.target.value)} className="bg-white border border-line rounded-xl px-3.5 py-2 text-[14px]" />
-        </CardContent>
-      </Card>
-
-      <Card className="card mb-4">
-        <CardHeader>
-          <CardTitle>Input Stok Fisik</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Input Stok Fisik</CardTitle>
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-inksoft"><Icon as={Search} size="xs"/></span>
+              <input 
+                type="text" 
+                placeholder="Cari produk…" 
+                value={search}
+                onChange={e=>setSearch(e.target.value)}
+                className="bg-card2 border border-line rounded-lg pl-7 pr-3 py-1.5 text-[12px] w-44"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-            {db.products.map(p => {
-              const diff = calculateDiff(p.id)
+            {searchFiltered.length===0 ? <p className="text-inksoft text-[13px]">Produk tidak ditemukan.</p> :
+            searchFiltered.map(p => {
+              const entry = entries[p.id]
+              const physicalStock = entry?.physicalStock ?? ''
+              const diff = entry ? calculateDiff(p.id, entry.physicalStock) : null
               return (
                 <div key={p.id} className="flex items-center justify-between gap-3 border-b border-line pb-2">
-                  <div className="flex-1">
-                    <b className="text-[14px]">{p.name}</b>
-                    <div className="text-[12px] text-muted">Sistem: {p.stock}</div>
+                  <div className="flex-1 min-w-0">
+                    <b className="text-[14px] truncate block">{p.name}</b>
+                    <div className="text-[12px] text-muted">Sistem: {p.stock} {p.barcode ? ` · ${p.barcode}` : ''}</div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 shrink-0">
                     <input
                       type="number"
                       min="0"
                       placeholder="Fisik"
-                      value={entries[p.id] ?? ''}
-                      onChange={e => handleEntry(p.id, e.target.value)}
-                      className="w-24 bg-white border border-line rounded-xl px-3 py-1.5 text-right text-[13px]"
+                      value={physicalStock}
+                      onChange={e => handleEntry(p.id, e.target.value, activeZone)}
+                      className="w-20 bg-white border border-line rounded-xl px-3 py-1.5 text-right text-[13px]"
                     />
-                    {entries[p.id] !== undefined && (
+                    {diff !== null && (
                       <span className={`pill text-[11px] font-bold px-2.5 py-1 ${diff === 0 ? 'bg-emerald-50 text-emerald-700' : diff > 0 ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-red-700'}`}>
                         {diff > 0 ? '+' : ''}{diff}
                       </span>
@@ -169,8 +220,13 @@ export default function StockOpname() {
       <div className="flex items-center gap-3 mb-6">
         <Button onClick={saveOpname} disabled={saving} className="gap-2">
           <Icon as={saving ? 'RefreshCw' : Check} size="md" className={saving ? 'animate-spin' : ''} />
-          Simpan & Koreksi Stok
+          Simpan & Koreksi Stok ({Object.keys(entries).length} item)
         </Button>
+        {Object.keys(entries).length>0 && (
+          <Button variant="ghost" size="sm" onClick={()=>setEntries({})} className="text-coral">
+            <Icon as={Trash2} size="sm"/> Hapus input
+          </Button>
+        )}
       </div>
 
       <Card className="card">
@@ -186,7 +242,9 @@ export default function StockOpname() {
                 <div key={r.id} className="flex items-center justify-between py-2 border-b border-line last:border-0">
                   <div>
                     <b className="text-[13px]">{r.productName}</b>
-                    <span className="text-[11px] text-muted block">Sistem: {r.systemStock} → Fisik: {r.physicalStock}</span>
+                    <span className="text-[11px] text-muted block">
+                      {r.zone} · Sistem: {r.systemStock} → Fisik: {r.physicalStock}
+                    </span>
                   </div>
                   <span className={`text-[12px] font-bold ${r.diff === 0 ? 'text-muted' : r.diff > 0 ? 'text-blue-600' : 'text-red-600'}`}>
                     {r.diff > 0 ? '+' : ''}{r.diff}
