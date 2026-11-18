@@ -42,12 +42,22 @@ export default function POS() {
     setScanning(false)
   }
 
+  const [splitOn, setSplitOn] = useState(false)
+  const [splitMethod, setSplitMethod] = useState('qris')
+  const [splitAmount, setSplitAmount] = useState('')
   const ppnOn = db.settings?.ppnOn
   const sub = cart.reduce((s,l)=>s + effPrice(l.p)*l.qty, 0)
   const disc = cart.reduce((s,l)=>s + (l.p.price-effPrice(l.p))*l.qty, 0)
   const tax = ppnOn ? Math.round(sub*0.11) : 0
   const total = sub + tax
-  const change = Math.max(0, (Number(paid)||0) - total)
+  // Split: metode 1 (method) + metode 2 (splitMethod). Sisa = total - splitAmount
+  const splitRest = Math.max(0, total - (Number(splitAmount)||0))
+  const change = !splitOn
+    ? Math.max(0, (Number(paid)||0) - total)
+    : (splitMethod === 'cash' ? Math.max(0, (Number(paid)||0) - splitRest) : 0)
+  const paidValid = splitOn
+    ? splitRest >= 0 && (splitMethod !== 'cash' || method !== 'cash' || (Number(paid)||0) >= splitRest)
+    : (method === 'cash' ? (Number(paid)||0) >= total : true)
 
   const list = useMemo(() =>
     [...db.products, ...db.bundles.map(b=>({...b, isBundle:true}))].filter(p=>p.name.toLowerCase().includes(q.toLowerCase()))
@@ -86,7 +96,9 @@ export default function POS() {
   }
 
   const checkout = () => {
-    if (!cart.length || (Number(paid)||0) < total && method==='cash') return
+    if (!cart.length) return
+    if (splitOn && !Number(splitAmount)) { toast({ title: 'Isi nominal split dulu', variant: 'destructive' }); return }
+    if (splitOn && Number(splitAmount) > total) { toast({ title: 'Nominal split melebihi total', variant: 'destructive' }); return }
     // kurangi stok
     const products = db.products.map(p => {
       const line = cart.find(l=>l.p.id===p.id)
@@ -104,10 +116,30 @@ export default function POS() {
     prods.filter(p => p.stock === 0 && db.products.find(x=>x.id===p.id)?.stock > 0).forEach(p => {
       toast({ title: `Stok ${p.name} habis`, variant: 'destructive' })
     })
-    const tx = { id: uid('t'), date: new Date().toISOString(), items: cart.map(l=>({name:l.p.name, qty:l.qty, price:effPrice(l.p), disc:l.p.discount||0})), sub, disc, tax, total, method }
-    const db2 = {...db, products: prods, txs: [...db.txs, tx], payments: [...db.payments, {txId:tx.id, method, paid:Number(paid)||total, change}] }
-    saveDB(db2); setDb(db2); setDone({tx, change, paid:Number(paid)||total}); setCart([]); setPaid('')
-    toast({ title: 'Transaksi berhasil', description: `${tx.items.length} item · ${rp(total)}` })
+    const tx = {
+      id: uid('t'), date: new Date().toISOString(),
+      items: cart.map(l=>({name:l.p.name, qty:l.qty, price:effPrice(l.p), disc:l.p.discount||0})),
+      sub, disc, tax, total, method: splitOn ? 'split' : method,
+    }
+    // split: catat 2 baris pembayaran; selain itu 1 baris
+    let pays
+    if (splitOn) {
+      const sAmt = Number(splitAmount)
+      const rest = total - sAmt
+      pays = [
+        { txId: tx.id, method: method, paid: sAmt, split: true },
+        { txId: tx.id, method: splitMethod, paid: rest, split: true },
+      ]
+      if (method === 'cash') pays[0].change = Math.max(0, (Number(paid)||0) - sAmt)
+      if (splitMethod === 'cash') pays[1].change = Math.max(0, (Number(paid)||0) - rest)
+    } else {
+      pays = [{ txId: tx.id, method, paid: Number(paid)||total, change: method==='cash' ? change : 0 }]
+    }
+    const db2 = {...db, products: prods, txs: [...db.txs, tx], payments: [...db.payments, ...pays]}
+    saveDB(db2); setDb(db2)
+    setDone({tx, change, paid: splitOn ? total : (Number(paid)||total), split: splitOn ? {method: splitMethod, amount: Number(splitAmount), rest: total - Number(splitAmount)} : null})
+    setCart([]); setPaid(''); setSplitAmount(''); setSplitOn(false)
+    toast({ title: 'Transaksi berhasil', description: splitOn ? `${rp(total)} · split ${method} + ${splitMethod}` : `${tx.items.length} item · ${rp(total)}` })
   }
   const newSale = () => setDone(null)
 
@@ -116,7 +148,7 @@ export default function POS() {
       <div className="card p-8">
         <Icon as={CheckCircle2} size="lg" className="text-lime mx-auto mb-3" strokeWidth={1.5} style={{width:40, height:40}} />
         <h1 className="font-disp text-xl font-extrabold mb-1">Transaksi berhasil</h1>
-        <p className="text-inksoft text-[13px] mb-5">{done.tx.items.length} item · {done.tx.method.toUpperCase()}</p>
+        <p className="text-inksoft text-[13px] mb-5">{done.tx.items.length} item · {done.split ? 'SPLIT' : done.tx.method.toUpperCase()}</p>
         <div className="card2 p-4 text-left text-[13.5px] space-y-1.5 mb-5">
           {done.tx.items.map((i,idx)=>(
             <div key={idx} className="flex justify-between"><span>{i.qty}× {i.name}{i.disc?` (-${i.disc}%)`:''}</span><b>{rp(i.price*i.qty)}</b></div>
@@ -124,8 +156,23 @@ export default function POS() {
           <div className="flex justify-between border-t border-line pt-2"><span>Subtotal</span><span>{rp(done.tx.sub)}</span></div>
           {done.tx.tax>0 && <div className="flex justify-between"><span>PPN 11%</span><span>{rp(done.tx.tax)}</span></div>}
           <div className="flex justify-between font-bold text-[15px]"><span>Total</span><span className="text-hero">{rp(done.tx.total)}</span></div>
-          <div className="flex justify-between text-inksoft"><span>Bayar ({done.tx.method})</span><span>{rp(done.paid)}</span></div>
-          {done.tx.method==='cash' && <div className="flex justify-between"><span>Kembalian</span><b className="text-lime">{rp(done.change)}</b></div>}
+          {done.split ? (
+            <>
+              <div className="border-t border-line mt-2 pt-2 space-y-1">
+                <div className="flex justify-between text-inksoft"><span>{METHODS.find(([k])=>k===done.split.baseMethod)?.[1] || done.tx.method}</span><b>{rp(done.split.amount)}</b></div>
+                <div className="flex justify-between text-inksoft"><span>{METHODS.find(([k])=>k===done.split.method)?.[1] || done.split.method}</span><b>{rp(done.split.rest)}</b></div>
+              </div>
+              {(done.split.baseMethod === 'cash' || done.split.method === 'cash') && (<>
+                <div className="flex justify-between text-inksoft mt-2"><span>Bayar tunai</span><b>{rp(done.paid)}</b></div>
+                {done.change > 0 && <div className="flex justify-between"><span>Kembalian</span><b className="text-lime">{rp(done.change)}</b></div>}
+              </>)}
+            </>
+          ) : (
+            <>
+              <div className="flex justify-between text-inksoft"><span>Bayar ({done.tx.method})</span><span>{rp(done.paid)}</span></div>
+              {done.tx.method==='cash' && <div className="flex justify-between"><span>Kembalian</span><b className="text-lime">{rp(done.change)}</b></div>}
+            </>
+          )}
         </div>
         <Button onClick={newSale} className="px-6 h-12 text-[14px]">Transaksi baru</Button>
       </div>
@@ -229,11 +276,38 @@ export default function POS() {
                 </button>
               ))}
             </div>
-            {method==='cash' && <>
+            {method==='cash' && !splitOn && <>
               <Input className="mt-2.5" type="number" placeholder="Uang diterima" value={paid} onChange={e=>setPaid(e.target.value)}/>
               {Number(paid)>0 && <div className="text-right text-[12.5px] mt-1">Kembalian: <b className={(change>=0?'text-lime':'text-coral')}>{rp(Math.abs(change))}{change<0?' kurang':''}</b></div>}
             </>}
-            <Button onClick={checkout} disabled={method==='cash' && (Number(paid)||0)<total}
+            {/* Split payment */}
+            <div className="mt-2.5 p-3 card2 rounded-xl space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[12px] font-semibold text-inksoft flex items-center gap-1.5">
+                  <input type="checkbox" checked={splitOn} onChange={e=>setSplitOn(e.target.checked)} className="accent-[#2563EB] w-4 h-4"/>
+                  Split pembayaran (2 metode)
+                </label>
+                <span className="text-[11px] text-dim">sisa {rp(splitRest)}</span>
+              </div>
+              {splitOn && <>
+                <div className="grid grid-cols-2 gap-2">
+                  <select value={splitMethod} onChange={e=>setSplitMethod(e.target.value)}
+                    className="w-full p-2 border border-line rounded-lg text-[12.5px] bg-white">
+                    {METHODS.filter(([k])=>k!==method).map(([k,label])=>
+                      <option key={k} value={k}>{label}</option>)}
+                  </select>
+                  <Input type="number" placeholder="Nominal " value={splitAmount} onChange={e=>setSplitAmount(e.target.value)} className="text-[12.5px]"/>
+                </div>
+                <div className="text-[11.5px] text-inksoft space-y-0.5">
+                  <div className="flex justify-between"><span>Metode 1: {METHODS.find(([k])=>k===method)?.[1]}</span><b>{rp(splitAmount||0)}</b></div>
+                  <div className="flex justify-between"><span>Metode 2: {METHODS.find(([k])=>k===splitMethod)?.[1]}</span><b>{rp(splitRest)}</b></div>
+                </div>
+                {(method==='cash' || splitMethod==='cash') && (
+                  <Input type="number" placeholder="Uang tunai diterima" value={paid} onChange={e=>setPaid(e.target.value)}/>
+                )}
+              </>}
+            </div>
+            <Button onClick={checkout} disabled={!paidValid}
               className="w-full h-12 mt-3 text-[14px] gap-2">
               <Icon as={CreditCard} size="md" /> Bayar {rp(total)}
             </Button>

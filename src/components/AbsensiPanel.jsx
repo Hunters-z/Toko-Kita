@@ -146,10 +146,10 @@ function SelfieDialog({ open, onOpenChange, title, onSubmit }) {
 
 export default function Attendance({ mode = 'admin', session = null, onlyHistory = false }) {
   const [att, setAtt] = useState(loadAtt())
+  const [selfie, setSelfie] = useState(null) // {mode:'in'|'out', emp}
+  const [geoStatus, setGeoStatus] = useState('') // status lokasi saat halaman dibuka
   const [izinOpen, setIzinOpen] = useState(false)
   const [izin, setIzin] = useState({ employeeId: '', date: todayKey(), note: '' })
-  const [selfie, setSelfie] = useState(null) // {mode:'in'|'out', emp}
-  const [geoStatus, setGeoStatus] = useState('') // status lokasi saat login
   const db = loadDB()
   const shiftStart = db.settings?.shiftStart || DEFAULT_SHIFT
   const today = todayKey()
@@ -157,11 +157,24 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
   const office = db.settings?.officeLat != null
     ? { lat: db.settings.officeLat, lng: db.settings.officeLng } : null
 
-  const persist = next => { saveDB2(next); setAtt(next) }
-  const saveDB2 = next => localStorage.setItem(KEY, JSON.stringify(next))
+  const persist = next => { localStorage.setItem(KEY, JSON.stringify(next)); setAtt(next) }
 
   const admin = mode === 'admin'
   const me = !admin && session ? db.employees.find(e => e.id === session.employeeId) : null
+
+  // ROLE GATE: hanya admin atau pegawai valid yang boleh lanjut
+  if (!admin && !me) {
+    return (
+      <div className="p-4 md:p-7 max-w-md mx-auto text-center">
+        <div className="card p-8">
+          <Icon as={CircleAlert} size="xl" className="text-coral mx-auto mb-3"/>
+          <h1 className="font-disp text-lg font-extrabold mb-2">Sesi tidak valid</h1>
+          <p className="text-[13px] text-inksoft mb-4">Data pegawai untuk sesi ini sudah tidak ada. Silakan keluar lalu masuk kembali di halaman login.</p>
+          <a href="/login" className="text-hero underline text-[13px] font-semibold">Ke halaman login</a>
+        </div>
+      </div>
+    )
+  }
 
   // Cek jarak saat halaman dibuka (info, validasi ulang saat absen)
   useMemo(() => {
@@ -238,6 +251,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
   }
 
   const empName = id => db.employees.find(e => e.id === id)?.name || '?'
+  // TAMPILAN: admin lihat semua; pegawai hanya data dirinya
   const history = [...att]
     .filter(a => admin || a.employeeId === session?.employeeId)
     .sort((a, b) => (b.checkIn || b.date) < (a.checkIn || a.date) ? 1 : -1).reverse()
@@ -246,27 +260,13 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
     return list.map(e => ({ emp: e, rec: att.find(a => a.employeeId === e.id && a.date === today) }))
   }, [att, db, today, admin, me])
 
-  // Pengaman: sesi karyawan tanpa data pegawai (harusnya ditangani routing guard).
-  if (session && !me) {
-    return (
-      <div className="p-4 md:p-7 max-w-md mx-auto text-center">
-        <div className="card p-8">
-          <Icon as={CircleAlert} size="xl" className="text-coral mx-auto mb-3"/>
-          <h1 className="font-disp text-lg font-extrabold mb-2">Sesi tidak valid</h1>
-          <p className="text-[13px] text-inksoft mb-4">Data pegawai untuk sesi ini sudah tidak ada. Silakan keluar lalu masuk kembali di halaman login.</p>
-          <a href="/login" className="text-hero underline text-[13px] font-semibold">Ke halaman login</a>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="p-4 md:p-7 max-w-6xl mx-auto">
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <div className="flex items-center gap-2.5">
           <Icon as={CalendarCheck} size="lg" className="text-hero" />
-          <h1 className="font-disp text-lg md:text-xl font-extrabold">Absensi Pegawai</h1>
-          {me && <span className="pill bg-hero-soft text-hero">{me.name}</span>}
+          <h1 className="font-disp text-lg md:text-xl font-extrabold">{admin ? 'Absensi Pegawai' : 'Absensi Saya'}</h1>
+          {!admin && me && <span className="pill bg-hero-soft text-hero">{me.name}</span>}
         </div>
         <div className="ml-auto flex items-center gap-2">
           {geoStatus && <span className={'text-[11.5px] font-semibold pill ' + (geoStatus.startsWith('Lokasi OK') ? 'bg-mint-soft text-emerald-700' : 'bg-amber-soft text-amber-700')}>{geoStatus}</span>}
@@ -307,6 +307,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
           )}
         </div>
       </div>
+
 
       <Tabs defaultValue={onlyHistory ? 'riwayat' : 'hari-ini'}>
         <TabsList>

@@ -39,7 +39,7 @@ export default function KaryawanLayout() {
           <div className="hidden md:flex items-center gap-1 ml-4 flex-1">
             {items.map(it => (
               <NavLink key={it.to} to={it.to}
-                className={({isActive}) => 'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ' + (isActive?'bg-primary text-primary-foreground shadow-sm':'text-muted hover:text-foreground hover:bg-muted/20')}>
+                className={({isActive}) => 'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ' + (isActive?'bg-primary text-primary-foreground shadow-sm':'text-inksoft hover:text-foreground hover:bg-secondary')}>
                 {it.name}
               </NavLink>
             ))}
@@ -48,7 +48,7 @@ export default function KaryawanLayout() {
             <span className="text-[11px] px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium hidden sm:inline">
               {me?.name || 'Karyawan'} · <span className="capitalize">{me?.role || 'Staff'}</span>
             </span>
-            <button onClick={doLogout} className="w-9 h-9 rounded-full hover:bg-destructive/10 text-muted hover:text-destructive grid place-items-center transition-colors" title="Keluar">
+            <button onClick={doLogout} className="w-9 h-9 rounded-full hover:bg-destructive/10 text-inksoft hover:text-destructive grid place-items-center transition-colors" title="Keluar">
               <Icon as={LogOut} size="sm" />
             </button>
           </div>
@@ -66,7 +66,7 @@ export default function KaryawanLayout() {
             <nav className="space-y-1">
               {items.map(it => (
                 <NavLink key={it.to} to={it.to} onClick={()=>setOpen(false)}
-                  className={({isActive}) => 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ' + (isActive?'bg-primary text-primary-foreground':'text-muted hover:text-foreground')}>
+                  className={({isActive}) => 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ' + (isActive?'bg-primary text-primary-foreground':'text-inksoft hover:text-foreground')}>
                   <Icon as={it.icon} size="sm" />
                   {it.name}
                 </NavLink>
@@ -84,7 +84,7 @@ export default function KaryawanLayout() {
       <nav className="md:hidden fixed bottom-3 inset-x-3 z-40 bg-card rounded-full shadow-pop border border-border flex h-16 p-1.5 backdrop-blur-md bg-card/90">
         {items.map(it => (
           <NavLink key={it.to} to={it.to}
-            className={({isActive}) => 'flex-1 flex flex-col items-center justify-center gap-0.5 text-[9.5px] font-semibold rounded-full transition-colors ' + (isActive?'bg-primary/10 text-primary':'text-muted')}>
+            className={({isActive}) => 'flex-1 flex flex-col items-center justify-center gap-0.5 text-[9.5px] font-semibold rounded-full transition-colors ' + (isActive?'bg-primary/10 text-primary':'text-inksoft')}>
             <Icon as={it.icon} size="sm" />{it.name}
           </NavLink>
         ))}
