@@ -73,12 +73,6 @@ export default function App() {
            <Route path="hr" element={<HumanResources/>}/>
            <Route path="marketing" element={<Marketing/>}/>
            <Route path="pengaturan" element={<SettingsPage/>}/>
-           <Route path="sales" element={<SalesCRM/>}/>
-           <Route path="website" element={<WebsiteBuilder/>}/>
-           <Route path="supply-chain" element={<SupplyChain/>}/>
-           <Route path="hr" element={<HumanResources/>}/>
-           <Route path="marketing" element={<Marketing/>}/>
-           <Route path="pengaturan" element={<SettingsPage/>}/>
         </Route>
 
         <Route path="/karyawan" element={<Protected role="karyawan"><KaryawanLayout/></Protected>}>

@@ -8,8 +8,8 @@ import { ClipboardList, Check, Scale, AlertTriangle, ScanBarcode, X, Smartphone,
 import { toast } from '../components/ui/use-toast.jsx'
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal.jsx'
 
-// ZONA rak/lokasi tetap bisa ditambahkan (zonasi sism)
-const DEFAULT_ZONES = ['Rak A', 'Rak B', 'Gudang', 'Lantai', 'Lainnya']
+// ZONA: kosong saat baru masuk; hanya muncul bila user membuat zona
+const DEFAULT_ZONES = []
 
 export default function StockOpname() {
   const [db, setDb] = useState(loadDB())
