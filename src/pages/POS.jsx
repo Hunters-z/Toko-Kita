@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react'
 import { loadDB, saveDB, rp, effPrice, uid } from '../lib/store.js'
 import { Card } from './Dashboard.jsx'
+import { BarcodeScannerModal } from '../components/BarcodeScannerModal.jsx'
 import { Icon } from '@/components/ui/icon.jsx'
 import { Button } from '@/components/ui/button.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
@@ -200,29 +201,7 @@ export default function POS() {
             </button>
           </div>
           {scanning && (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-              <div className="card max-w-sm w-full p-5 space-y-4 bg-white relative">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-disp font-bold flex items-center gap-2"><Icon as={ScanBarcode} size="md"/> Scan Barcode / QR</h3>
-                  <button onClick={()=>setScanning(false)} className="p-1 rounded-full hover:bg-slate-100"><Icon as={X} size="sm"/></button>
-                </div>
-                <div className="aspect-square bg-slate-900 rounded-xl relative overflow-hidden flex items-center justify-center text-white">
-                  <div className="absolute inset-4 border-2 border-dashed border-emerald-400 rounded-lg flex items-center justify-center opacity-70">
-                    <span className="text-xs text-center px-4">Arahkan kamera HP ke barcode produk</span>
-                  </div>
-                  <Icon as={Smartphone} size="xl" className="text-slate-600 animate-pulse"/>
-                </div>
-                <div className="space-y-2">
-                  <input type="text" placeholder="Atau ketik kode manual / scan di sini..." 
-                    className="w-full p-2.5 border border-line rounded-lg text-sm" autoFocus
-                    onKeyDown={e => {
-                      if(e.key === 'Enter' && e.target.value) handleScan(e.target.value.trim())
-                    }}
-                  />
-                  <p className="text-[11px] text-dim text-center">Tekan Enter setelah scan/ketik kode.</p>
-                </div>
-              </div>
-            </div>
+            <BarcodeScannerModal onScan={handleScan} onClose={()=>setScanning(false)}/>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {list.map(p => {
