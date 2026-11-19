@@ -9,12 +9,15 @@ export default function ComingSoon({ title }) {
         <Icon as={Construction} size="xl" />
       </div>
       <div>
-        <h1 className="text-2xl font-extrabold font-disp">{title}</h1>
-        <p className="text-muted text-sm mt-1">Fitur ini sedang dalam tahap pengembangan oleh Forge & Pixel.</p>
+        <h1 className="text-2xl font-extrabold font-disp text-foreground">{title}</h1>
+        <p className="text-muted-foreground text-sm mt-1">Fitur ini sedang dalam tahap pengembangan dengan standar modul Odoo ERP.</p>
       </div>
-      <Card className="border-dashed">
+      <Card className="border-dashed bg-card text-card-foreground">
+        <CardHeader>
+          <CardTitle className="text-center">Status Pengembangan</CardTitle>
+        </CardHeader>
         <CardContent className="pt-6">
-          <p className="text-xs text-muted leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Nantikan pembaruan berikutnya untuk modul manajemen personalia lengkap (pengajuan izin, slip gaji digital, dan klaim pengeluaran).
           </p>
         </CardContent>

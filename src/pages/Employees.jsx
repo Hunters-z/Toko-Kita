@@ -7,6 +7,8 @@ import { Input } from './Inventory.jsx'
 import { registerFingerprint } from '../lib/auth.js'
 import { Icon } from '@/components/ui/icon.jsx'
 import { Briefcase, Fingerprint, Hash, CheckCircle2, TriangleAlert, UserRound } from 'lucide-react'
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select.jsx'
+import { Label } from '@/components/ui/label.jsx'
 
 export default function Employees() {
   const [db, setDb] = useState(loadDB())
@@ -61,6 +63,17 @@ export default function Employees() {
         <h1 className="font-disp text-lg md:text-xl font-extrabold">Pegawai</h1>
       </div>
       {msg && <div className="card p-3.5 mb-4 text-[13px] font-semibold">{msg}</div>}
+      <Card title="Pengaturan Peran (Role)">
+        <div className="flex gap-2">
+          <Input placeholder="Nama Peran baru" id="newRole"/>
+          <Button onClick={() => {
+            const r = document.getElementById('newRole').value;
+            if(!r) return;
+            const next = {...db, settings:{...db.settings, roles:[...(db.settings.roles||['Kasir','Gudang','Manager']), r]}};
+            saveDB(next); setDb(next); document.getElementById('newRole').value='';
+          }}>Tambah Peran</Button>
+        </div>
+      </Card>
       <Card title="Daftar pegawai">
         {db.employees.map(emp => {
           const att = todayAtt.find(a=>a.empId===emp.id)
@@ -105,7 +118,23 @@ export default function Employees() {
 
       <form onSubmit={add} className="mt-4 card p-5 flex flex-wrap gap-2.5 items-end">
         <Input label="Nama" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required/>
-        <Input label="Jabatan" value={form.role} onChange={e => setForm({...form, role: e.target.value})}/>
+        <div className="space-y-1.5 w-full">
+          <Label>Jabatan</Label>
+          <Select value={form.role} onValueChange={v => setForm({...form, role: v})}>
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih Jabatan" />
+            </SelectTrigger>
+            <SelectContent>
+              {db.settings.roles?.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>) || (
+                <>
+                  <SelectItem value="Kasir">Kasir</SelectItem>
+                  <SelectItem value="Gudang">Gudang</SelectItem>
+                  <SelectItem value="Manager">Manager</SelectItem>
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
         <Input label="Username" value={form.username} onChange={e => setForm({...form, username: e.target.value})} placeholder="cth. doni"/>
         <Input label="PIN login (4–6 angka)" value={form.pin} onChange={e => setForm({...form, pin: e.target.value})} required/>
         <Button size="sm" type="submit">Tambah pegawai</Button>

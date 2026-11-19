@@ -160,7 +160,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
   const persist = next => { localStorage.setItem(KEY, JSON.stringify(next)); setAtt(next) }
 
   const admin = mode === 'admin'
-  const me = !admin && session ? db.employees.find(e => e.id === session.employeeId) : null
+  const me = !admin && (session || JSON.parse(localStorage.getItem('tk_session') || 'null')) ? db.employees.find(e => e.id === (session?.employeeId || JSON.parse(localStorage.getItem('tk_session') || '{}').employeeId)) : null
 
   // ROLE GATE: hanya admin atau pegawai valid yang boleh lanjut
   if (!admin && !me) {
