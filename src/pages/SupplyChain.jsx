@@ -3,13 +3,19 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { getStore, seedErpModules } from '../lib/erpModulesStore';
 import { Package, AlertTriangle, Truck } from 'lucide-react';
+import { Badge } from '../components/ui/badge';
 
 export default function SupplyChain() {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    seedErpModules();
-    setItems(getStore('tk_scm'));
+    try {
+      seedErpModules();
+      setItems(getStore('tk_scm') || []);
+    } catch (e) {
+      console.error("SCM Load Error:", e);
+      setItems([]);
+    }
   }, []);
 
   return (

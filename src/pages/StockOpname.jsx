@@ -8,7 +8,7 @@ import { ClipboardList, Check, Scale, AlertTriangle, ScanBarcode, X, Smartphone,
 import { toast } from '../components/ui/use-toast.jsx'
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal.jsx'
 
-// ZONA: kosong saat baru masuk; hanya muncul bila user membuat zona
+// ZONA: zona hanya muncul bila user membuat zona baru (sebagai objek di opname)
 const DEFAULT_ZONES = []
 
 export default function StockOpname() {
