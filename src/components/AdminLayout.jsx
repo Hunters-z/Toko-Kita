@@ -1,4 +1,5 @@
 // Layout aplikasi ADMIN — akses penuh semua modul + tombol logout.
+// Linear-style: sidebar fixed kiri, content scroll, clean borders, no shadows.
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import {
@@ -31,7 +32,7 @@ const navGroups = [
     ]
   },
   {
-    title: 'Keuangan & Penjualan',
+    title: 'Keuangan',
     items: [
       { to: '/invoice', icon: ReceiptText, name: 'Invoice' },
       { to: '/sales', icon: Handshake, name: 'Penjualan CRM' },
@@ -42,7 +43,7 @@ const navGroups = [
     ]
   },
   {
-    title: 'Karyawan & SDM',
+    title: 'SDM',
     items: [
       { to: '/pegawai', icon: Briefcase, name: 'Pegawai' },
       { to: '/absen', icon: CalendarCheck, name: 'Absensi' },
@@ -54,10 +55,6 @@ const navGroups = [
   },
 ]
 
-const nav = navGroups.flatMap(g => g.items)
-const bottomNav = nav.filter(n => ['/','/pos','/inventori','/laporan','/pembelian'].includes(n.to))
-// Absensi diimpor langsung agar konsisten dengan ikon lain.
-
 export default function AdminLayout() {
   const [lowStock, setLowStock] = useState(0)
   const [open, setOpen] = useState(false)
@@ -68,18 +65,28 @@ export default function AdminLayout() {
     setOpen(false)
   }, [pathname])
   const doLogout = () => { logout(); nav2('/login') }
-  const NavLinks = ({onClick}) => (
-    <nav className="space-y-4">
-      {navGroups?.map((group) => (
+
+  const NavLinks = ({ onClick }) => (
+    <nav className="space-y-1">
+      {navGroups.map((group) => (
         <div key={group.title}>
-          <div className="text-[10px] uppercase tracking-wider font-bold text-dim px-4 mb-1.5">{group.title}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground/60 px-3 mb-1.5 mt-4 font-semibold">
+            {group.title}
+          </div>
           <div className="space-y-0.5">
-            {group.items?.map(it => (
-              <NavLink key={it.to} to={it.to} end={it.to==='/'} onClick={onClick}
-                className={({isActive}) => 'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-medium transition-colors ' +
-                  (isActive ? 'bg-hero text-white font-semibold' : 'text-inksoft hover:bg-card2 hover:text-ink')}>
-                <Icon as={it.icon} size="md" />{it.name}
-                {it.to==='/inventori' && lowStock>0 && <span className="ml-auto bg-coral text-white text-[10px] px-2 py-0.5 rounded-full font-bold">{lowStock}</span>}
+            {group.items.map(it => (
+              <NavLink key={it.to} to={it.to} end={it.to === '/'} onClick={onClick}
+                className={({ isActive }) => `
+                  flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors
+                  ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'}
+                `}>
+                <Icon as={it.icon} size="sm" />
+                {it.name}
+                {it.to === '/inventori' && lowStock > 0 && (
+                  <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                    {lowStock}
+                  </span>
+                )}
               </NavLink>
             ))}
           </div>
@@ -87,81 +94,91 @@ export default function AdminLayout() {
       ))}
     </nav>
   )
+
   return (
-    <div className="min-h-screen bg-bg">
-      {/* Header pill */}
-      <header className="sticky top-0 z-40 px-3 md:px-5 pt-3">
-        <div className="flex items-center gap-2 bg-white rounded-full shadow-soft pl-4 pr-2 h-14 border border-line max-w-6xl mx-auto">
-          <button className="md:hidden text-ink" onClick={()=>setOpen(true)} aria-label="Buka menu" title="Buka menu">
-            <Icon as={Menu} size="md" />
+    <div className="flex min-h-screen bg-background">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex flex-col w-[240px] border-r border-border bg-card sticky top-0 h-screen overflow-y-auto">
+        {/* Logo */}
+        <div className="px-4 py-4 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-primary grid place-items-center text-primary-foreground text-sm font-bold">
+              T
+            </div>
+            <div className="font-display font-bold text-base text-foreground">
+              Toko<span className="text-primary">Kita</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 py-3">
+          <NavLinks />
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-border px-4 py-3">
+          <button onClick={doLogout} 
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors w-full">
+            <Icon as={LogOut} size="sm" />
+            Keluar
           </button>
-          <div className="font-disp font-extrabold flex items-center gap-2 text-ink">
-            <span className="w-8 h-8 rounded-full bg-hero grid place-items-center text-sm text-white">T</span>
-            <span className="hidden sm:inline">Toko<span className="text-hero">Kita</span></span>
+        </div>
+      </aside>
+
+      {/* Mobile Header */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border md:hidden">
+        <div className="flex items-center justify-between px-4 h-14">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-primary grid place-items-center text-primary-foreground text-xs font-bold">
+              T
+            </div>
+            <span className="font-display font-bold text-sm">TokoKita</span>
           </div>
-          <div className="hidden lg:flex items-center gap-1 ml-6 flex-1">
-            {nav.slice(0,7)?.map(it => (
-              <NavLink key={it.to} to={it.to} end={it.to==='/'}
-                className={({isActive}) => 'px-4 py-2 rounded-full text-[13px] font-medium ' + (isActive?'bg-hero text-white font-semibold':'text-inksoft hover:text-ink')}>
-                {it.name}
-              </NavLink>
-            ))}
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <button className="hidden md:grid w-10 h-10 place-items-center rounded-full bg-card2 text-inksoft hover:text-ink" aria-label="Cari" title="Cari">
-              <Icon as={Search} size="md" />
-            </button>
-            <button className="hidden md:grid relative w-10 h-10 place-items-center rounded-full bg-card2 text-inksoft hover:text-ink" aria-label="Notifikasi" title="Notifikasi">
-              <Icon as={Bell} size="md" />
-              {lowStock>0 && <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-coral"/>}
-            </button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-hero to-gold grid place-items-center text-white font-bold text-sm" title="Admin">A</div>
-            <button onClick={doLogout} className="grid w-10 h-10 place-items-center rounded-full bg-card2 text-inksoft hover:text-coral" aria-label="Keluar" title="Keluar">
-              <Icon as={LogOut} size="md" />
+          <div className="flex items-center gap-2">
+            <button onClick={() => setOpen(true)} aria-label="Menu">
+              <Icon as={Menu} size="md" className="text-foreground" />
             </button>
           </div>
         </div>
-      </header>
-
-      <div className="flex max-w-6xl mx-auto px-3 md:px-5">
-        {/* Sidebar kartu gelap */}
-        <aside className="hidden md:flex flex-col bg-white border border-line rounded-2xl shadow-soft w-[220px] shrink-0 p-3 sticky top-[76px] h-[calc(100vh-96px)] mt-3">
-          <div className="text-[10px] uppercase tracking-widest text-dim px-3 mt-1 mb-2">Menu Admin</div>
-          <NavLinks/>
-          <button onClick={doLogout} className="mt-2 flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-medium text-coral hover:bg-coral/10">
-            <Icon as={LogOut} size="md"/> Keluar
-          </button>
-          <div className="text-[10.5px] text-dim px-3 py-2">© Toko Kita — data lokal</div>
-        </aside>
-
-        {open && <>
-          <div className="fixed inset-0 bg-black/30 z-40 md:hidden" onClick={()=>setOpen(false)}/>
-          <aside className="fixed left-0 top-0 bottom-0 z-50 bg-white w-64 p-3.5 md:hidden flex flex-col rounded-r-2xl overflow-y-auto">
-            <div className="font-disp font-extrabold text-ink flex items-center gap-2 px-2 mb-4">
-              <span className="w-8 h-8 rounded-full bg-hero grid place-items-center text-sm text-white">T</span> Toko<span className="-ml-2 text-hero">Kita</span>
-              <button className="ml-auto text-inksoft" onClick={()=>setOpen(false)} aria-label="Tutup" title="Tutup">
-                <Icon as={X} size="md" />
-              </button>
-            </div>
-            <NavLinks onClick={()=>setOpen(false)}/>
-            <button onClick={doLogout} className="flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[14px] font-medium text-coral hover:bg-coral/10 mt-2">
-              <Icon as={LogOut} size="md"/> Keluar
-            </button>
-          </aside>
-        </>}
-
-        <main className="flex-1 min-w-0 pb-24 md:pb-4"><Outlet/></main>
       </div>
 
-      {/* Bottom nav pill mengambang */}
-      <nav className="md:hidden fixed bottom-3 inset-x-3 z-40 bg-white rounded-full shadow-pop border border-line flex h-16">
-        {bottomNav?.map(it => (
-          <NavLink key={it.to} to={it.to} end={it.to==='/'}
-            className={({isActive}) => 'flex-1 flex flex-col items-center justify-center gap-0.5 text-[9.5px] font-semibold rounded-full ' + (isActive?'bg-card2 text-hero':'text-inksoft')}>
-            <Icon as={it.icon} size="md" />{it.name}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Mobile Overlay */}
+      {open && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-50 md:hidden" onClick={() => setOpen(false)} />
+          <aside className="fixed left-0 top-0 bottom-0 z-50 bg-card w-[280px] md:hidden flex flex-col shadow-xl">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary grid place-items-center text-primary-foreground text-sm font-bold">
+                  T
+                </div>
+                <span className="font-display font-bold text-base">TokoKita</span>
+              </div>
+              <button onClick={() => setOpen(false)} aria-label="Tutup">
+                <Icon as={X} size="md" className="text-muted-foreground" />
+              </button>
+            </div>
+            <div className="flex-1 py-4 overflow-y-auto">
+              <NavLinks onClick={() => setOpen(false)} />
+            </div>
+            <div className="border-t border-border p-4">
+              <button onClick={() => { doLogout(); setOpen(false); }} 
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-destructive transition-colors w-full">
+                <Icon as={LogOut} size="sm" />
+                Keluar
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {/* Main Content */}
+      <main className="flex-1 pt-14 md:pt-0 min-w-0 pb-24 md:pb-0">
+        <div className="max-w-6xl mx-auto">
+          <Outlet />
+        </div>
+      </main>
     </div>
   )
 }

@@ -15,14 +15,14 @@ export default {
       accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
       popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
       card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
-      // Light premium: putih + aksen biru (FinPoint)
-      bg:'#F4F6FA', card2:'#F1F3F8', line:'#E6E9F0',
-      ink:'#10131A', inksoft:'#5C6470', dim:'#9AA1AD',
-      hero:{DEFAULT:'#2563EB', soft:'#EAF0FE'},
-      lime:{DEFAULT:'#16A34A', soft:'#E8F7EE'},
-      gold:{DEFAULT:'#D97706', soft:'#FEF3E2'},
-      coral:{DEFAULT:'#DC2626', soft:'#FDECEC'},
-      bluea:{DEFAULT:'#2563EB', soft:'#EAF0FE'},
+      // Linear-style: clean, minimal, no shadows
+      bg:'#FAFAFA', card2:'#F5F5F5', line:'#E5E5E5',
+      ink:'#171717', inksoft:'#525252', dim:'#A3A3A3',
+      hero:{DEFAULT:'#171717', soft:'#F5F5F5'},
+      lime:{DEFAULT:'#16A34A', soft:'#F0FDF4'},
+      gold:{DEFAULT:'#CA8A04', soft:'#FEFCE8'},
+      coral:{DEFAULT:'#DC2626', soft:'#FEF2F2'},
+      bluea:{DEFAULT:'#2563EB', soft:'#EFF6FF'},
       // alias kelas lama
       paper:'#F1F3F8', ocean:{DEFAULT:'#2563EB',ink:'#1D4ED8',deep:'#1E40AF',soft:'#EAF0FE'},
       navy:{DEFAULT:'#10131A',mid:'#1A1F2B'},
