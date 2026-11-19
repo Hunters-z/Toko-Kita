@@ -37,7 +37,7 @@ export default function KaryawanLayout() {
             <span className="hidden sm:inline font-disp font-extrabold text-base">Toko<span className="text-primary">Kita</span></span>
           </div>
           <div className="hidden md:flex items-center gap-1 ml-4 flex-1">
-            {items.map(it => (
+            {items?.map(it => (
               <NavLink key={it.to} to={it.to}
                 className={({isActive}) => 'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ' + (isActive?'bg-primary text-primary-foreground shadow-sm':'text-inksoft hover:text-foreground hover:bg-secondary')}>
                 {it.name}
@@ -64,7 +64,7 @@ export default function KaryawanLayout() {
               <button onClick={()=>setOpen(false)}><Icon as={X} size="md" /></button>
             </div>
             <nav className="space-y-1">
-              {items.map(it => (
+              {items?.map(it => (
                 <NavLink key={it.to} to={it.to} onClick={()=>setOpen(false)}
                   className={({isActive}) => 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ' + (isActive?'bg-primary text-primary-foreground':'text-inksoft hover:text-foreground')}>
                   <Icon as={it.icon} size="sm" />
@@ -82,7 +82,7 @@ export default function KaryawanLayout() {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-3 inset-x-3 z-40 bg-card rounded-full shadow-pop border border-border flex h-16 p-1.5 backdrop-blur-md bg-card/90">
-        {items.map(it => (
+        {items?.map(it => (
           <NavLink key={it.to} to={it.to}
             className={({isActive}) => 'flex-1 flex flex-col items-center justify-center gap-0.5 text-[9.5px] font-semibold rounded-full transition-colors ' + (isActive?'bg-primary/10 text-primary':'text-inksoft')}>
             <Icon as={it.icon} size="sm" />{it.name}

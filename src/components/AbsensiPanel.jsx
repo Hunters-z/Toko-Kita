@@ -24,7 +24,7 @@ import {
 const KEY = 'tk_attendance'
 const DEFAULT_SHIFT = '08:00'
 const lateMinutes = (dateISO, shiftStart) => {
-  const [h, m] = (shiftStart || DEFAULT_SHIFT).split(':').map(Number)
+  const [h, m] = (shiftStart || DEFAULT_SHIFT).split(':')?.map(Number)
   const d = new Date(dateISO)
   const limit = new Date(d); limit.setHours(h, m, 0, 0)
   return Math.max(0, Math.round((d - limit) / 60000))
@@ -220,7 +220,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
       } else {
         const rec = att.find(a => a.employeeId === emp.id && a.date === today)
         if (!rec || rec.checkOut) { toast({ title: 'Belum ada absen masuk yang bisa ditutup.' }); return }
-        persist(att.map(a => a.id === rec.id ? {
+        persist(att?.map(a => a.id === rec.id ? {
           ...a, checkOut: nowISO,
           photoOut: photo, latOut: loc.lat, lngOut: loc.lng, distOut: loc.dist,
         } : a))
@@ -257,7 +257,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
     .sort((a, b) => (b.checkIn || b.date) < (a.checkIn || a.date) ? 1 : -1).reverse()
   const recordsToday = useMemo(() => {
     const list = admin ? db.employees : (me ? [me] : [])
-    return list.map(e => ({ emp: e, rec: att.find(a => a.employeeId === e.id && a.date === today) }))
+    return list?.map(e => ({ emp: e, rec: att.find(a => a.employeeId === e.id && a.date === today) }))
   }, [att, db, today, admin, me])
 
   return (
@@ -286,7 +286,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
                     <Select value={izin.employeeId} onValueChange={v => setIzin({ ...izin, employeeId: v })}>
                       <SelectTrigger><SelectValue placeholder="— pilih pegawai —" /></SelectTrigger>
                       <SelectContent>
-                        {db.employees.map(e => <SelectItem key={e.id} value={e.id}>{e.name} ({e.role})</SelectItem>)}
+                        {db.employees?.map(e => <SelectItem key={e.id} value={e.id}>{e.name} ({e.role})</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -317,7 +317,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
 
         {!onlyHistory && <TabsContent value="hari-ini">
           <div className="grid sm:grid-cols-2 gap-3 mt-1">
-            {recordsToday.map(({ emp, rec }) => (
+            {recordsToday?.map(({ emp, rec }) => (
               <div key={emp.id} className={'card p-5' + (rec && !rec.checkOut && rec.status !== 'izin' ? ' border-hero border-2' : '')}>
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-hero-soft text-hero grid place-items-center font-bold text-xs">{emp.name.slice(0,2).toUpperCase()}</div>
@@ -369,7 +369,7 @@ export default function Attendance({ mode = 'admin', session = null, onlyHistory
                     Belum ada riwayat absensi. Absen pertama akan tampil di sini beserta foto dan lokasinya.
                   </TableCell></TableRow>
                 )}
-                {history.map(a => (
+                {history?.map(a => (
                   <TableRow key={a.id}>
                     <TableCell>
                       {a.photoIn

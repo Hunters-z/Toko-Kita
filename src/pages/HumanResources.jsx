@@ -41,7 +41,7 @@ export default function HumanResources() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map(e => (
+              {employees?.map(e => (
                 <TableRow key={e.id}>
                   <TableCell className="font-mono text-xs">{e.id}</TableCell>
                   <TableCell className="font-medium">{e.name}</TableCell>

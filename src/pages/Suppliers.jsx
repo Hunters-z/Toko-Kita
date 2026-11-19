@@ -31,7 +31,7 @@ export default function Suppliers() {
       </Card>
       <div className="grid md:grid-cols-3 gap-3.5 mt-4">
         {db.suppliers.length===0 && <p className="text-inksoft text-[13px]">Belum ada pemasok.</p>}
-        {db.suppliers.map(s => (
+        {db.suppliers?.map(s => (
           <div key={s.id} className="card p-5">
             <b className="text-[14px]">{s.name}</b>
             <div className="text-inksoft text-[12.5px] mt-0.5 flex items-center gap-1.5"><Icon as={Phone} size="sm" strokeWidth={1.5}/> {s.phone||'—'}</div>

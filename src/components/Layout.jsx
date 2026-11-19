@@ -31,7 +31,7 @@ export default function Layout() {
     setLowStock(loadDB().products.filter(p => p.stock <= p.minStock).length)
     setOpen(false)
   }, [pathname])
-  const NavLinks = ({onClick}) => nav.map(it => (
+  const NavLinks = ({onClick}) => nav?.map(it => (
     <NavLink key={it.to} to={it.to} end={it.to==='/'} onClick={onClick}
       className={({isActive}) => 'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-[13.5px] font-medium transition-colors ' +
         (isActive ? 'bg-hero text-white font-semibold' : 'text-inksoft hover:bg-card2 hover:text-ink')}>
@@ -52,7 +52,7 @@ export default function Layout() {
             <span className="hidden sm:inline">Toko<span className="text-hero">Kita</span></span>
           </div>
           <div className="hidden lg:flex items-center gap-1 ml-6 flex-1">
-            {nav.slice(0,7).map(it => (
+            {nav.slice(0,7)?.map(it => (
               <NavLink key={it.to} to={it.to} end={it.to==='/'}
                 className={({isActive}) => 'px-4 py-2 rounded-full text-[13px] font-medium ' + (isActive?'bg-hero text-white font-semibold':'text-inksoft hover:text-ink')}>
                 {it.name}
@@ -101,7 +101,7 @@ export default function Layout() {
 
       {/* Bottom nav pill mengambang */}
       <nav className="md:hidden fixed bottom-3 inset-x-3 z-40 bg-white rounded-full shadow-pop border border-line flex h-16">
-        {bottomNav.map(it => (
+        {bottomNav?.map(it => (
           <NavLink key={it.to} to={it.to} end={it.to==='/'}
             className={({isActive}) => 'flex-1 flex flex-col items-center justify-center gap-0.5 text-[9.5px] font-semibold rounded-full ' + (isActive?'bg-card2 text-hero':'text-inksoft')}>
             <Icon as={it.icon} size="md" />{it.name}

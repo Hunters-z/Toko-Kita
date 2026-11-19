@@ -57,7 +57,7 @@ export default function SupplyChain() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {items.map(i => (
+              {items?.map(i => (
                 <TableRow key={i.id}>
                   <TableCell className="font-mono text-xs">{i.id}</TableCell>
                   <TableCell>{i.supplier}</TableCell>

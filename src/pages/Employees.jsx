@@ -41,14 +41,14 @@ export default function Employees() {
     if (bersih && !/^\d{4,6}$/.test(String(edit.pin))) {
       flash('PIN harus 4–6 angka.'); return
     }
-    const next={...db, employees:db.employees.map(x=>x.id===editId?{...x, username: bersih, pin: edit.pin}:x)}
+    const next={...db, employees:db.employees?.map(x=>x.id===editId?{...x, username: bersih, pin: edit.pin}:x)}
     saveDB(next); setDb(next); setEditId(null)
     flash('Akses login pegawai tersimpan.')
   }
   const enroll = async emp => {
     try {
       const credId = await registerFingerprint(emp)
-      const next={...db, employees:db.employees.map(x=>x.id===emp.id?{...x,credId}:x)}
+      const next={...db, employees:db.employees?.map(x=>x.id===emp.id?{...x,credId}:x)}
       saveDB(next); setDb(next); setMsg(`Fingerprint terdaftar untuk ${emp.name}`)
  } catch(err) { setMsg((err.name==='NotAllowedError' ? 'Registrasi dibatalkan' : err.message)) }
     setTimeout(()=>setMsg(''),4000)
@@ -75,7 +75,7 @@ export default function Employees() {
         </div>
       </Card>
       <Card title="Daftar pegawai">
-        {db.employees.map(emp => {
+        {db.employees?.map(emp => {
           const att = todayAtt.find(a=>a.empId===emp.id)
           return (
             <div key={emp.id} className="py-3 border-b border-line last:border-0">
@@ -143,7 +143,7 @@ export default function Employees() {
       <div className="mt-4 card p-5">
         <h3 className="font-disp font-bold text-[14.5px] mb-3">Riwayat absensi terbaru</h3>
         {db.attendance.length===0 && <p className="text-inksoft text-[13px]">Belum ada absensi. Pegawai absen lewat menu Absen.</p>}
-        {[...db.attendance].reverse().slice(0,15).map((a,i) => (
+        {[...db.attendance].reverse().slice(0,15)?.map((a,i) => (
           <div key={i} className="flex gap-3 py-2 text-[13px] border-b border-line last:border-0">
             <b>{db.employees.find(e=>e.id===a.empId)?.name||'?'}</b>
             <span className="text-inksoft">masuk {new Date(a.in).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>

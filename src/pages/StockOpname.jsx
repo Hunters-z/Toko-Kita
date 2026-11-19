@@ -69,7 +69,7 @@ export default function StockOpname() {
 
   const saveOpname = () => {
     setSaving(true)
-    const opnameRecords = Object.entries(entries).map(([productId, data]) => {
+    const opnameRecords = Object.entries(entries)?.map(([productId, data]) => {
       const product = db.products.find(p => p.id === productId)
       if (!product) return null
       const physicalStock = parseInt(data.physicalStock) || 0
@@ -92,7 +92,7 @@ export default function StockOpname() {
       return
     }
 
-    const updatedProducts = db.products.map(p => {
+    const updatedProducts = db.products?.map(p => {
       const entry = entries[p.id]
       if (!entry) return p
       return { ...p, stock: parseInt(entry.physicalStock) || 0 }
@@ -137,7 +137,7 @@ export default function StockOpname() {
           {/* Zona sism rack */}
           <div className="flex flex-wrap gap-2 items-center">
             <button onClick={()=>setActiveZone('')} className={`pill px-3 py-1.5 text-[12px] font-medium transition-colors ${activeZone===''?'bg-hero text-white':'bg-card2 text-inksoft'}`}>Semua Zona</button>
-            {zones.map(z => (
+            {zones?.map(z => (
               <button key={z} onClick={()=>setActiveZone(z)} className={`pill px-3 py-1.5 text-[12px] font-medium transition-colors ${activeZone===z?'bg-hero text-white':'bg-card2 text-inksoft'}`}>{z}</button>
             ))}
             <div className="flex items-center gap-1.5 ml-auto">
@@ -185,7 +185,7 @@ export default function StockOpname() {
         <CardContent>
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
             {searchFiltered.length===0 ? <p className="text-inksoft text-[13px]">Produk tidak ditemukan.</p> :
-            searchFiltered.map(p => {
+            searchFiltered?.map(p => {
               const entry = entries[p.id]
               const physicalStock = entry?.physicalStock ?? ''
               const diff = entry ? calculateDiff(p.id, entry.physicalStock) : null
@@ -238,7 +238,7 @@ export default function StockOpname() {
             <p className="text-[13px] text-muted">Belum ada riwayat stock opname.</p>
           ) : (
             <div className="space-y-2">
-              {[...(db.opname || [])].reverse().slice(0, 10).map(r => (
+              {[...(db.opname || [])].reverse().slice(0, 10)?.map(r => (
                 <div key={r.id} className="flex items-center justify-between py-2 border-b border-line last:border-0">
                   <div>
                     <b className="text-[13px]">{r.productName}</b>

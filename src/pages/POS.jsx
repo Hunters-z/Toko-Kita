@@ -61,7 +61,7 @@ export default function POS() {
     : (method === 'cash' ? (Number(paid)||0) >= total : true)
 
   const list = useMemo(() =>
-    [...db.products, ...db.bundles.map(b=>({...b, isBundle:true}))].filter(p=>p.name.toLowerCase().includes(q.toLowerCase()))
+    [...db.products, ...db.bundles?.map(b=>({...b, isBundle:true}))].filter(p=>p.name.toLowerCase().includes(q.toLowerCase()))
   , [db, q])
 
   const notifyStock = p => {
@@ -84,7 +84,7 @@ export default function POS() {
     notifyStock(p)
     setCart(c => {
       const f = c.find(l=>l.p.id===p.id)
-      return f ? c.map(l=>l.p.id===p.id?{...l,qty:l.qty+1}:l) : [...c, {p, qty:1}]
+      return f ? c?.map(l=>l.p.id===p.id?{...l,qty:l.qty+1}:l) : [...c, {p, qty:1}]
     })
   }
   const setQty = (id,qty) => {
@@ -92,7 +92,7 @@ export default function POS() {
     setCart(c => {
       const line = c.find(l=>l.p.id===id)
       if (line && qty > line.qty && !line.p.isBundle) notifyStock(line.p)
-      return c.map(l=>l.p.id===id?{...l,qty}:l)
+      return c?.map(l=>l.p.id===id?{...l,qty}:l)
     })
   }
 
@@ -101,14 +101,14 @@ export default function POS() {
     if (splitOn && !Number(splitAmount)) { toast({ title: 'Isi nominal split dulu', variant: 'destructive' }); return }
     if (splitOn && Number(splitAmount) > total) { toast({ title: 'Nominal split melebihi total', variant: 'destructive' }); return }
     // kurangi stok
-    const products = db.products.map(p => {
+    const products = db.products?.map(p => {
       const line = cart.find(l=>l.p.id===p.id)
       return line ? {...p, stock: p.stock - line.qty} : p
     })
     // bundle: kurangi stok komponen
     let prods = products
     cart.filter(l=>l.p.isBundle).forEach(l => {
-      prods = prods.map(p => {
+      prods = prods?.map(p => {
         const comp = l.p.items?.find(i=>i.productId===p.id)
         return comp ? {...p, stock: p.stock - comp.qty*l.qty} : p
       })
@@ -119,7 +119,7 @@ export default function POS() {
     })
     const tx = {
       id: uid('t'), date: new Date().toISOString(),
-      items: cart.map(l=>({name:l.p.name, qty:l.qty, price:effPrice(l.p), disc:l.p.discount||0})),
+      items: cart?.map(l=>({name:l.p.name, qty:l.qty, price:effPrice(l.p), disc:l.p.discount||0})),
       sub, disc, tax, total, method: splitOn ? 'split' : method,
     }
     // split: catat 2 baris pembayaran; selain itu 1 baris
@@ -151,7 +151,7 @@ export default function POS() {
         <h1 className="font-disp text-xl font-extrabold mb-1">Transaksi berhasil</h1>
         <p className="text-inksoft text-[13px] mb-5">{done.tx.items.length} item · {done.split ? 'SPLIT' : done.tx.method.toUpperCase()}</p>
         <div className="card2 p-4 text-left text-[13.5px] space-y-1.5 mb-5">
-          {done.tx.items.map((i,idx)=>(
+          {done.tx.items?.map((i,idx)=>(
             <div key={idx} className="flex justify-between"><span>{i.qty}× {i.name}{i.disc?` (-${i.disc}%)`:''}</span><b>{rp(i.price*i.qty)}</b></div>
           ))}
           <div className="flex justify-between border-t border-line pt-2"><span>Subtotal</span><span>{rp(done.tx.sub)}</span></div>
@@ -204,7 +204,7 @@ export default function POS() {
             <BarcodeScannerModal onScan={handleScan} onClose={()=>setScanning(false)}/>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            {list.map(p => {
+            {list?.map(p => {
               const habis = !p.isBundle && p.stock === 0
               return (
                 <button key={p.id} onClick={()=>addP(p)} disabled={habis}
@@ -229,7 +229,7 @@ export default function POS() {
         <div className="card p-4 h-fit sticky top-24">
           <h3 className="font-disp font-bold text-[14.5px] mb-3">Keranjang ({cart.length})</h3>
           {!cart.length && <p className="text-inksoft text-[13px]">Klik produk untuk menambah.</p>}
-          {cart.map(l => (
+          {cart?.map(l => (
             <div key={l.p.id} className="flex items-center gap-2 py-2 border-b border-line last:border-0">
               <span className="w-8 h-8 rounded-lg bg-card2 grid place-items-center text-inksoft"><Icon as={Package} size="md" /></span>
               <div className="min-w-0 flex-1"><b className="text-[12.5px] block truncate">{l.p.name}</b><span className="text-[11px] text-inksoft">{rp(effPrice(l.p))}</span></div>
@@ -248,7 +248,7 @@ export default function POS() {
               <div className="flex justify-between font-disp font-extrabold text-[16px] pt-1 border-t border-line"><span>Total</span><span className="text-hero">{rp(total)}</span></div>
             </div>
             <div className="grid grid-cols-4 gap-1.5 mt-3">
-              {METHODS.map(([k,label,Ic])=>(
+              {METHODS?.map(([k,label,Ic])=>(
                 <button key={k} onClick={()=>setMethod(k)}
                   className={'rounded-xl py-2 flex flex-col items-center gap-1 text-[10.5px] font-semibold '+(method===k?'bg-hero text-white':'bg-card2 text-inksoft')}>
                   <Icon as={Ic} size="sm" strokeWidth={1.5}/>{label}
@@ -272,7 +272,7 @@ export default function POS() {
                 <div className="grid grid-cols-2 gap-2">
                   <select value={splitMethod} onChange={e=>setSplitMethod(e.target.value)}
                     className="w-full p-2 border border-line rounded-lg text-[12.5px] bg-white">
-                    {METHODS.filter(([k])=>k!==method).map(([k,label])=>
+                    {METHODS.filter(([k])=>k!==method)?.map(([k,label])=>
                       <option key={k} value={k}>{label}</option>)}
                   </select>
                   <Input type="number" placeholder="Nominal " value={splitAmount} onChange={e=>setSplitAmount(e.target.value)} className="text-[12.5px]"/>
