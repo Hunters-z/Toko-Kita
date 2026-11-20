@@ -40,10 +40,11 @@ function migrate(db) {
   }
   if (!db.settings) db.settings = structuredClone(seed.settings)
   else {
-    for (const k of ['ppn','ppnOn','shopName','officeLat','officeLng','officeRadius','shiftStart']) {
+    for (const k of ['ppn','ppnOn','shopName','officeLat','officeLng','officeRadius','shiftStart','roles']) {
       if (db.settings[k] === undefined) db.settings[k] = seed.settings[k]
     }
   }
+  if (!Array.isArray(db.settings.roles)) db.settings.roles = ['Kasir','Gudang','Manager']
   db.products?.forEach(p => {
     if (p.discount == null) p.discount = 0
     if (p.minStock == null) p.minStock = 5
