@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toko Kita — Minimalist Retail & POS ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #F8FAFC; color: #0F172A; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    [x-cloak] { display: none !important; }
+    .nav-spring { transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1), width 340ms cubic-bezier(0.22, 1, 0.36, 1), left 340ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms ease, color 200ms ease; }
+    .pill-tab { position: relative; transition: color 220ms cubic-bezier(0.22, 1, 0.36, 1), transform 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+    .pill-tab:active { transform: scale(0.96); }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  </style>
+  <script>
+    window._tkChart = null;
+    window._qrTimer = null;
+
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('tokoKitaApp', () => ({
+        activeModule: 'dashboard',
+        navOpen: false,
+        navQuery: '',
+        globalSearchOpen: false,
+        globalQuery: '',
+        navStyle: 'pill',
+        pillIndicator: { left: 4, width: 88, ready: false },
+        activeBranch: 'ALL',
+        activeRole: 'owner',
+        toast: '',
+        toastTimer: null,
+        chartFilter: '7 Hari',
+
+        // POS
+        posQuery: '',
+        posCat: 'Semua',
+        posBarcode: '',
+        posScanOpen: false,
+        posCustomer: 'Pelanggan Umum',
+        posCart: [],
+        posCheckoutOpen: false,
+        posSplits: [{ method: 'Tunai', amount: 0 }],
+        posReceiptOpen: false,
+        lastReceipt: null,
+
+        // QRIS
+        qrModal: { open: false, source: 'pos', ref: '', amount: 0, seconds: 300, grid: [] },
+
+        // Web Store
+        webTab: 'catalog',
+        webBranch: 'BR-01',
+        webQuery: '',
+        webCart: [],
+        webCheckoutOpen: false,
+        webForm: { name: 'Rina Marlina', phone: '0812-7788-9900', address: 'Jl. Antasari No. 45, Bandar Lampung', payment: 'QRIS Dinamis' },
+        webOrders: [
+          { id: 'WEB-1001', date: '21 Nov 2026', branchId: 'BR-01', customer: 'Budi Santoso', address: 'Jl. ZA Pagar Alam No. 12', payment: 'QRIS Dinamis', total: 149000, status: 'Dikemas', items: [{ name: 'Beras Pandan Wangi 5kg', qty: 2, price: 74500 }] }
+        ],
+
+        // Inventory & Opname
+        invTab: 'stock',
+        invQuery: '',
+        invScanOpen: false,
+        productModal: false,
+        editProdId: null,
+        prodForm: { id: '', sku: '', name: '', category: 'Sembako', buyPrice: 0, sellPrice: 0, s1: 0, s2: 0, s3: 0 },
+        opnameBarcode: '',
+        opnameRacks: [],
+        newRack: '',
+        activeRack: 'ALL',
+        opnameCounts: {},
+        itemRacks: {},
+        logFilter: 'Semua',
+        logs: [
+          { id: 1, time: '21 Nov 08:30', branch: 'Cabang Pusat', type: 'Masuk', item: 'Beras Pandan Wangi 5kg', detail: '+20 sak dari Supplier Utama', actor: 'Ahmad Fauzi' },
+          { id: 2, time: '21 Nov 09:15', branch: 'Cabang Pusat', type: 'Keluar Web', item: 'Beras Pandan Wangi 5kg', detail: '-2 sak (WEB-1001)', actor: 'Sistem Web' },
+          { id: 3, time: '21 Nov 10:05', branch: 'Cabang Teluk Betung', type: 'Keluar POS', item: 'Minyak Goreng Kita 2L', detail: '-3 pouch (POS-8821)', actor: 'Siti Rahma' }
+        ],
+
+        // HR & Employee
+        hrTab: 'portal',
+        portalTab: 'absensi',
+        faceLoading: false,
+        faceOk: false,
+        gpsText: '-5.4292, 105.2610 • Radius Toko (11m)',
+        attendances: [
+          { id: 1, date: '21 Nov 2026', name: 'Ahmad Fauzi', branch: 'Cabang Pusat', inTime: '07:54', outTime: '-', status: 'Hadir (Wajah + GPS)' }
+        ],
+        leaveForm: { type: 'Izin Cuti', date: '2026-11-25', days: 2, reason: 'Keperluan keluarga' },
+        leaves: [
+          { id: 101, empId: 'EMP-03', name: 'Dedi Kurniawan', branch: 'Cabang Sukarame', type: 'Izin Sakit', date: '2026-11-21', days: 1, reason: 'Demam & flu', status: 'Menunggu' }
+        ],
+        kasbonForm: { amount: 500000, reason: 'Biaya servis kendaraan' },
+        kasbons: [
+          { id: 201, empId: 'EMP-02', name: 'Siti Rahma', branch: 'Cabang Teluk Betung', amount: 400000, reason: 'Kebutuhan mendesak', status: 'Menunggu' }
+        ],
+        empModal: false,
+        editEmpId: null,
+        empForm: { id: '', name: '', roleId: 'kasir', branchId: 'BR-01', base: 3200000, allowance: 400000, bonus: 150000, deduction: 100000 },
+        newRoleInput: '',
+        editRoleId: 'kasir',
+
+        // Branches & Reports
+        branchModal: false,
+        branchForm: { name: '', city: 'Bandar Lampung', address: '', phone: '' },
+        reportBranch: 'ALL',
+
+        // Settings & Cloud Supabase/Firebase Integration
+        setTab: 'store',
+        settings: {
+          storeName: 'Toko Kita',
+          address: 'Jl. Kartini No. 88, Tanjung Karang, Bandar Lampung',
+          phone: '0721-254890',
+          footer: 'Terima kasih telah berbelanja di Toko Kita.',
+          tax: 11,
+          payments: ['Tunai', 'QRIS Dinamis', 'Transfer Bank', 'Kartu Debit']
+        },
+        qris: { enabled: true, provider: 'Midtrans Core API', merchant: 'TOKO KITA PUSAT', nmid: 'ID1020038849201', key: 'SB-Mid-server-TokoKita9981' },
+        cloudDb: {
+          provider: 'supabase', // default supabase
+          connected: true,
+          autoSync: true,
+          lastSync: '21 Nov 2026 11:30 WIB',
+          gsheetUrl: '',
+          gsheetId: '',
+          supabaseUrl: 'https://xyztokokitaerp.supabase.co',
+          supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          firebaseUrl: '',
+          firebaseSecret: ''
+        },
+
+        // Master Collections
+        branches: [
+          { id: 'BR-01', name: 'Cabang Pusat', city: 'Bandar Lampung', address: 'Jl. Kartini No. 88', phone: '0721-254890' },
+          { id: 'BR-02', name: 'Cabang Teluk Betung', city: 'Bandar Lampung', address: 'Jl. Ikan Tenggiri No. 14', phone: '0721-481220' },
+          { id: 'BR-03', name: 'Cabang Sukarame', city: 'Bandar Lampung', address: 'Jl. Ryacudu No. 27', phone: '0721-779012' }
+        ],
+        roles: [
+          { id: 'owner', name: 'Owner', modules: ['dashboard', 'pos', 'website', 'inventory', 'hr', 'reports', 'settings'] },
+          { id: 'hr', name: 'HR', modules: ['hr', 'reports'] },
+          { id: 'gudang', name: 'Gudang', modules: ['inventory', 'hr'] },
+          { id: 'kasir', name: 'Kasir', modules: ['pos', 'website', 'hr'] }
+        ],
+        modules: [
+          { id: 'dashboard', label: 'Grafik', icon: 'bar-chart-2' },
+          { id: 'pos', label: 'Kasir POS', icon: 'monitor' },
+          { id: 'website', label: 'Toko Online', icon: 'globe' },
+          { id: 'inventory', label: 'Inventaris & Opname', icon: 'package' },
+          { id: 'hr', label: 'Karyawan & HR', icon: 'users' },
+          { id: 'reports', label: 'Laporan & Cabang', icon: 'file-text' },
+          { id: 'settings', label: 'Pengaturan & Integrasi', icon: 'sliders' }
+        ],
+        products: [
+          { id: 'P-01', sku: '8991001001012', name: 'Beras Pandan Wangi 5kg', category: 'Sembako', buyPrice: 64000, sellPrice: 74500, stocks: { 'BR-01': 32, 'BR-02': 18, 'BR-03': 24 } },
+          { id: 'P-02', sku: '8991001001029', name: 'Minyak Goreng Kita 2L', category: 'Sembako', buyPrice: 28000, sellPrice: 34000, stocks: { 'BR-01': 45, 'BR-02': 27, 'BR-03': 30 } },
+          { id: 'P-03', sku: '8991001001036', name: 'Gula Pasir Kristal 1kg', category: 'Sembako', buyPrice: 14500, sellPrice: 17500, stocks: { 'BR-01': 50, 'BR-02': 35, 'BR-03': 40 } },
+          { id: 'P-04', sku: '8991001001043', name: 'Kopi Robusta Lampung 250g', category: 'Minuman', buyPrice: 22000, sellPrice: 31000, stocks: { 'BR-01': 28, 'BR-02': 15, 'BR-03': 19 } },
+          { id: 'P-05', sku: '8991001001050', name: 'Susu UHT Full Cream 1L', category: 'Minuman', buyPrice: 15500, sellPrice: 19500, stocks: { 'BR-01': 40, 'BR-02': 22, 'BR-03': 26 } },
+          { id: 'P-06', sku: '8991001001067', name: 'Sabun Mandi Cair 450ml', category: 'Kebutuhan Rumah', buyPrice: 18000, sellPrice: 24500, stocks: { 'BR-01': 34, 'BR-02': 20, 'BR-03': 21 } }
+        ],
+        employees: [
+          { id: 'EMP-01', name: 'Ahmad Fauzi', roleId: 'owner', branchId: 'BR-01', base: 6500000, allowance: 800000, bonus: 500000, deduction: 200000, kasbonCut: 0, paid: false },
+          { id: 'EMP-02', name: 'Siti Rahma', roleId: 'kasir', branchId: 'BR-02', base: 3200000, allowance: 400000, bonus: 150000, deduction: 100000, kasbonCut: 0, paid: false },
+          { id: 'EMP-03', name: 'Dedi Kurniawan', roleId: 'gudang', branchId: 'BR-03', base: 3600000, allowance: 450000, bonus: 200000, deduction: 120000, kasbonCut: 0, paid: false },
+          { id: 'EMP-04', name: 'Maya Putri', roleId: 'hr', branchId: 'BR-01', base: 4500000, allowance: 600000, bonus: 250000, deduction: 150000, kasbonCut: 0, paid: false }
+        ],
+        ledger: [
+          { id: 'POS-8820', date: '21 Nov 2026', branchId: 'BR-01', channel: 'POS', rev: 485000, cogs: 372000, exp: 0, note: 'Kasir Tunai + QRIS' },
+          { id: 'WEB-1001', date: '21 Nov 2026', branchId: 'BR-01', channel: 'Website', rev: 149000, cogs: 128000, exp: 0, note: 'Order Online Budi Santoso' },
+          { id: 'POS-8821', date: '21 Nov 2026', branchId: 'BR-02', channel: 'POS', rev: 342000, cogs: 265000, exp: 0, note: 'Kasir Teluk Betung' }
+        ],
+
+        init() {
+          this.syncOpname();
+          this.$nextTick(() => {
+            this.refreshIcons();
+            this.updatePillIndicator();
+            this.drawChart();
+          });
+          window.addEventListener('resize', () => this.updatePillIndicator());
+          window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+              e.preventDefault();
+              this.openGlobalSearch();
+            } else if (e.key === 'Escape' && this.globalSearchOpen) {
+              this.globalSearchOpen = false;
+            }
+          });
+        },
+        openGlobalSearch() {
+          this.globalSearchOpen = true;
+          this.$nextTick(() => {
+            this.refreshIcons();
+            this.$refs.globalSearchInput?.focus();
+          });
+        },
+        get globalResults() {
+          const q = (this.globalQuery || '').toLowerCase().trim();
+          const mods = this.modules.filter(m => (this.currentRole.modules || []).includes(m.id) && (!q || m.label.toLowerCase().includes(q))).slice(0, 5);
+          const prods = !q ? this.products.slice(0, 3) : this.products.filter(p => p.name.toLowerCase().includes(q) || p.sku.includes(q)).slice(0, 5);
+          const emps = !q ? [] : this.employees.filter(e => e.name.toLowerCase().includes(q)).slice(0, 4);
+          const brs = !q ? [] : this.branches.filter(b => b.name.toLowerCase().includes(q)).slice(0, 3);
+          return { mods, prods, emps, brs, empty: !mods.length && !prods.length && !emps.length && !brs.length };
+        },
+        updatePillIndicator() {
+          try {
+            const container = this.$refs.pillTrack;
+            const activeBtn = container?.querySelector('[data-nav-active="true"]');
+            if (!container || !activeBtn) return;
+            const cRect = container.getBoundingClientRect();
+            const bRect = activeBtn.getBoundingClientRect();
+            this.pillIndicator = { left: bRect.left - cRect.left + container.scrollLeft, width: bRect.width, ready: true };
+          } catch (e) { console.warn(e); }
+        },
+        refreshIcons() {
+          if (window.lucide) window.lucide.createIcons({ attrs: { 'stroke-width': 1.75 } });
+        },
+        showToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ''; }, 3000);
+        },
+        rp(v) { return 'Rp ' + Math.round(Number(v) || 0).toLocaleString('id-ID'); },
+
+        get currentRole() { return this.roles.find(r => r.id === this.activeRole) || this.roles[0]; },
+        get currentUser() { return this.employees.find(e => e.roleId === this.activeRole) || this.employees[0]; },
+        get allowedModules() {
+          const list = this.currentRole.modules || [];
+          const q = this.navQuery.toLowerCase().trim();
+          return this.modules.filter(m => list.includes(m.id) && (!q || m.label.toLowerCase().includes(q)));
+        },
+        get activeModuleLabel() {
+          const m = this.modules.find(x => x.id === this.activeModule);
+          return m ? m.label : '';
+        },
+        get targetBranch() { return this.activeBranch === 'ALL' ? 'BR-01' : this.activeBranch; },
+        branchLabel(id) {
+          if (id === 'ALL') return 'Semua Cabang';
+          const b = this.branches.find(x => x.id === id);
+          return b ? b.name : id;
+        },
+        goModule(id) {
+          if (!this.currentRole.modules.includes(id)) return;
+          this.activeModule = id;
+          this.navOpen = false;
+          this.$nextTick(() => {
+            this.refreshIcons();
+            this.updatePillIndicator();
+            if (id === 'dashboard') this.drawChart();
+            if (id === 'inventory') this.syncOpname();
+          });
+        },
+        changeRole(roleId) {
+          this.activeRole = roleId;
+          if (!this.currentRole.modules.includes(this.activeModule)) {
+            this.activeModule = this.currentRole.modules[0] || 'hr';
+          }
+          this.$nextTick(() => {
+            this.refreshIcons();
+            this.updatePillIndicator();
+            if (this.activeModule === 'dashboard') this.drawChart();
+          });
+          this.showToast('Role aktif: ' + this.currentRole.name);
+        },
+        changeBranch() {
+          this.syncOpname();
+          if (this.activeModule === 'dashboard') this.$nextTick(() => this.drawChart());
+        },
+
+        setChartFilter(f) {
+          this.chartFilter = f;
+          this.$nextTick(() => this.drawChart());
+        },
+        drawChart() {
+          try {
+            const el = document.getElementById('tkChart');
+            if (!el || typeof Chart === 'undefined') return;
+            if (window._tkChart) { window._tkChart.destroy(); window._tkChart = null; }
+            const ctx = el.getContext('2d');
+            const gBlue = ctx.createLinearGradient(0, 0, 0, 360);
+            gBlue.addColorStop(0, 'rgba(37, 99, 235, 0.90)');
+            gBlue.addColorStop(1, 'rgba(37, 99, 235, 0.25)');
+            const gSoft = ctx.createLinearGradient(0, 0, 0, 360);
+            gSoft.addColorStop(0, 'rgba(14, 165, 233, 0.75)');
+            gSoft.addColorStop(1, 'rgba(186, 230, 253, 0.25)');
+
+            const scale = this.activeBranch === 'ALL' ? 1 : (this.activeBranch === 'BR-01' ? 0.52 : 0.24);
+            let labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+            let omzet = [4200, 4850, 4500, 5300, 6100, 7400, 6800].map(v => Math.round(v * scale));
+            let laba = [1150, 1340, 1210, 1480, 1720, 2100, 1920].map(v => Math.round(v * scale));
+
+            if (this.chartFilter === '30 Hari') {
+              labels = ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'];
+              omzet = [28500, 31200, 29800, 35400].map(v => Math.round(v * scale));
+              laba = [7900, 8650, 8200, 9900].map(v => Math.round(v * scale));
+            } else if (this.chartFilter === 'Per Cabang') {
+              labels = this.branches.map(b => b.name.replace('Cabang ', ''));
+              omzet = this.branches.map(b => Math.round(this.ledger.filter(t => t.branchId === b.id).reduce((a, c) => a + c.rev, 0) / 1000) || 3500);
+              laba = this.branches.map(b => Math.round(this.ledger.filter(t => t.branchId === b.id).reduce((a, c) => a + (c.rev - c.cogs), 0) / 1000) || 950);
+            }
+
+            window._tkChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels,
+                datasets: [
+                  { label: 'Omzet (Ribu Rp)', data: omzet, backgroundColor: gBlue, borderRadius: 8, barPercentage: 0.5 },
+                  { label: 'Laba Kotor (Ribu Rp)', data: laba, backgroundColor: gSoft, borderRadius: 8, barPercentage: 0.5 }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' } } } },
+                scales: {
+                  y: { beginAtZero: true, border: { display: false }, grid: { color: '#F1F5F9' }, ticks: { font: { family: 'JetBrains Mono', size: 11 }, color: '#64748B' } },
+                  x: { border: { display: false }, grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' }, color: '#475569' } }
+                }
+              }
+            });
+          } catch (e) { console.warn(e); }
+        },
+
+        // POS
+        get posProducts() {
+          const q = this.posQuery.toLowerCase().trim();
+          return this.products.filter(p => (this.posCat === 'Semua' || p.category === this.posCat) && (!q || p.name.toLowerCase().includes(q) || p.sku.includes(q)));
+        },
+        stockOf(p, brId) {
+          const b = brId || this.targetBranch;
+          return p.stocks && typeof p.stocks[b] === 'number' ? p.stocks[b] : 0;
+        },
+        get posSubtotal() { return this.posCart.reduce((s, i) => s + i.sellPrice * i.qty, 0); },
+        get posTax() { return Math.round(this.posSubtotal * (Number(this.settings.tax || 0) / 100)); },
+        get posTotal() { return this.posSubtotal + this.posTax; },
+        get splitPaid() { return this.posSplits.reduce((s, x) => s + (Number(x.amount) || 0), 0); },
+        get splitChange() { return Math.max(0, this.splitPaid - this.posTotal); },
+
+        addPosItem(p) {
+          const avail = this.stockOf(p);
+          const ex = this.posCart.find(i => i.id === p.id);
+          if ((ex ? ex.qty : 0) + 1 > avail) return this.showToast('Stok tidak mencukupi');
+          if (ex) ex.qty++;
+          else this.posCart.push({ id: p.id, sku: p.sku, name: p.name, buyPrice: p.buyPrice, sellPrice: p.sellPrice, qty: 1 });
+        },
+        scanPosSku() {
+          const code = this.posBarcode.trim();
+          if (!code) return;
+          const p = this.products.find(x => x.sku === code || x.name.toLowerCase().includes(code.toLowerCase()));
+          if (p) { this.addPosItem(p); this.posBarcode = ''; this.showToast('Scan: ' + p.name); }
+          else this.showToast('Barcode tidak ditemukan');
+        },
+        stepPosQty(idx, d) {
+          const it = this.posCart[idx];
+          const p = this.products.find(x => x.id === it.id);
+          const n = it.qty + d;
+          if (n <= 0) this.posCart.splice(idx, 1);
+          else if (p && n <= this.stockOf(p)) it.qty = n;
+        },
+        openCheckout() {
+          if (!this.posCart.length) return;
+          this.posSplits = [{ method: this.settings.payments[0] || 'Tunai', amount: this.posTotal }];
+          this.posCheckoutOpen = true;
+        },
+        fillRemain(idx) {
+          const others = this.posSplits.reduce((s, x, i) => i === idx ? s : s + (Number(x.amount) || 0), 0);
+          this.posSplits[idx].amount = Math.max(0, this.posTotal - others);
+        },
+        submitPosCheckout() {
+          if (this.splitPaid < this.posTotal) return;
+          const qrisPart = this.posSplits.find(s => s.method.toLowerCase().includes('qris') && Number(s.amount) > 0);
+          if (qrisPart && this.qris.enabled) {
+            this.posCheckoutOpen = false;
+            this.openQr('pos', 'QR-POS-' + Math.floor(1000 + Math.random() * 9000), Number(qrisPart.amount));
+            return;
+          }
+          this.finishPosSale();
+        },
+        finishPosSale() {
+          const br = this.targetBranch;
+          const brName = this.branchLabel(br);
+          const id = 'POS-' + Math.floor(1000 + Math.random() * 9000);
+          let cogs = 0;
+          this.posCart.forEach(it => {
+            const p = this.products.find(x => x.id === it.id);
+            if (p) {
+              p.stocks[br] = Math.max(0, (p.stocks[br] || 0) - it.qty);
+              cogs += p.buyPrice * it.qty;
+              this.logs.unshift({ id: Date.now() + Math.random(), time: '21 Nov ' + new Date().toTimeString().slice(0, 5), branch: brName, type: 'Keluar POS', item: p.name, detail: '-' + it.qty + ' unit (' + id + ')', actor: this.currentUser.name });
+            }
+          });
+          this.ledger.unshift({ id, date: '21 Nov 2026', branchId: br, channel: 'POS', rev: this.posTotal, cogs, exp: 0, note: this.posSplits.map(s => s.method).join(' + ') });
+          this.lastReceipt = { id, date: new Date().toLocaleString('id-ID'), branch: brName, cashier: this.currentUser.name, customer: this.posCustomer, items: JSON.parse(JSON.stringify(this.posCart)), total: this.posTotal, splits: JSON.parse(JSON.stringify(this.posSplits)), change: this.splitChange };
+          this.posCart = [];
+          this.posCheckoutOpen = false;
+          this.posReceiptOpen = true;
+          this.syncOpname();
+          if (this.cloudDb.autoSync) this.syncNow(true);
+          this.showToast('Transaksi POS berhasil');
+        },
+
+        // QRIS Matrix
+        buildQrMatrix(seed) {
+          const size = 17;
+          let h = 0;
+          for (let i = 0; i < seed.length; i++) h = ((h << 5) - h + seed.charCodeAt(i)) | 0;
+          const grid = [];
+          for (let r = 0; r < size; r++) {
+            const row = [];
+            for (let c = 0; c < size; c++) {
+              const finder = (r < 4 && c < 4) || (r < 4 && c >= size - 4) || (r >= size - 4 && c < 4);
+              if (finder) {
+                const border = r === 0 || r === 3 || r === size - 1 || r === size - 4 || c === 0 || c === 3 || c === size - 1 || c === size - 4;
+                const core = (r >= 1 && r <= 2 && c >= 1 && c <= 2) || (r >= 1 && r <= 2 && c >= size - 3 && c <= size - 2) || (r >= size - 3 && r <= size - 2 && c >= 1 && c <= 2);
+                row.push(border || core ? 1 : 0);
+              } else {
+                row.push(Math.abs(Math.sin(h + r * 31 + c * 17)) > 0.48 ? 1 : 0);
+              }
+            }
+            grid.push(row);
+          }
+          return grid;
+        },
+        openQr(source, ref, amount) {
+          clearInterval(window._qrTimer);
+          this.qrModal = { open: true, source, ref, amount, seconds: 300, grid: this.buildQrMatrix(ref + amount + this.qris.nmid) };
+          window._qrTimer = setInterval(() => {
+            if (this.qrModal.seconds > 0) this.qrModal.seconds--;
+            else clearInterval(window._qrTimer);
+          }, 1000);
+        },
+        closeQr() { clearInterval(window._qrTimer); this.qrModal.open = false; },
+        confirmQrPaid() {
+          const src = this.qrModal.source;
+          this.closeQr();
+          if (src === 'pos') this.finishPosSale();
+          else if (src === 'web') this.finishWebOrder();
+        },
+
+        // Web Store
+        get webProducts() {
+          const q = this.webQuery.toLowerCase().trim();
+          return this.products.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+        },
+        get webTotal() { return this.webCart.reduce((s, i) => s + i.sellPrice * i.qty, 0); },
+        addWebItem(p) {
+          const avail = this.stockOf(p, this.webBranch);
+          const ex = this.webCart.find(i => i.id === p.id);
+          if ((ex ? ex.qty : 0) + 1 > avail) return this.showToast('Stok online cabang ini habis');
+          if (ex) ex.qty++;
+          else this.webCart.push({ id: p.id, name: p.name, buyPrice: p.buyPrice, sellPrice: p.sellPrice, qty: 1 });
+          this.showToast('Ditambahkan ke keranjang online');
+        },
+        submitWebOrder() {
+          if (!this.webCart.length) return;
+          if (this.webForm.payment === 'QRIS Dinamis' && this.qris.enabled) {
+            this.webCheckoutOpen = false;
+            this.openQr('web', 'QR-WEB-' + Math.floor(1000 + Math.random() * 9000), this.webTotal);
+            return;
+          }
+          this.finishWebOrder();
+        },
+        finishWebOrder() {
+          const br = this.webBranch;
+          const brName = this.branchLabel(br);
+          const id = 'WEB-' + Math.floor(1000 + Math.random() * 9000);
+          let cogs = 0;
+          this.webCart.forEach(it => {
+            const p = this.products.find(x => x.id === it.id);
+            if (p) {
+              p.stocks[br] = Math.max(0, (p.stocks[br] || 0) - it.qty);
+              cogs += p.buyPrice * it.qty;
+              this.logs.unshift({ id: Date.now() + Math.random(), time: '21 Nov ' + new Date().toTimeString().slice(0, 5), branch: brName, type: 'Keluar Web', item: p.name, detail: '-' + it.qty + ' unit (' + id + ')', actor: this.webForm.name });
+            }
+          });
+          this.webOrders.unshift({ id, date: '21 Nov 2026', branchId: br, customer: this.webForm.name, address: this.webForm.address, payment: this.webForm.payment, total: this.webTotal, status: 'Dibayar', items: JSON.parse(JSON.stringify(this.webCart)) });
+          this.ledger.unshift({ id, date: '21 Nov 2026', branchId: br, channel: 'Website', rev: this.webTotal, cogs, exp: 0, note: 'Online: ' + this.webForm.name });
+          this.webCart = [];
+          this.webCheckoutOpen = false;
+          this.webTab = 'orders';
+          this.syncOpname();
+          if (this.cloudDb.autoSync) this.syncNow(true);
+          this.showToast('Pembayaran online lunas');
+        },
+        nextOrderStatus(ord) {
+          const flow = ['Dibayar', 'Dikemas', 'Dikirim', 'Selesai'];
+          const i = flow.indexOf(ord.status);
+          if (i >= 0 && i < flow.length - 1) ord.status = flow[i + 1];
+        },
+
+        // Inventory & Opname
+        get filteredProducts() {
+          const q = this.invQuery.toLowerCase().trim();
+          return this.products.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.includes(q));
+        },
+        openProductForm(p) {
+          if (p) {
+            this.editProdId = p.id;
+            this.prodForm = { id: p.id, sku: p.sku, name: p.name, category: p.category, buyPrice: p.buyPrice, sellPrice: p.sellPrice, s1: p.stocks['BR-01'] || 0, s2: p.stocks['BR-02'] || 0, s3: p.stocks['BR-03'] || 0 };
+          } else {
+            this.editProdId = null;
+            this.prodForm = { id: 'P-0' + (this.products.length + 1), sku: '89910010010' + (this.products.length + 1) + '4', name: '', category: 'Sembako', buyPrice: 12000, sellPrice: 16000, s1: 10, s2: 10, s3: 10 };
+          }
+          this.productModal = true;
+        },
+        saveProduct() {
+          if (!this.prodForm.name.trim()) return;
+          const stocks = { 'BR-01': Number(this.prodForm.s1) || 0, 'BR-02': Number(this.prodForm.s2) || 0, 'BR-03': Number(this.prodForm.s3) || 0 };
+          if (this.editProdId) {
+            const idx = this.products.findIndex(x => x.id === this.editProdId);
+            if (idx !== -1) {
+              this.products[idx] = { ...this.products[idx], sku: this.prodForm.sku, name: this.prodForm.name, category: this.prodForm.category, buyPrice: Number(this.prodForm.buyPrice), sellPrice: Number(this.prodForm.sellPrice), stocks };
+            }
+          } else {
+            this.products.push({ id: this.prodForm.id, sku: this.prodForm.sku, name: this.prodForm.name, category: this.prodForm.category, buyPrice: Number(this.prodForm.buyPrice), sellPrice: Number(this.prodForm.sellPrice), stocks });
+          }
+          this.productModal = false;
+          this.syncOpname();
+          if (this.cloudDb.autoSync) this.syncNow(true);
+          this.showToast('Produk disimpan');
+        },
+        syncOpname() {
+          const br = this.targetBranch;
+          this.products.forEach(p => { this.opnameCounts[p.id] = this.stockOf(p, br); });
+        },
+        addRack() {
+          const r = this.newRack.trim();
+          if (!r || this.opnameRacks.includes(r)) return;
+          this.opnameRacks.push(r);
+          this.activeRack = r;
+          this.newRack = '';
+          this.showToast('Rak "' + r + '" ditambahkan');
+        },
+        scanOpnameSku() {
+          const code = this.opnameBarcode.trim();
+          if (!code) return;
+          const p = this.products.find(x => x.sku === code || x.name.toLowerCase().includes(code.toLowerCase()));
+          if (p) {
+            this.opnameCounts[p.id] = (Number(this.opnameCounts[p.id]) || 0) + 1;
+            if (this.opnameRacks.length > 0 && this.activeRack !== 'ALL') this.itemRacks[p.id] = this.activeRack;
+            this.opnameBarcode = '';
+            this.showToast('Opname +1: ' + p.name);
+          } else this.showToast('Barcode tidak ditemukan');
+        },
+        get visibleOpnameProducts() {
+          if (this.opnameRacks.length === 0 || this.activeRack === 'ALL') return this.products;
+          return this.products.filter(p => (this.itemRacks[p.id] || '') === this.activeRack);
+        },
+        postOpname() {
+          const br = this.targetBranch;
+          const brName = this.branchLabel(br);
+          let count = 0;
+          this.products.forEach(p => {
+            const sys = this.stockOf(p, br);
+            const phys = Number(this.opnameCounts[p.id]);
+            if (!isNaN(phys) && phys !== sys) {
+              const diff = phys - sys;
+              p.stocks[br] = phys;
+              count++;
+              this.logs.unshift({ id: Date.now() + Math.random(), time: '21 Nov ' + new Date().toTimeString().slice(0, 5), branch: brName, type: 'Opname', item: p.name, detail: 'Sistem ' + sys + ' → Fisik ' + phys + ' (' + (diff > 0 ? '+' : '') + diff + ')', actor: this.currentUser.name });
+            }
+          });
+          if (count > 0 && this.cloudDb.autoSync) this.syncNow(true);
+          this.showToast(count > 0 ? count + ' stok disesuaikan' : 'Stok sesuai');
+        },
+        get visibleLogs() {
+          if (this.logFilter === 'Semua') return this.logs;
+          return this.logs.filter(l => l.type === this.logFilter);
+        },
+
+        // HR
+        doFaceCheck(mode) {
+          this.faceLoading = true;
+          setTimeout(() => {
+            this.faceLoading = false;
+            this.faceOk = true;
+            const t = new Date().toTimeString().slice(0, 5);
+            if (mode === 'in') {
+              this.attendances.unshift({ id: Date.now(), date: '21 Nov 2026', name: this.currentUser.name, branch: this.branchLabel(this.targetBranch), inTime: t, outTime: '-', status: 'Hadir (Wajah + GPS)' });
+              this.showToast('Clock-In terverifikasi (' + t + ')');
+            } else {
+              if (this.attendances.length) this.attendances[0].outTime = t;
+              this.showToast('Clock-Out tercatat (' + t + ')');
+            }
+          }, 450);
+        },
+        netPay(e) { return (e.base || 0) + (e.allowance || 0) + (e.bonus || 0) - (e.deduction || 0) - (e.kasbonCut || 0); },
+        submitLeave() {
+          this.leaves.unshift({ id: Date.now(), empId: this.currentUser.id, name: this.currentUser.name, branch: this.branchLabel(this.currentUser.branchId), ...this.leaveForm, status: 'Menunggu' });
+          this.showToast('Pengajuan izin terkirim');
+        },
+        submitKasbon() {
+          this.kasbons.unshift({ id: Date.now(), empId: this.currentUser.id, name: this.currentUser.name, branch: this.branchLabel(this.currentUser.branchId), amount: Number(this.kasbonForm.amount) || 0, reason: this.kasbonForm.reason, status: 'Menunggu' });
+          this.showToast('Pengajuan kasbon terkirim');
+        },
+        approveKasbon(kb, status) {
+          kb.status = status;
+          if (status === 'Disetujui') {
+            const emp = this.employees.find(e => e.id === kb.empId);
+            if (emp) emp.kasbonCut = (emp.kasbonCut || 0) + kb.amount;
+          }
+          this.showToast('Kasbon ' + status);
+        },
+        payAllPayroll() {
+          this.employees.forEach(e => {
+            if (!e.paid) {
+              e.paid = true;
+              this.ledger.unshift({ id: 'PAY-' + e.id, date: '21 Nov 2026', branchId: e.branchId, channel: 'Payroll', rev: 0, cogs: 0, exp: this.netPay(e), note: 'Gaji: ' + e.name });
+            }
+          });
+          this.showToast('Gaji dicairkan');
+        },
+        openEmpForm(e) {
+          if (e) { this.editEmpId = e.id; this.empForm = { ...e }; }
+          else { this.editEmpId = null; this.empForm = { id: 'EMP-0' + (this.employees.length + 1), name: '', roleId: 'kasir', branchId: 'BR-01', base: 3200000, allowance: 400000, bonus: 150000, deduction: 100000 }; }
+          this.empModal = true;
+        },
+        saveEmp() {
+          if (!this.empForm.name.trim()) return;
+          if (this.editEmpId) {
+            const i = this.employees.findIndex(x => x.id === this.editEmpId);
+            if (i !== -1) this.employees[i] = { ...this.employees[i], ...this.empForm, base: Number(this.empForm.base), allowance: Number(this.empForm.allowance), bonus: Number(this.empForm.bonus), deduction: Number(this.empForm.deduction) };
+          } else {
+            this.employees.push({ ...this.empForm, kasbonCut: 0, paid: false });
+          }
+          this.empModal = false;
+          this.showToast('Karyawan disimpan');
+        },
+        createRole() {
+          const name = this.newRoleInput.trim();
+          if (!name) return;
+          const id = 'role-' + Date.now();
+          this.roles.push({ id, name, modules: ['hr'] });
+          this.editRoleId = id;
+          this.newRoleInput = '';
+          this.showToast('Role dibuat');
+        },
+        toggleRoleMod(roleId, modId) {
+          const r = this.roles.find(x => x.id === roleId);
+          if (!r) return;
+          const idx = r.modules.indexOf(modId);
+          if (idx >= 0) r.modules.splice(idx, 1);
+          else r.modules.push(modId);
+        },
+
+        // Branches & Reports
+        addBranch() {
+          if (!this.branchForm.name.trim()) return;
+          const id = 'BR-0' + (this.branches.length + 1);
+          this.branches.push({ id, ...this.branchForm });
+          this.products.forEach(p => { p.stocks[id] = 15; });
+          this.branchForm = { name: '', city: 'Bandar Lampung', address: '', phone: '' };
+          this.branchModal = false;
+          this.showToast('Cabang ditambah');
+        },
+        get reportRows() { return this.reportBranch === 'ALL' ? this.ledger : this.ledger.filter(t => t.branchId === this.reportBranch); },
+        get reportTotals() {
+          const rows = this.reportRows;
+          const pos = rows.filter(t => t.channel === 'POS').reduce((s, t) => s + t.rev, 0);
+          const web = rows.filter(t => t.channel === 'Website').reduce((s, t) => s + t.rev, 0);
+          const cost = rows.reduce((s, t) => s + t.cogs + t.exp, 0);
+          return { pos, web, cost, net: (pos + web) - cost };
+        },
+        exportCsv() {
+          const lines = [['Ref', 'Tanggal', 'Cabang', 'Channel', 'Omzet', 'HPP/Biaya', 'Catatan'].join(',')];
+          this.reportRows.forEach(r => lines.push([r.id, r.date, this.branchLabel(r.branchId), r.channel, r.rev, r.cogs + r.exp, r.note].join(',')));
+          const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' }));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'laporan_toko_kita.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+          this.showToast('CSV diunduh');
+        },
+
+        // Supabase Cloud Sync
+        get cloudProviderName() {
+          return { gsheet: 'Google Sheets', supabase: 'Supabase Postgres', firebase: 'Firebase Realtime' }[this.cloudDb.provider] || 'Cloud DB';
+        },
+        syncNow(silent = false) {
+          this.cloudDb.connected = true;
+          this.cloudDb.lastSync = '21 Nov 2026 ' + new Date().toTimeString().slice(0, 5) + ' WIB';
+          if (!silent) this.showToast('Sinkronisasi ke ' + this.cloudProviderName + ' Berhasil!');
+        }
+      }));
+    });
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+</head>
+<body class="h-screen overflow-hidden flex flex-col select-none" x-data="tokoKitaApp()">
+
+  <!-- Header -->
+  <header class="h-[52px] shrink-0 bg-white border-b border-slate-200 px-3 sm:px-5 flex items-center justify-between gap-2.5 z-30">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <button @click="navOpen = !navOpen" aria-label="Menu"
+        class="w-9 h-9 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/60 text-slate-700 hover:text-blue-600 flex items-center justify-center transition shrink-0">
+        <i data-lucide="menu" class="w-4 h-4"></i>
+      </button>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center">TK</span>
+        <span class="font-bold text-sm text-slate-900 tracking-tight hidden sm:inline" x-text="settings.storeName"></span>
+      </div>
+
+      <div x-show="navStyle === 'pill'" class="hidden 2xl:flex items-center ml-1.5">
+        <div x-ref="pillTrack" class="relative inline-flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-200/70">
+          <div x-show="pillIndicator.ready"
+            :style="`transform: translateX(${pillIndicator.left - 4}px); width: ${pillIndicator.width}px;`"
+            class="nav-spring absolute top-1 bottom-1 left-1 rounded-full bg-white border border-blue-100 shadow-xs pointer-events-none"></div>
+          <template x-for="m in allowedModules" :key="m.id">
+            <button @click="goModule(m.id)" :data-nav-active="activeModule === m.id"
+              :class="activeModule === m.id ? 'text-blue-600 font-semibold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+              class="pill-tab relative z-10 px-2.5 py-1 rounded-full text-xs flex items-center gap-1.5 whitespace-nowrap">
+              <i :data-lucide="m.icon" class="w-3.5 h-3.5 shrink-0"></i>
+              <span x-text="m.label"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 max-w-md mx-1 sm:mx-3">
+      <button @click="openGlobalSearch()" type="button"
+        class="w-full h-9 px-3 rounded-xl bg-slate-50 hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 flex items-center justify-between gap-2 text-xs text-slate-400 transition">
+        <span class="flex items-center gap-2 min-w-0">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 shrink-0"></i>
+          <span class="truncate text-left" x-text="globalQuery ? globalQuery : 'Cari modul, produk, SKU, karyawan...'"></span>
+        </span>
+        <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-semibold text-slate-500 bg-white border border-slate-200 rounded-md shrink-0">Ctrl K</kbd>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <select x-model="activeBranch" @change="changeBranch()" aria-label="Cabang"
+        class="text-xs font-medium bg-slate-50 hover:bg-blue-50/60 text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500 max-w-[115px] sm:max-w-[175px] truncate">
+        <option value="ALL">Semua Cabang</option>
+        <template x-for="b in branches" :key="b.id"><option :value="b.id" x-text="b.name"></option></template>
+      </select>
+
+      <select :value="activeRole" @change="changeRole($event.target.value)" aria-label="Role"
+        class="text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg px-2.5 py-1.5 focus:outline-none">
+        <template x-for="r in roles" :key="r.id"><option :value="r.id" x-text="r.name"></option></template>
+      </select>
+    </div>
+  </header>
+
+  <!-- Global Command Palette Modal (Ctrl + K) -->
+  <div x-show="globalSearchOpen" x-cloak class="fixed inset-0 z-50 flex items-start justify-center pt-14 sm:pt-20 px-3 sm:px-4">
+    <div @click="globalSearchOpen = false" x-show="globalSearchOpen" x-transition.opacity class="fixed inset-0 bg-slate-900/25 backdrop-blur-[1px]"></div>
+    <div class="relative z-10 w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden text-xs">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center gap-2.5">
+        <i data-lucide="search" class="w-4 h-4 text-blue-600 shrink-0"></i>
+        <input x-ref="globalSearchInput" type="text" x-model="globalQuery" placeholder="Ketik modul, produk, SKU, karyawan..."
+          class="flex-1 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none" />
+        <button @click="globalSearchOpen = false" class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-mono text-[10px]">ESC</button>
+      </div>
+      <div class="max-h-[65vh] overflow-y-auto p-2.5 space-y-3">
+        <div x-show="globalResults.mods.length > 0">
+          <p class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Modul</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-0.5">
+            <template x-for="m in globalResults.mods" :key="'gs-mod-' + m.id">
+              <button @click="goModule(m.id); globalSearchOpen = false; globalQuery = ''"
+                class="px-3 py-2 rounded-xl hover:bg-blue-50 text-slate-700 hover:text-blue-700 flex items-center justify-between text-left">
+                <span class="flex items-center gap-2 font-semibold"><i :data-lucide="m.icon" class="w-3.5 h-3.5 text-blue-600"></i><span x-text="m.label"></span></span>
+                <span class="text-[10px] text-slate-400">Buka →</span>
+              </button>
+            </template>
+          </div>
+        </div>
+        <div x-show="globalResults.prods.length > 0">
+          <p class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Produk</p>
+          <div class="space-y-1 mt-0.5">
+            <template x-for="p in globalResults.prods" :key="'gs-prod-' + p.id">
+              <div class="px-3 py-2 rounded-xl hover:bg-slate-50 border border-transparent flex items-center justify-between gap-2">
+                <div>
+                  <p class="font-semibold text-slate-900" x-text="p.name"></p>
+                  <p class="font-mono text-[11px] text-slate-400" x-text="p.sku + ' • Stok ' + stockOf(p) + ' • ' + rp(p.sellPrice)"></p>
+                </div>
+                <button @click="goModule('pos'); globalSearchOpen = false; addPosItem(p)" class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-semibold text-[11px]">+ POS</button>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div x-show="globalResults.empty" class="py-8 text-center text-slate-400">Tidak ditemukan hasil untuk "<span class="font-semibold text-slate-600" x-text="globalQuery"></span>"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Drawer -->
+  <div x-show="navOpen" x-cloak class="fixed inset-0 z-40 flex p-2.5 sm:p-3">
+    <div @click="navOpen = false" class="fixed inset-0 bg-slate-900/20 backdrop-blur-[1px]"></div>
+    <aside class="relative z-50 w-72 h-full bg-white rounded-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <div class="p-4 border-b border-slate-100 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center">TK</span>
+            <p class="text-sm font-bold text-slate-900" x-text="settings.storeName"></p>
+          </div>
+          <button @click="navOpen = false" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+        <input type="text" x-model="navQuery" placeholder="Cari menu..." class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2" />
+      </div>
+      <nav class="flex-1 overflow-y-auto p-2.5 space-y-1">
+        <template x-for="m in allowedModules" :key="m.id">
+          <button @click="goModule(m.id)"
+            :class="activeModule === m.id ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-blue-50 hover:text-blue-700'"
+            class="w-full px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 text-left">
+            <i :data-lucide="m.icon" class="w-4 h-4 shrink-0"></i>
+            <span x-text="m.label"></span>
+          </button>
+        </template>
+      </nav>
+      <div class="p-3.5 border-t border-slate-100 bg-slate-50 text-[11px] flex justify-between text-slate-500">
+        <span>Supabase Sync</span>
+        <span class="font-semibold text-emerald-600">● Terhubung</span>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Toast -->
+  <div x-show="toast" x-cloak x-transition class="fixed bottom-4 right-4 z-50 bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl shadow-lg">
+    <span x-text="toast"></span>
+  </div>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 xl:pb-6">
+
+    <!-- 1. GRAFIK -->
+    <section x-show="activeModule === 'dashboard'" x-cloak class="max-w-5xl mx-auto">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <p class="text-xs font-medium text-blue-600" x-text="branchLabel(activeBranch)"></p>
+            <h1 class="text-lg font-bold text-slate-900 mt-0.5">Omzet Penjualan vs Laba Kotor</h1>
+          </div>
+          <div class="inline-flex bg-slate-100 p-1 rounded-lg self-start">
+            <template x-for="f in ['7 Hari', '30 Hari', 'Per Cabang']" :key="f">
+              <button @click="setChartFilter(f)"
+                :class="chartFilter === f ? 'bg-white text-blue-600 border border-slate-200/80 shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                class="px-3 py-1 rounded-md text-xs font-semibold transition" x-text="f"></button>
+            </template>
+          </div>
+        </div>
+        <div class="h-80 sm:h-96 w-full"><canvas id="tkChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- 2. KASIR POS -->
+    <section x-show="activeModule === 'pos'" x-cloak class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 space-y-4 shadow-sm">
+        <div class="flex flex-col sm:flex-row gap-2">
+          <form @submit.prevent="scanPosSku()" class="flex-1 flex gap-1.5">
+            <input type="text" x-model="posBarcode" placeholder="Scan barcode EAN-13 / SKU..."
+              class="flex-1 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500" />
+            <button type="submit" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl">Scan</button>
+          </form>
+          <input type="text" x-model="posQuery" placeholder="Cari produk..."
+            class="sm:w-48 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-blue-500" />
+        </div>
+
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex gap-1.5 overflow-x-auto">
+            <template x-for="c in ['Semua', 'Sembako', 'Minuman', 'Kebutuhan Rumah']" :key="c">
+              <button @click="posCat = c"
+                :class="posCat === c ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+                class="px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition" x-text="c"></button>
+            </template>
+          </div>
+          <span class="text-xs text-slate-500" x-text="'Cabang: ' + branchLabel(targetBranch)"></span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <template x-for="p in posProducts" :key="p.id">
+            <button @click="addPosItem(p)"
+              class="p-3.5 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/30 text-left transition flex flex-col justify-between gap-3 shadow-xs">
+              <div>
+                <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <span x-text="p.sku.slice(-4)"></span>
+                  <span :class="stockOf(p) > 5 ? 'text-slate-500' : 'text-rose-600 font-semibold'" x-text="'Stok ' + stockOf(p)"></span>
+                </div>
+                <p class="text-xs font-semibold text-slate-900 mt-1.5 line-clamp-2" x-text="p.name"></p>
+              </div>
+              <p class="font-mono text-xs font-bold text-blue-600" x-text="rp(p.sellPrice)"></p>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 xl:col-span-4 bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col justify-between space-y-4 shadow-sm">
+        <div class="space-y-3">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <h2 class="text-sm font-bold text-slate-900">Keranjang POS</h2>
+            <button @click="posCart = []" class="text-xs text-slate-400 hover:text-rose-600">Kosongkan</button>
+          </div>
+          <input type="text" x-model="posCustomer" placeholder="Nama Pelanggan" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2" />
+          <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+            <template x-if="!posCart.length"><p class="text-xs text-slate-400 text-center py-10">Belum ada produk dipilih</p></template>
+            <template x-for="(it, idx) in posCart" :key="it.id">
+              <div class="py-2.5 flex items-center justify-between gap-2 text-xs">
+                <div class="min-w-0 flex-1">
+                  <p class="font-semibold text-slate-900 truncate" x-text="it.name"></p>
+                  <p class="font-mono text-[11px] text-slate-500" x-text="rp(it.sellPrice)"></p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button @click="stepPosQty(idx, -1)" class="w-6 h-6 rounded-md border border-slate-200 hover:bg-slate-100 font-semibold">-</button>
+                  <span class="w-5 text-center font-mono font-semibold" x-text="it.qty"></span>
+                  <button @click="stepPosQty(idx, 1)" class="w-6 h-6 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold">+</button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="border-t border-slate-200 pt-3.5 space-y-2 text-xs">
+          <div class="flex justify-between text-slate-500"><span>Subtotal</span><span class="font-mono" x-text="rp(posSubtotal)"></span></div>
+          <div class="flex justify-between text-slate-500"><span>PPN (<span x-text="settings.tax"></span>%)</span><span class="font-mono" x-text="rp(posTax)"></span></div>
+          <div class="flex justify-between text-sm font-bold text-slate-900 pt-1">
+            <span>Total</span><span class="font-mono text-blue-600" x-text="rp(posTotal)"></span>
+          </div>
+          <button @click="openCheckout()" :disabled="!posCart.length"
+            class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-semibold text-xs transition shadow-xs">
+            Bayar (Split / QRIS)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TOKO ONLINE -->
+    <section x-show="activeModule === 'website'" x-cloak class="max-w-6xl mx-auto space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div class="flex gap-1.5">
+          <button @click="webTab = 'catalog'" :class="webTab === 'catalog' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Katalog Web</button>
+          <button @click="webTab = 'orders'" :class="webTab === 'orders' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Pesanan (<span x-text="webOrders.length"></span>)</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <select x-model="webBranch" class="text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
+            <template x-for="b in branches" :key="b.id"><option :value="b.id" x-text="b.name"></option></template>
+          </select>
+          <button @click="webCheckoutOpen = true" class="px-3.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">
+            Tas Belanja (<span x-text="webCart.reduce((s,i)=>s+i.qty,0)"></span>)
+          </button>
+        </div>
+      </div>
+
+      <div x-show="webTab === 'catalog'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <template x-for="p in webProducts" :key="p.id">
+          <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between gap-3 shadow-sm">
+            <div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400">
+                <span x-text="p.category"></span>
+                <span :class="stockOf(p, webBranch) > 0 ? 'text-emerald-600' : 'text-rose-600'" class="font-mono font-semibold" x-text="'Stok: ' + stockOf(p, webBranch)"></span>
+              </div>
+              <h3 class="text-sm font-bold text-slate-900 mt-1.5" x-text="p.name"></h3>
+              <p class="font-mono text-sm font-bold text-blue-600 mt-1" x-text="rp(p.sellPrice)"></p>
+            </div>
+            <button @click="addWebItem(p)" :disabled="stockOf(p, webBranch) <= 0"
+              class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 text-white text-xs font-semibold transition">
+              Tambah ke Tas
+            </button>
+          </div>
+        </template>
+      </div>
+
+      <div x-show="webTab === 'orders'" class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3.5">Order</th><th class="p-3.5">Pembeli</th><th class="p-3.5">Cabang</th><th class="p-3.5">Metode</th><th class="p-3.5 text-right">Total</th><th class="p-3.5">Status</th><th class="p-3.5 text-right">Aksi</th></tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            <template x-for="o in webOrders" :key="o.id">
+              <tr>
+                <td class="p-3.5 font-mono font-semibold text-blue-600" x-text="o.id"></td>
+                <td class="p-3.5"><p class="font-semibold text-slate-900" x-text="o.customer"></p><p class="text-[11px] text-slate-400" x-text="o.address"></p></td>
+                <td class="p-3.5" x-text="branchLabel(o.branchId)"></td>
+                <td class="p-3.5" x-text="o.payment"></td>
+                <td class="p-3.5 text-right font-mono font-semibold" x-text="rp(o.total)"></td>
+                <td class="p-3.5"><span class="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-[11px]" x-text="o.status"></span></td>
+                <td class="p-3.5 text-right"><button @click="nextOrderStatus(o)" :disabled="o.status === 'Selesai'" class="px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold disabled:opacity-40">Lanjut</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4. INVENTARIS & STOCK OPNAME -->
+    <section x-show="activeModule === 'inventory'" x-cloak class="max-w-6xl mx-auto space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div class="flex flex-wrap gap-1.5">
+          <button @click="invTab = 'stock'" :class="invTab === 'stock' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Produk & Stok</button>
+          <button @click="invTab = 'opname'; syncOpname()" :class="invTab === 'opname' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Stock Opname</button>
+          <button @click="invTab = 'logs'" :class="invTab === 'logs' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Log Keluar Masuk & Edit</button>
+        </div>
+        <button x-show="invTab === 'stock'" @click="openProductForm(null)" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold">+ Produk</button>
+      </div>
+
+      <div x-show="invTab === 'stock'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+        <input type="text" x-model="invQuery" placeholder="Cari SKU atau nama produk..." class="w-full sm:w-64 text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2" />
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3">SKU</th><th class="p-3">Produk</th><th class="p-3 text-right">Harga Jual</th><th class="p-3 text-center">Pusat</th><th class="p-3 text-center">Teluk Betung</th><th class="p-3 text-center">Sukarame</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="p in filteredProducts" :key="p.id">
+                <tr>
+                  <td class="p-3 font-mono text-slate-500" x-text="p.sku"></td>
+                  <td class="p-3 font-semibold text-slate-900" x-text="p.name"></td>
+                  <td class="p-3 text-right font-mono font-semibold text-blue-600" x-text="rp(p.sellPrice)"></td>
+                  <td class="p-3 text-center font-mono" x-text="stockOf(p, 'BR-01')"></td>
+                  <td class="p-3 text-center font-mono" x-text="stockOf(p, 'BR-02')"></td>
+                  <td class="p-3 text-center font-mono" x-text="stockOf(p, 'BR-03')"></td>
+                  <td class="p-3 text-right"><button @click="openProductForm(p)" class="text-blue-600 hover:underline font-semibold">Edit</button></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div x-show="invTab === 'opname'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-4 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <form @submit.prevent="scanOpnameSku()" class="flex gap-1.5 flex-1 max-w-md">
+            <input type="text" x-model="opnameBarcode" placeholder="Scan barcode / SKU (+1 fisik)..." class="flex-1 text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl px-3 py-2" />
+            <button type="submit" class="px-3 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold">+1</button>
+          </form>
+          <form @submit.prevent="addRack()" class="flex gap-1.5">
+            <input type="text" x-model="newRack" placeholder="Nama rak baru..." class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2" />
+            <button type="submit" class="px-3 py-2 rounded-xl border border-slate-300 hover:border-blue-500 text-xs font-semibold">+ Tambah Rak</button>
+          </form>
+        </div>
+        <div x-show="opnameRacks.length > 0" class="flex flex-wrap items-center gap-1.5">
+          <button @click="activeRack = 'ALL'" :class="activeRack === 'ALL' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-2.5 py-1 rounded-lg text-xs font-semibold">Semua</button>
+          <template x-for="rk in opnameRacks" :key="rk"><button @click="activeRack = rk" :class="activeRack === rk ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-2.5 py-1 rounded-lg text-xs font-semibold" x-text="rk"></button></template>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3">SKU</th><th class="p-3">Produk</th><th class="p-3 text-center">Sistem</th><th class="p-3 text-center">Fisik</th><th class="p-3 text-center">Selisih</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="p in visibleOpnameProducts" :key="p.id">
+                <tr>
+                  <td class="p-3 font-mono text-slate-500" x-text="p.sku"></td>
+                  <td class="p-3 font-semibold text-slate-900" x-text="p.name"></td>
+                  <td class="p-3 text-center font-mono" x-text="stockOf(p)"></td>
+                  <td class="p-3 text-center"><input type="number" min="0" x-model.number="opnameCounts[p.id]" class="w-16 text-center font-mono font-semibold border border-slate-200 rounded-lg py-1" /></td>
+                  <td class="p-3 text-center font-mono font-semibold" :class="(opnameCounts[p.id] - stockOf(p)) === 0 ? 'text-slate-400' : ((opnameCounts[p.id] - stockOf(p)) > 0 ? 'text-emerald-600' : 'text-rose-600')" x-text="((opnameCounts[p.id] - stockOf(p)) > 0 ? '+' : '') + (opnameCounts[p.id] - stockOf(p))"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex justify-end"><button @click="postOpname()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold">Simpan Hasil Opname</button></div>
+      </div>
+
+      <div x-show="invTab === 'logs'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+        <div class="flex flex-wrap gap-1.5">
+          <template x-for="f in ['Semua', 'Masuk', 'Keluar POS', 'Keluar Web', 'Opname', 'Edit Data']" :key="f">
+            <button @click="logFilter = f" :class="logFilter === f ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-2.5 py-1 rounded-lg text-xs font-semibold" x-text="f"></button>
+          </template>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3">Waktu</th><th class="p-3">Cabang</th><th class="p-3">Tipe</th><th class="p-3">Item</th><th class="p-3">Keterangan</th><th class="p-3">Oleh</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="l in visibleLogs" :key="l.id">
+                <tr>
+                  <td class="p-3 font-mono text-slate-400" x-text="l.time"></td>
+                  <td class="p-3" x-text="l.branch"></td>
+                  <td class="p-3"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold text-[11px]" x-text="l.type"></span></td>
+                  <td class="p-3 font-semibold text-slate-900" x-text="l.item"></td>
+                  <td class="p-3 text-slate-600" x-text="l.detail"></td>
+                  <td class="p-3" x-text="l.actor"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. KARYAWAN & HR -->
+    <section x-show="activeModule === 'hr'" x-cloak class="max-w-6xl mx-auto space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+        <div class="flex flex-wrap gap-1.5">
+          <button @click="hrTab = 'portal'" :class="hrTab === 'portal' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Portal Karyawan</button>
+          <button x-show="['owner','hr'].includes(activeRole)" @click="hrTab = 'staff'" :class="hrTab === 'staff' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Kelola Karyawan & Gaji</button>
+          <button x-show="['owner','hr'].includes(activeRole)" @click="hrTab = 'approval'" :class="hrTab === 'approval' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Approval HR</button>
+          <button x-show="activeRole === 'owner'" @click="hrTab = 'roles'" :class="hrTab === 'roles' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold">Role & Akses</button>
+        </div>
+        <span class="text-xs text-slate-500" x-text="currentUser.name + ' • ' + currentRole.name"></span>
+      </div>
+
+      <div x-show="hrTab === 'portal'" class="space-y-4">
+        <div class="flex flex-wrap gap-1.5 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm">
+          <template x-for="t in [{id:'absensi',l:'Absensi Wajah & GPS'},{id:'riwayat',l:'Riwayat'},{id:'gaji',l:'Slip Gaji'},{id:'cuti',l:'Cuti & Sakit'},{id:'kasbon',l:'Kasbon'}]" :key="t.id">
+            <button @click="portalTab = t.id" :class="portalTab === t.id ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'" class="px-3 py-1.5 rounded-lg text-xs font-semibold" x-text="t.l"></button>
+          </template>
+        </div>
+        <div x-show="portalTab === 'absensi'" class="bg-white rounded-2xl border border-slate-200 p-5 grid grid-cols-1 md:grid-cols-2 gap-5 items-center shadow-sm">
+          <div class="aspect-video rounded-xl bg-slate-50 border border-dashed border-blue-300 flex flex-col items-center justify-center p-4 text-center">
+            <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 font-bold text-lg flex items-center justify-center mb-2" x-text="currentUser.name.slice(0,2).toUpperCase()"></div>
+            <p class="text-xs font-semibold text-slate-800" x-text="faceLoading ? 'Memindai wajah...' : (faceOk ? 'Wajah & GPS Terverifikasi' : 'Kamera Presensi Siap')"></p>
+            <p class="text-[11px] font-mono text-slate-400 mt-1" x-text="gpsText"></p>
+          </div>
+          <div class="space-y-3 text-xs">
+            <h3 class="text-sm font-bold text-slate-900">Absensi Wajah & Lokasi</h3>
+            <p class="text-slate-500">Pastikan Anda berada dalam radius cabang aktif saat melakukan absensi masuk atau pulang.</p>
+            <div class="flex gap-2 pt-1">
+              <button @click="doFaceCheck('in')" class="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-semibold shadow-xs">Clock-In</button>
+              <button @click="doFaceCheck('out')" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-800 font-semibold">Clock-Out</button>
+            </div>
+          </div>
+        </div>
+        <div x-show="portalTab === 'riwayat'" class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3.5">Tanggal</th><th class="p-3.5">Nama</th><th class="p-3.5">Cabang</th><th class="p-3.5">Masuk</th><th class="p-3.5">Pulang</th><th class="p-3.5">Status</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="a in attendances" :key="a.id">
+                <tr><td class="p-3.5 font-mono" x-text="a.date"></td><td class="p-3.5 font-semibold" x-text="a.name"></td><td class="p-3.5" x-text="a.branch"></td><td class="p-3.5 font-mono text-blue-600" x-text="a.inTime"></td><td class="p-3.5 font-mono" x-text="a.outTime"></td><td class="p-3.5 text-emerald-600 font-medium" x-text="a.status"></td></tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div x-show="portalTab === 'gaji'" class="bg-white rounded-2xl border border-slate-200 p-5 max-w-lg space-y-2.5 text-xs shadow-sm">
+          <h3 class="text-sm font-bold text-slate-900 mb-2">Slip Gaji Bulanan — <span x-text="currentUser.name"></span></h3>
+          <div class="flex justify-between py-1 border-b border-slate-100 text-slate-500"><span>Gaji Pokok</span><span class="font-mono text-slate-900" x-text="rp(currentUser.base)"></span></div>
+          <div class="flex justify-between py-1 border-b border-slate-100 text-slate-500"><span>Tunjangan</span><span class="font-mono text-slate-900" x-text="rp(currentUser.allowance)"></span></div>
+          <div class="flex justify-between py-1 border-b border-slate-100 text-slate-500"><span>Bonus Kinerja</span><span class="font-mono text-slate-900" x-text="rp(currentUser.bonus)"></span></div>
+          <div class="flex justify-between py-1 border-b border-slate-100 text-slate-500"><span>Potongan Kasbon / Lain</span><span class="font-mono text-rose-600" x-text="'- ' + rp((currentUser.deduction || 0) + (currentUser.kasbonCut || 0))"></span></div>
+          <div class="flex justify-between pt-2 text-sm font-bold text-slate-900"><span>Total Diterima (Net)</span><span class="font-mono text-blue-600" x-text="rp(netPay(currentUser))"></span></div>
+        </div>
+        <div x-show="portalTab === 'cuti'" class="bg-white rounded-2xl border border-slate-200 p-5 max-w-lg space-y-3 text-xs shadow-sm">
+          <h3 class="text-sm font-bold text-slate-900">Form Pengajuan Izin / Cuti / Sakit</h3>
+          <div><label class="text-slate-500 block mb-1">Jenis Izin</label><select x-model="leaveForm.type" class="w-full border border-slate-200 rounded-xl px-3 py-2 bg-white"><option>Izin Cuti</option><option>Izin Sakit</option><option>Keperluan Mendesak</option></select></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div><label class="text-slate-500 block mb-1">Tanggal Mulai</label><input type="date" x-model="leaveForm.date" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+            <div><label class="text-slate-500 block mb-1">Jumlah Hari</label><input type="number" min="1" x-model.number="leaveForm.days" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+          </div>
+          <div><label class="text-slate-500 block mb-1">Alasan</label><textarea x-model="leaveForm.reason" rows="2" class="w-full border border-slate-200 rounded-xl px-3 py-2"></textarea></div>
+          <button @click="submitLeave()" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Kirim Pengajuan</button>
+        </div>
+        <div x-show="portalTab === 'kasbon'" class="bg-white rounded-2xl border border-slate-200 p-5 max-w-lg space-y-3 text-xs shadow-sm">
+          <h3 class="text-sm font-bold text-slate-900">Pengajuan Kasbon Karyawan</h3>
+          <div><label class="text-slate-500 block mb-1">Jumlah Kasbon (Rp)</label><input type="number" x-model.number="kasbonForm.amount" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+          <div><label class="text-slate-500 block mb-1">Keperluan</label><textarea x-model="kasbonForm.reason" rows="2" class="w-full border border-slate-200 rounded-xl px-3 py-2"></textarea></div>
+          <button @click="submitKasbon()" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Ajukan Kasbon</button>
+        </div>
+      </div>
+
+      <div x-show="hrTab === 'staff'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-4 shadow-sm">
+        <div class="flex justify-between items-center">
+          <h3 class="text-sm font-bold text-slate-900">Daftar Karyawan & Penggajian</h3>
+          <div class="flex gap-2">
+            <button @click="openEmpForm(null)" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-semibold">+ Karyawan</button>
+            <button @click="payAllPayroll()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Cairkan Semua Gaji</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3">Nama</th><th class="p-3">Role / Cabang</th><th class="p-3 text-right">Gaji Pokok</th><th class="p-3 text-right">Net Gaji</th><th class="p-3 text-center">Status Gaji</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="e in employees" :key="e.id">
+                <tr>
+                  <td class="p-3 font-semibold text-slate-900" x-text="e.name"></td>
+                  <td class="p-3" x-text="e.roleId.toUpperCase() + ' • ' + branchLabel(e.branchId)"></td>
+                  <td class="p-3 text-right font-mono" x-text="rp(e.base)"></td>
+                  <td class="p-3 text-right font-mono font-semibold text-blue-600" x-text="rp(netPay(e))"></td>
+                  <td class="p-3 text-center"><span :class="e.paid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'" class="px-2 py-0.5 rounded-full font-semibold text-[10px]" x-text="e.paid ? 'Lunas' : 'Belum Cair'"></span></td>
+                  <td class="p-3 text-right"><button @click="openEmpForm(e)" class="text-blue-600 hover:underline font-semibold">Edit</button></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div x-show="hrTab === 'approval'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-4 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900">Persetujuan Kasbon & Cuti</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3">Nama</th><th class="p-3">Cabang</th><th class="p-3">Pengajuan</th><th class="p-3">Status</th><th class="p-3 text-right">Aksi</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">
+              <template x-for="kb in kasbons" :key="kb.id">
+                <tr>
+                  <td class="p-3 font-semibold" x-text="kb.name"></td>
+                  <td class="p-3" x-text="kb.branch"></td>
+                  <td class="p-3 font-mono">Kasbon: <strong x-text="rp(kb.amount)"></strong> (<span x-text="kb.reason"></span>)</td>
+                  <td class="p-3"><span :class="kb.status === 'Disetujui' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'" class="px-2 py-0.5 rounded-full font-semibold text-[10px]" x-text="kb.status"></span></td>
+                  <td class="p-3 text-right space-x-1">
+                    <button x-show="kb.status === 'Menunggu'" @click="approveKasbon(kb, 'Disetujui')" class="px-2 py-1 rounded bg-emerald-600 text-white font-semibold">Setuju</button>
+                    <button x-show="kb.status === 'Menunggu'" @click="approveKasbon(kb, 'Ditolak')" class="px-2 py-1 rounded bg-rose-600 text-white font-semibold">Tolak</button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div x-show="hrTab === 'roles'" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-4 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900">Manajemen Role & Hak Akses Modul</h3>
+        <div class="flex gap-2 max-w-md">
+          <input type="text" x-model="newRoleInput" placeholder="Nama role baru..." class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex-1" />
+          <button @click="createRole()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-semibold">Buat Role</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <template x-for="r in roles" :key="r.id">
+            <div class="p-4 rounded-xl border border-slate-200 space-y-2 bg-slate-50/50">
+              <div class="flex justify-between items-center"><span class="font-bold text-slate-900" x-text="r.name"></span><span class="font-mono text-[10px] text-slate-400" x-text="r.id"></span></div>
+              <div class="flex flex-wrap gap-1 pt-1">
+                <template x-for="m in modules" :key="m.id">
+                  <button @click="toggleRoleMod(r.id, m.id)"
+                    :class="r.modules.includes(m.id) ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200'"
+                    class="px-2 py-1 rounded-md text-[10px] font-semibold transition" x-text="m.label"></button>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. LAPORAN & CABANG -->
+    <section x-show="activeModule === 'reports'" x-cloak class="max-w-6xl mx-auto space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-2">
+          <select x-model="reportBranch" class="text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5">
+            <option value="ALL">Semua Cabang</option>
+            <template x-for="b in branches" :key="b.id"><option :value="b.id" x-text="b.name"></option></template>
+          </select>
+          <button @click="branchModal = true" class="px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">+ Cabang Toko</button>
+        </div>
+        <button @click="exportCsv()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold">Download CSV</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm"><p class="text-[11px] text-slate-400">Total Omzet POS</p><p class="text-base font-bold font-mono text-slate-900 mt-1" x-text="rp(reportTotals.pos)"></p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm"><p class="text-[11px] text-slate-400">Total Omzet Website</p><p class="text-base font-bold font-mono text-slate-900 mt-1" x-text="rp(reportTotals.web)"></p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm"><p class="text-[11px] text-slate-400">HPP & Biaya</p><p class="text-base font-bold font-mono text-rose-600 mt-1" x-text="rp(reportTotals.cost)"></p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm"><p class="text-[11px] text-slate-400">Laba Bersih</p><p class="text-base font-bold font-mono text-blue-600 mt-1" x-text="rp(reportTotals.net)"></p></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead><tr class="border-b border-slate-200 text-slate-400 text-[11px] uppercase"><th class="p-3.5">Ref</th><th class="p-3.5">Tanggal</th><th class="p-3.5">Cabang</th><th class="p-3.5">Channel</th><th class="p-3.5 text-right">Omzet</th><th class="p-3.5 text-right">HPP / Biaya</th><th class="p-3.5">Catatan</th></tr></thead>
+          <tbody class="divide-y divide-slate-100">
+            <template x-for="r in reportRows" :key="r.id">
+              <tr>
+                <td class="p-3.5 font-mono font-semibold text-blue-600" x-text="r.id"></td>
+                <td class="p-3.5 font-mono" x-text="r.date"></td>
+                <td class="p-3.5" x-text="branchLabel(r.branchId)"></td>
+                <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold text-[11px]" x-text="r.channel"></span></td>
+                <td class="p-3.5 text-right font-mono font-semibold" x-text="rp(r.rev)"></td>
+                <td class="p-3.5 text-right font-mono text-rose-600" x-text="rp(r.cogs + r.exp)"></td>
+                <td class="p-3.5 text-slate-600" x-text="r.note"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7. PENGATURAN & INTEGRASI SUPABASE -->
+    <section x-show="activeModule === 'settings'" x-cloak class="max-w-4xl mx-auto space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm">
+        <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">Konfigurasi Toko & Pajak PPN</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div><label class="text-slate-500 block mb-1">Nama Toko</label><input type="text" x-model="settings.storeName" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+          <div><label class="text-slate-500 block mb-1">No. Telepon</label><input type="text" x-model="settings.phone" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+          <div class="sm:col-span-2"><label class="text-slate-500 block mb-1">Alamat</label><input type="text" x-model="settings.address" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+          <div><label class="text-slate-500 block mb-1">Pajak PPN (%)</label><input type="number" x-model.number="settings.tax" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-sm">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div><h3 class="text-sm font-bold text-slate-900">Cloud Database (Supabase & Firebase)</h3><p class="text-[11px] text-slate-400 mt-0.5">Sinkronisasi otomatis multi-cabang real-time</p></div>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[11px]" x-text="'● ' + cloudProviderName + ' Terhubung'"></span>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div class="flex gap-2">
+            <template x-for="pr in [{id:'supabase',l:'Supabase Postgres'},{id:'firebase',l:'Firebase Realtime'}]" :key="pr.id">
+              <button @click="cloudDb.provider = pr.id" :class="cloudDb.provider === pr.id ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'" class="px-3.5 py-1.5 rounded-lg font-semibold" x-text="pr.l"></button>
+            </template>
+          </div>
+          <div x-show="cloudDb.provider === 'supabase'" class="space-y-2">
+            <div><label class="text-slate-500 block mb-1">Supabase Project URL</label><input type="text" x-model="cloudDb.supabaseUrl" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+            <div><label class="text-slate-500 block mb-1">Supabase Anon Key</label><input type="text" x-model="cloudDb.supabaseKey" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+          </div>
+          <div x-show="cloudDb.provider === 'firebase'" class="space-y-2">
+            <div><label class="text-slate-500 block mb-1">Firebase Realtime DB URL</label><input type="text" x-model="cloudDb.firebaseUrl" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+            <div><label class="text-slate-500 block mb-1">Firebase API Secret</label><input type="text" x-model="cloudDb.firebaseSecret" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+          </div>
+          <div class="flex justify-end pt-2"><button @click="syncNow(false)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold">Simpan & Test Koneksi Cloud</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALS -->
+
+  <!-- POS Checkout Modal -->
+  <div x-show="posCheckoutOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-[2px]">
+    <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-md p-5 space-y-4 text-xs shadow-xl">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Pembayaran Kasir POS (Split & QRIS)</h3>
+        <button @click="posCheckoutOpen = false" class="text-slate-400">✕</button>
+      </div>
+      <div class="flex justify-between font-mono font-bold text-sm bg-blue-50 p-3 rounded-xl text-blue-700">
+        <span>Total Tagihan</span><span x-text="rp(posTotal)"></span>
+      </div>
+      <div class="space-y-2">
+        <template x-for="(sp, idx) in posSplits" :key="idx">
+          <div class="flex gap-2 items-center">
+            <select x-model="sp.method" class="border border-slate-200 rounded-xl px-3 py-2 bg-white">
+              <template x-for="pm in settings.payments" :key="pm"><option :value="pm" x-text="pm"></option></template>
+            </select>
+            <input type="number" x-model.number="sp.amount" @input="fillRemain(idx)" class="flex-1 font-mono border border-slate-200 rounded-xl px-3 py-2" />
+            <button @click="posSplits.splice(idx, 1)" x-show="posSplits.length > 1" class="text-rose-600 font-bold px-2">✕</button>
+          </div>
+        </template>
+        <button @click="posSplits.push({method: settings.payments[0], amount: splitRemain})" x-show="splitRemain > 0" class="text-blue-600 font-semibold hover:underline">+ Split Metode Pembayaran</button>
+      </div>
+      <div class="bg-slate-50 p-3 rounded-xl space-y-1 font-mono text-slate-600">
+        <div class="flex justify-between"><span>Dibayar:</span><span x-text="rp(splitPaid)"></span></div>
+        <div class="flex justify-between"><span>Kurang:</span><span class="text-rose-600" x-text="rp(splitRemain)"></span></div>
+        <div class="flex justify-between"><span>Kembalian:</span><span class="text-emerald-600" x-text="rp(splitChange)"></span></div>
+      </div>
+      <button @click="submitPosCheckout()" :disabled="splitPaid < posTotal"
+        class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold transition shadow-xs">
+        Proses Pembayaran Lunas
+      </button>
+    </div>
+  </div>
+
+  <!-- QRIS Dinamis Modal -->
+  <div x-show="qrModal.open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[2px]">
+    <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-sm p-6 text-center space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center"><h3 class="text-sm font-bold text-slate-900">QRIS Dinamis</h3><button @click="closeQr()" class="text-slate-400">✕</button></div>
+      <p class="font-mono text-lg font-bold text-blue-600" x-text="rp(qrModal.amount)"></p>
+      <div class="bg-white p-3 rounded-2xl border border-slate-200 inline-block mx-auto shadow-inner">
+        <div class="grid grid-cols-17 gap-[1.5px] w-48 h-48 bg-white p-2">
+          <template x-for="row in qrModal.grid">
+            <template x-for="cell in row">
+              <div :class="cell === 1 ? 'bg-slate-900' : 'bg-white'"></div>
+            </template>
+          </template>
+        </div>
+      </div>
+      <p class="font-mono text-xs text-rose-600">Berlaku dalam: <strong x-text="qrModal.seconds"></strong> detik</p>
+      <button @click="confirmQrPaid()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-xs">Simulasi Pembayaran Berhasil (Scan OK)</button>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div x-show="productModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30">
+    <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-md p-5 space-y-3 text-xs shadow-xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100"><h3 class="text-sm font-bold" x-text="editProdId ? 'Edit Produk & Stok' : 'Tambah Produk'"></h3><button @click="productModal = false" class="text-slate-400">✕</button></div>
+      <div><label class="text-slate-500 block mb-1">SKU / Barcode</label><input type="text" x-model="prodForm.sku" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+      <div><label class="text-slate-500 block mb-1">Nama Produk</label><input type="text" x-model="prodForm.name" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-slate-500 block mb-1">Harga Beli</label><input type="number" x-model.number="prodForm.buyPrice" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+        <div><label class="text-slate-500 block mb-1">Harga Jual</label><input type="number" x-model.number="prodForm.sellPrice" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div><label class="text-slate-500 block mb-1">Pusat</label><input type="number" x-model.number="prodForm.s1" class="w-full font-mono border border-slate-200 rounded-xl px-2 py-1.5" /></div>
+        <div><label class="text-slate-500 block mb-1">Teluk</label><input type="number" x-model.number="prodForm.s2" class="w-full font-mono border border-slate-200 rounded-xl px-2 py-1.5" /></div>
+        <div><label class="text-slate-500 block mb-1">Sukarame</label><input type="number" x-model.number="prodForm.s3" class="w-full font-mono border border-slate-200 rounded-xl px-2 py-1.5" /></div>
+      </div>
+      <button @click="saveProduct()" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Simpan Produk</button>
+    </div>
+  </div>
+
+  <!-- Employee Modal -->
+  <div x-show="empModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30">
+    <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-md p-5 space-y-3 text-xs shadow-xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100"><h3 class="text-sm font-bold" x-text="editEmpId ? 'Edit Karyawan & Gaji' : 'Tambah Karyawan'"></h3><button @click="empModal = false" class="text-slate-400">✕</button></div>
+      <div><label class="text-slate-500 block mb-1">Nama</label><input type="text" x-model="empForm.name" class="w-full border border-slate-200 rounded-xl px-3 py-2" /></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-slate-500 block mb-1">Role</label><select x-model="empForm.roleId" class="w-full border border-slate-200 rounded-xl px-3 py-2"><template x-for="r in roles" :key="r.id"><option :value="r.id" x-text="r.name"></option></template></select></div>
+        <div><label class="text-slate-500 block mb-1">Cabang</label><select x-model="empForm.branchId" class="w-full border border-slate-200 rounded-xl px-3 py-2"><template x-for="b in branches" :key="b.id"><option :value="b.id" x-text="b.name"></option></template></select></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="text-slate-500 block mb-1">Gaji Pokok</label><input type="number" x-model.number="empForm.base" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+        <div><label class="text-slate-500 block mb-1">Tunjangan</label><input type="number" x-model.number="empForm.allowance" class="w-full font-mono border border-slate-200 rounded-xl px-3 py-2" /></div>
+      </div>
+      <button @click="saveEmp()" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Simpan Karyawan</button>
+    </div>
+  </div>
+
+  <!-- Branch Modal -->
+  <div x-show="branchModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30">
+    <div class="bg-white rounded-2xl border border-slate-200 w-full max-w-sm p-5 space-y-3 text-xs shadow-xl">
+      <div class="flex justify-between items-center pb-2 border-b border-slate-100"><h3 class="text-sm font-bold">Tambah Cabang</h3><button @click="branchModal = false" class="text-slate-400">✕</button></div>
+      <input type="text" x-model="branchForm.name" placeholder="Nama Cabang (mis: Cabang Kedaton)" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+      <input type="text" x-model="branchForm.address" placeholder="Alamat" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+      <input type="text" x-model="branchForm.phone" placeholder="Telepon" class="w-full border border-slate-200 rounded-xl px-3 py-2" />
+      <button @click="addBranch()" class="w-full py-2.5 rounded-xl bg-blue-600 text-white font-semibold">Simpan Cabang</button>
+    </div>
+  </div>
+
+</body>
+</html>
