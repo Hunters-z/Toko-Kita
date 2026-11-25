@@ -31,7 +31,7 @@ export default function AdminLayout() {
         </div>
 
         {/* Sliding Pill Navigation */}
-        <div className="hidden 2xl:flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-200/70">
+        <div className="hidden lg:flex items-center bg-slate-100/90 p-1 rounded-full border border-slate-200/70">
             {modules.map(m => (
               <NavLink key={m.id} to={m.path}
                 className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${isActive ? 'bg-white text-blue-600 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}>
