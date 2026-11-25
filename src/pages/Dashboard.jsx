@@ -14,9 +14,7 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { Card as ShadCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card.jsx'
 
 export default function Dashboard() {
-  const [db, setDb] = useState(null)
-  useEffect(() => { setDb(loadDB()) }, [])
-  if (!db) return null
+  const db = loadDB()
 
   const sales = db.txs.reduce((s,t)=>s+t.total,0)
   const unpaid = db.invoices.filter(i=>i.status!=='Dibayar').reduce((s,i)=>s+i.total,0)
@@ -147,17 +145,17 @@ export default function Dashboard() {
   )
 }
 function Mini({icon, color, label, value, note}) {
-  return <div className="bg-card2 rounded-2xl p-4 border-l-[3px]" style={{borderColor:color}}>
-    <div className="flex items-center gap-1.5 text-[11px] text-inksoft font-semibold"><Icon as={icon} size="sm" strokeWidth={1.5}/> {label}</div>
-    <div className="font-disp text-[17px] md:text-[19px] font-extrabold mt-1 leading-tight">{value}</div>
-    <div className="text-[11px] text-dim truncate mt-0.5">{note}</div>
+  return <div className="bg-white rounded-xl p-4 border-l-[3px]" style={{borderColor:color}}>
+    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-semibold"><Icon as={icon} size="sm" strokeWidth={1.5}/> {label}</div>
+    <div className="text-[17px] md:text-[19px] font-extrabold mt-1 leading-tight text-foreground">{value}</div>
+    <div className="text-[11px] text-muted-foreground truncate mt-0.5">{note}</div>
   </div>
 }
 function Stat({icon, label, value, note, title}) {
-  return <div className="bg-card2 rounded-2xl p-4">
-    <div className="flex items-center gap-1.5 text-[11px] text-inksoft font-semibold"><Icon as={icon} size="sm" strokeWidth={1.5}/> {label}</div>
-    <div className="font-disp text-[20px] md:text-[22px] font-extrabold mt-1 leading-tight" title={title}>{value}</div>
-    <div className="text-[11px] text-dim truncate mt-0.5">{note}</div>
+  return <div className="bg-white rounded-xl p-4">
+    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-semibold"><Icon as={icon} size="sm" strokeWidth={1.5}/> {label}</div>
+    <div className="text-[20px] md:text-[22px] font-extrabold mt-1 leading-tight text-foreground" title={title}>{value}</div>
+    <div className="text-[11px] text-muted-foreground truncate mt-0.5">{note}</div>
   </div>
 }
 export function Card({title, children}) {
