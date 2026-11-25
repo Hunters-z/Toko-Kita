@@ -50,7 +50,7 @@ export default function AdminLayout() {
       {/* Drawer */}
       {navOpen && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setNavOpen(false)} />
+          <div className="fixed inset-0 bg-slate-900/10" onClick={() => setNavOpen(false)} />
           <aside className="w-72 bg-white h-full border-r border-slate-200 p-4 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
               <p className="font-bold text-sm">Menu Utama</p>
