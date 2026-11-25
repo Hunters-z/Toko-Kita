@@ -9,12 +9,12 @@ export default function AdminLayout() {
 
   const modules = [
     { id: 'dashboard', label: 'Grafik', path: '/', icon: BarChart2 },
-    { id: 'pos', label: 'Kasir POS', path: '/pos', icon: Monitor },
-    { id: 'website', label: 'Toko Online', path: '/website', icon: Globe },
-    { id: 'inventory', label: 'Inventaris', path: '/inventori', icon: Package },
-    { id: 'hr', label: 'HR & Karyawan', path: '/pegawai', icon: Users },
-    { id: 'reports', label: 'Laporan', path: '/laporan', icon: FileText },
-    { id: 'settings', label: 'Pengaturan', path: '/pengaturan', icon: Sliders },
+    { id: 'pos', label: 'Kasir', path: '/pos', icon: Monitor },
+    { id: 'website', label: 'Toko Online', path: '/website', icon: Monitor },
+    { id: 'inventori', label: 'Inventori', path: '/inventori', icon: Boxes },
+    { id: 'pegawai', label: 'HR', path: '/pegawai', icon: Users },
+    { id: 'laporan', label: 'Laporan', path: '/laporan', icon: TrendingUp },
+    { id: 'pengaturan', label: 'Pengaturan', path: '/pengaturan', icon: Settings2 },
   ]
 
   return (
