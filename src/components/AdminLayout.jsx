@@ -10,11 +10,11 @@ export default function AdminLayout() {
   const modules = [
     { id: 'dashboard', label: 'Grafik', path: '/', icon: BarChart2 },
     { id: 'pos', label: 'Kasir POS', path: '/pos', icon: Monitor },
-    { id: 'website', label: 'Toko Online', path: '/website-builder', icon: Globe },
-    { id: 'inventory', label: 'Inventaris', path: '/stock-opname', icon: Package },
-    { id: 'hr', label: 'HR & Karyawan', path: '/hr', icon: Users },
-    { id: 'reports', label: 'Laporan', path: '/reports', icon: FileText },
-    { id: 'settings', label: 'Pengaturan', path: '/settings', icon: Sliders },
+    { id: 'website', label: 'Toko Online', path: '/website', icon: Globe },
+    { id: 'inventory', label: 'Inventaris', path: '/inventori', icon: Package },
+    { id: 'hr', label: 'HR & Karyawan', path: '/pegawai', icon: Users },
+    { id: 'reports', label: 'Laporan', path: '/laporan', icon: FileText },
+    { id: 'settings', label: 'Pengaturan', path: '/pengaturan', icon: Sliders },
   ]
 
   return (
