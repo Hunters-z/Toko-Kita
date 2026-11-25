@@ -14,7 +14,12 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { Card as ShadCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card.jsx'
 
 export default function Dashboard() {
-  const db = loadDB()
+  let db = null;
+  try { db = loadDB(); } catch(e) { return (
+    <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center text-muted-foreground">{e.message}</div>
+    </div>
+  ); }
 
   const sales = db.txs.reduce((s,t)=>s+t.total,0)
   const unpaid = db.invoices.filter(i=>i.status!=='Dibayar').reduce((s,i)=>s+i.total,0)

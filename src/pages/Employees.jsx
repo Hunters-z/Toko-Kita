@@ -7,7 +7,7 @@ import { Input } from './Inventory.jsx'
 import { registerFingerprint } from '../lib/auth.js'
 import { Icon } from '@/components/ui/icon.jsx'
 import { Briefcase, Fingerprint, Hash, CheckCircle2, TriangleAlert, UserRound } from 'lucide-react'
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select.jsx'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select.jsx'
 import { Label } from '@/components/ui/label.jsx'
 
 export default function Employees() {
