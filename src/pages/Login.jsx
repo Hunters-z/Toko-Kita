@@ -56,13 +56,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md text-center mb-6">
         <div className="w-14 h-14 rounded-2xl bg-blue-600 grid place-items-center text-xl text-white font-bold mx-auto mb-3 shadow-lg">T</div>
         <h1 className="font-disp text-2xl font-extrabold text-slate-900">Toko<span className="text-blue-600">Kita</span></h1>
         <p className="text-[13px] text-slate-500 mt-1">Silakan pilih peran Anda untuk masuk.</p>
       </div>
 
+      <div className="w-full max-w-md">
       <Tabs defaultValue="admin">
         <TabsList className="w-full grid grid-cols-2 mb-1">
           <TabsTrigger value="admin" className="gap-1.5"><Icon as={ShieldCheck} size="sm"/> Admin</TabsTrigger>
@@ -104,6 +105,7 @@ export default function Login() {
           </form>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   )
 }
