@@ -15,12 +15,12 @@ export default {
       accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
       popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
       card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
-      // Linear-style: clean, minimal, no shadows
-      bg:'#FAFAFA', card2:'#F5F5F5', line:'#E5E5E5',
-      ink:'#171717', inksoft:'#525252', dim:'#A3A3A3',
-      hero:{DEFAULT:'#171717', soft:'#F5F5F5'},
+      // White-blue palette: token lama dipetakan ke biru/slate (anti-monokrom)
+      bg:'#F8FAFC', card2:'#F1F5F9', line:'#E2E8F0',
+      ink:'#0F172A', inksoft:'#64748B', dim:'#94A3B8',
+      hero:{DEFAULT:'#2563EB', soft:'#EFF6FF'},
       lime:{DEFAULT:'#16A34A', soft:'#F0FDF4'},
-      gold:{DEFAULT:'#CA8A04', soft:'#FEFCE8'},
+      gold:{DEFAULT:'#D97706', soft:'#FEF3E2'},
       coral:{DEFAULT:'#DC2626', soft:'#FEF2F2'},
       bluea:{DEFAULT:'#2563EB', soft:'#EFF6FF'},
       // alias kelas lama
