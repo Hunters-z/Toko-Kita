@@ -124,11 +124,11 @@ export default function Dashboard() {
           <ResponsiveContainer width="100%" height={210}>
             <AreaChart data={week}>
               <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#171717" stopOpacity={0.4}/><stop offset="100%" stopColor="#171717" stopOpacity={0.02}/>
+                <stop offset="0%" stopColor="#2563EB" stopOpacity={0.4}/><stop offset="100%" stopColor="#2563EB" stopOpacity={0.02}/>
               </linearGradient></defs>
-              <XAxis dataKey="d" tickLine={false} axisLine={false} fontSize={11} stroke="#A3A3A3"/>
-              <Tooltip contentStyle={{background:'#fff',border:'1px solid #E5E5E5',borderRadius:8,color:'#171717',fontSize:12}}/>
-              <Area type="monotone" dataKey="v" stroke="#171717" strokeWidth={2} fill="url(#g)"/>
+              <XAxis dataKey="d" tickLine={false} axisLine={false} fontSize={11} stroke="#94A3B8"/>
+              <Tooltip contentStyle={{background:'#fff',border:'1px solid #E2E8F0',borderRadius:8,color:'#0F172A',fontSize:12}}/>
+              <Area type="monotone" dataKey="v" stroke="#2563EB" strokeWidth={2} fill="url(#g)"/>
             </AreaChart>
           </ResponsiveContainer>
         </div>
