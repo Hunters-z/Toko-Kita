@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Menu, Search, X, BarChart2, Monitor, Globe, Package, Users, FileText, Sliders } from 'lucide-react'
+import { Menu, Search, X, BarChart2, Monitor, Boxes, Users, TrendingUp, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function AdminLayout() {
