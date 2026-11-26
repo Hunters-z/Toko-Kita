@@ -1,6 +1,6 @@
 // Layout aplikasi KARYAWAN — filter menu berbasis role (Kasir vs Karyawan Lain).
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { loadDB } from '../lib/store.js'
 import { logout } from '../lib/session.js'
 import { Icon } from './ui/icon.jsx'
@@ -24,6 +24,14 @@ export default function KaryawanLayout() {
   ]
 
   const doLogout = () => { logout(); nav2('/login') }
+
+  // Tutup drawer dengan tombol Escape
+  useEffect(() => {
+    if (!open) return
+    const onKey = e => { if (e.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
 
   return (
     <div className="min-h-screen bg-bg">
