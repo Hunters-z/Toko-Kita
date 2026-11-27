@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   BarChart2, Monitor, Globe, Boxes, Users, TrendingUp, Settings2,
   ShoppingCart, FileText, Package, Truck, Wallet, Megaphone, Menu, X, Plane, Banknote,
+  ClipboardList, ClipboardCheck, UserCog,
 } from 'lucide-react'
 
 export default function AdminLayout() {
@@ -33,8 +34,10 @@ export default function AdminLayout() {
       label: 'Operasional',
       items: [
         { label: 'Inventori', path: '/inventori', icon: Boxes },
+        { label: 'Stock Opname', path: '/stock-opname', icon: ClipboardList },
         { label: 'Pembelian', path: '/pembelian', icon: ShoppingCart },
         { label: 'Pemasok', path: '/pemasok', icon: Truck },
+        { label: 'Supply Chain', path: '/supply-chain', icon: Boxes },
         { label: 'Produksi', path: '/produksi', icon: Package },
       ],
     },
@@ -43,7 +46,9 @@ export default function AdminLayout() {
       items: [
         { label: 'Invoice', path: '/invoice', icon: FileText },
         { label: 'Pengeluaran', path: '/pengeluaran', icon: Wallet },
+        { label: 'Keuangan', path: '/keuangan', icon: TrendingUp },
         { label: 'Laporan', path: '/laporan', icon: TrendingUp },
+        { label: 'Sales CRM', path: '/sales', icon: Users },
       ],
     },
     {
@@ -51,8 +56,11 @@ export default function AdminLayout() {
       items: [
         { label: 'Pelanggan', path: '/pelanggan', icon: Users },
         { label: 'Pegawai', path: '/pegawai', icon: Users },
+        { label: 'HR & Absensi', path: '/absen', icon: ClipboardCheck },
+        { label: 'HR Modul', path: '/hr', icon: UserCog },
         { label: 'Izin & Cuti', path: '/izin-cuti', icon: Plane },
         { label: 'Slip Gaji', path: '/slip-gaji', icon: Banknote },
+        { label: 'Website Online', path: '/website', icon: Globe },
         { label: 'Marketing', path: '/marketing', icon: Megaphone },
         { label: 'Pengaturan', path: '/pengaturan', icon: Settings2 },
       ],
