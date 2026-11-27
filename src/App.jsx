@@ -28,6 +28,8 @@ import KaryawanAbsen from './pages/KaryawanAbsen.jsx'
 import KaryawanRiwayat from './pages/KaryawanRiwayat.jsx'
 import KaryawanProfil from './pages/KaryawanProfil.jsx'
 import KaryawanPOS from './pages/KaryawanPOS.jsx'
+import KaryawanIzin from './pages/KaryawanIzin.jsx'
+import KaryawanGaji from './pages/KaryawanGaji.jsx'
 import ComingSoon from './pages/ComingSoon.jsx'
 import PublicStore from './pages/PublicStore.jsx'
 import { Toaster } from './components/ui/toaster.jsx'
@@ -72,6 +74,8 @@ export default function App() {
            <Route path="supply-chain" element={<SupplyChain/>}/>
            <Route path="hr" element={<HumanResources/>}/>
            <Route path="marketing" element={<Marketing/>}/>
+           <Route path="izin-cuti" element={<KaryawanIzin/>}/>
+           <Route path="slip-gaji" element={<KaryawanGaji/>}/>
            <Route path="pengaturan" element={<SettingsPage/>}/>
         </Route>
 
@@ -80,8 +84,8 @@ export default function App() {
            <Route path="riwayat" element={<KaryawanRiwayat session={pegawai}/>}/>
            <Route path="profil" element={<KaryawanProfil session={pegawai}/>}/>
            <Route path="pos" element={<KaryawanPOS/>}/>
-           <Route path="izin" element={<ComingSoon title="Izin / Cuti"/>}/>
-           <Route path="gaji" element={<ComingSoon title="Slip Gaji"/>}/>
+           <Route path="izin" element={<KaryawanIzin/>}/>
+           <Route path="gaji" element={<KaryawanGaji/>}/>
         </Route>
 
         <Route path="*" element={<Navigate to={admin ? '/' : pegawai ? '/karyawan/absen' : '/login'} replace />} />

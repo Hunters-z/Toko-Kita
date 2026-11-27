@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   BarChart2, Monitor, Globe, Boxes, Users, TrendingUp, Settings2,
-  ShoppingCart, FileText, Package, Truck, Wallet, Megaphone, Menu, X,
+  ShoppingCart, FileText, Package, Truck, Wallet, Megaphone, Menu, X, Plane, Banknote,
 } from 'lucide-react'
 
 export default function AdminLayout() {
@@ -51,6 +51,8 @@ export default function AdminLayout() {
       items: [
         { label: 'Pelanggan', path: '/pelanggan', icon: Users },
         { label: 'Pegawai', path: '/pegawai', icon: Users },
+        { label: 'Izin & Cuti', path: '/izin-cuti', icon: Plane },
+        { label: 'Slip Gaji', path: '/slip-gaji', icon: Banknote },
         { label: 'Marketing', path: '/marketing', icon: Megaphone },
         { label: 'Pengaturan', path: '/pengaturan', icon: Settings2 },
       ],
